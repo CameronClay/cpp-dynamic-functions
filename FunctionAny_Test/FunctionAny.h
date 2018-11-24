@@ -46,7 +46,7 @@ public:
 		{
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 
-			if constexpr (ftraits::func_nparams<Sig>::value == sizeof...(Args))
+			if constexpr (ftraits::sig_nparams<Sig>::value == sizeof...(Args))
 				return func(std::forward<Args>(args)...);
 		};
 
