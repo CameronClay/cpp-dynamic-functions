@@ -74,41 +74,41 @@ int main()
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&ReturnPointer)>>, &ReturnPointer);
 	funcList.emplace_back(std::in_place_type<void()>, hello_world, "boo hoo");
 
+	auto rt_visitor = [](const auto& ret)
+	{
+		using RT = std::decay_t<decltype(ret)>;
+		if constexpr (std::is_same_v<RT, VOID>)
+		{
+			//std::cout << "Func returned with type: void" << std::endl;
+		}
+		else if constexpr (std::is_same_v<RT, NO_CALL>)
+		{
+			//std::cout << "Func was not called" << std::endl;
+		}
+		else if constexpr (std::is_same_v<RT, int>)
+		{
+			std::cout << "Func returned " << ret << " with type: int" << std::endl;
+		}
+		else if constexpr (std::is_same_v<RT, std::string>)
+		{
+			std::cout << "Func returned " << ret << " with type: string" << std::endl;
+		}
+		else if constexpr (std::is_same_v<RT, A>)
+		{
+			std::cout << "Func returned {" << static_cast<A>(ret).m_i << ", " << static_cast<A>(ret).m_f << "} with type: A" << std::endl;
+		}
+		else if constexpr (std::is_same_v<RT, A*>)
+		{
+			std::cout << "Func returned " << ret << " {" << static_cast<A*>(ret)->m_i << ", " << static_cast<A*>(ret)->m_f << "} with type: A*" << std::endl;
+		}
+		else
+		{
+			std::cout << "Invalid Return type" << std::endl;
+		}
+	};
+
 	for (auto& it : funcList)
 	{
-		auto rt_visitor = [](const auto& ret)
-		{
-			using RT = std::decay_t<decltype(ret)>;
-			if constexpr (std::is_same_v<RT, VOID>)
-			{
-				//std::cout << "Func returned with type: void" << std::endl;
-			}
-			else if constexpr (std::is_same_v<RT, NO_CALL>)
-			{
-				//std::cout << "Func was not called" << std::endl;
-			}
-			else if constexpr (std::is_same_v<RT, int>)
-			{
-				std::cout << "Func returned " << ret << " with type: int" << std::endl;
-			}
-			else if constexpr (std::is_same_v<RT, std::string>)
-			{
-				std::cout << "Func returned " << ret << " with type: string" << std::endl;
-			}
-			else if constexpr (std::is_same_v<RT, A>)
-			{
-				std::cout << "Func returned {" << static_cast<A>(ret).m_i << ", "  << static_cast<A>(ret).m_f << "} with type: A" << std::endl;
-			}
-			else if constexpr (std::is_same_v<RT, A*>)
-			{
-				std::cout << "Func returned " << ret << " {" << static_cast<A*>(ret)->m_i << ", " << static_cast<A*>(ret)->m_f << "} with type: A*" << std::endl;
-			}
-			else
-			{
-				std::cout << "Invalid Return type" << std::endl;
-			}
-		};
-
 		it.Invoke(rt_visitor);
 		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, std::ref(a));
