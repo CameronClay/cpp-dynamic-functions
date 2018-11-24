@@ -10,6 +10,11 @@ struct A
 		std::cout << v1 << ' ' << v2 << std::endl;
 	}
 
+	void Out2(int v1) const
+	{
+		std::cout << v1 << std::endl;
+	}
+
 	static void Moo()
 	{
 		std::cout << "MOOO" << std::endl;
@@ -18,14 +23,18 @@ struct A
 
 void Add(int v1, int v2)
 {
-	std::cout << "v1 + v2 = " << v1 + v2 << std::endl;
+	std::cout << v1 << " + " << v2 << " = " <<  v1 + v2 << std::endl;
+	//return v1 + v2;
 }
+
+using namespace ftraits;
 
 int main()
 {
-	auto hello_world = [](const char* str)
+	std::string local = "the world";
+	auto hello_world = [&local](const char* str)
 	{
-		std::cout << "the world" << " says " << str << std::endl;
+		std::cout << local << " says " << str << std::endl;
 	};
 
 	A a;
@@ -36,15 +45,15 @@ int main()
 	//auto f = Function<void()>::Function(&A::Out, a, 5, 7.5);
 	//f();
 
-	std::vector<FunctionAny<void(int, int), void(int), void(), void(const char*)>> funcList;
+	std::vector<FunctionAny<funcpt_to_sig_t<decltype(&Add)>, funcpt_to_sig_t<decltype(&A::Out)>, funcpt_to_sig_t<decltype(&A::Out2)>, funcpt_to_sig_t<decltype(&A::Moo)>>> funcList;
 	//std::vector<FunctionAny<decltype(&A::Out), decltype(&A::Moo), decltype(&Add)>, decltype(&hello_world)> funcList;
-	funcList.push_back(Function<void()>{&A::Out, &a, 5, 7.5});
+	funcList.emplace_back(std::in_place_type<void()>, &A::Out, a, 5, 7.5);
 	funcList.back()();
-	//funcList.emplace_back(&A::Moo);
-	//funcList.back()();
-	//funcList.emplace_back(&Add);
-	//funcList.back()(5, 6);
-	//funcList.emplace_back(&hello_world, "boo hoo");
+	funcList.emplace_back(std::in_place_type<void()>, &A::Moo);
+	funcList.back()();
+	funcList.emplace_back(std::in_place_type<void(int, int)>, &Add);
+	funcList.back()(5, 6);
+	//funcList.emplace_back(std::in_place_type<void()>, &hello_world, "boo hoo");
 	//funcList.back()();
 
 	std::string s;

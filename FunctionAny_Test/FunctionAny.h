@@ -2,59 +2,67 @@
 #include <variant>
 #include "Function.h"
 
-template<typename Signature> struct is_funcs : std::false_type {};
+template <class F, class T, class Tuple, std::size_t... I>
+inline constexpr decltype(auto) apply_first_impli(F&& f, T&& first, Tuple&& t, std::index_sequence<I...>)
+{
+	return std::invoke(std::forward<F>(f), std::forward<T>(first), std::get<I>(std::forward<Tuple>(t))...);
+}
 
-template<typename RT>
-struct is_funcs<RT()> : std::true_type {};
+template <class F, class T, class Tuple>
+inline constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
+{
+	return apply_first_impli(std::forward<F>(f), std::forward<T>(first), std::forward<Tuple>(t),
+		std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
+}
 
-template<typename... SigList>
+template<typename... Sigs>
 class FunctionAny
 {
 public:
 	FunctionAny() = default;
 
-	template<typename Sig, typename... Args>
-	FunctionAny(Args&&... args)
-		:
-		func(std::in_place_type_t<Sig>, std::forward<Args>(args)...)
-	{}
-
-	template<typename Signature>
-	FunctionAny(Function<Signature>&& rhs)
+	template<typename Sig>
+	FunctionAny(Function<Sig>&& rhs)
 		:
 		func(std::move(rhs))
 	{}
 
+	template<typename Sig, typename... Args>
+	explicit FunctionAny(std::in_place_type_t<Sig>, Args&&... args)
+		:
+		func(std::in_place_type<Function<Sig>>, std::forward<Args>(args)...)
+	{}
+
+	template<std::size_t I, typename... Args>
+	explicit FunctionAny(std::in_place_index_t<I>, Args&&... args)
+		:
+		func(std::in_place_index<I>, std::forward<Args>(args)...)
+	{}
+
 	template<typename... Args>
-	auto operator()(Args&&... args) const
+	decltype(auto) operator()(Args&&... args) const
 	{
-		auto f = [](const auto& func, auto&&... args)
+		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
 		{
-			using sig = std::decay_t<decltype(func)>;
-			if constexpr (!is_funcs<sig>::value)
+			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+
+			if constexpr (ftraits::func_nparams<Sig>::value == sizeof...(Args))
 				return func(std::forward<Args>(args)...);
 		};
 
-		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable { return std::apply(f, std::tuple_cat(std::make_tuple(std::ref(func)), tup)); };
+		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) { return apply_first(f, func, tup); };
 
 		return std::visit(call, func);
 	}
 
-	auto operator()() const
+	decltype(auto) operator()() const
 	{
-		auto call = [](const auto& func)
+		auto call = [](const auto& func) -> decltype(auto)
 		{
-			using sig = std::decay_t<decltype(func)>;
-			//static_assert(!is_funcs<sig>::value, "Error Function does not take 0 arguments");
-			if constexpr (is_funcs<sig>::value)
-			{
-				std::cout << "sfunc" << std::endl;
+			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+
+			if constexpr (ftraits::is_funcs<Sig>::value)
 				return func();
-			}
-			else
-			{
-				std::cout << "not sfunc" << std::endl;
-			}
 		};
 
 		return std::visit(call, func);
@@ -71,5 +79,5 @@ public:
 	}
 
 private:
-	std::variant<Function<SigList>...> func;
+	std::variant<Function<Sigs>...> func;
 };

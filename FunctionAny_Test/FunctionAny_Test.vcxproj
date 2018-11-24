@@ -121,6 +121,7 @@
   <ItemGroup>
     <ClInclude Include="Function.h" />
     <ClInclude Include="FunctionAny.h" />
+    <ClInclude Include="FunctionTraits.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
