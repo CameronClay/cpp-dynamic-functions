@@ -73,9 +73,7 @@ namespace ftraits
 		std::is_function_v<std::remove_pointer_t<Func>> &&
 		!std::is_member_function_pointer_v<Func>>
 	{};
-
-	template <typename Func>
-	bool constexpr is_function_ptr_v = is_function_ptr<Func>::value;
+	template <typename Func> bool constexpr is_function_ptr_v = is_function_ptr<Func>::value;
 
 	template<typename Func> struct Function_to_sig { using type = Func; };
 	template<typename Sig>  struct Function_to_sig<Function<Sig>> { using type = Sig; };
@@ -90,6 +88,7 @@ namespace ftraits
 	template<typename Func> struct sig_nparams;
 	template<typename RT, typename... Args>
 	struct sig_nparams<RT(Args...)> : std::integral_constant<int, sizeof...(Args)> {};
+	template <typename Func> int constexpr sig_nparams_v = sig_nparams<Func>::value;
 
 	template<typename FuncPT> struct funcpt_to_sig;
 	template<typename RT, typename... Args>
