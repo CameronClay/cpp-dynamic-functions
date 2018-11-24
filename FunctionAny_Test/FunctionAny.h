@@ -2,6 +2,8 @@
 #include <variant>
 #include <any>
 #include "Function.h"
+#include "FunctionTraits.h"
+#include "TypeList.h"
 
 template <class F, class T, class Tuple, std::size_t... I>
 inline constexpr decltype(auto) apply_first_impli(F&& f, T&& first, Tuple&& t, std::index_sequence<I...>)
@@ -16,14 +18,21 @@ inline constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
 		std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
 }
 
+struct VOID {};
+struct NO_CALL {};
+
 template<typename... Sigs>
 class FunctionAny
 {
-public:
-	struct VOID {};
+private:
 	template<typename RT>
 	using TO_VARIANT_TYPE = std::conditional_t<std::is_void_v<RT>, VOID, RT>;
-	using RTs = std::variant<TO_VARIANT_TYPE<ftraits::sig_rt_t<Sigs>>...>;
+
+	using SIGS_UNIQUE = t_list::type_list_unique<Function<Sigs>...>;
+	using RTS_UNIQUE = t_list::type_list_unique<NO_CALL, TO_VARIANT_TYPE<ftraits::sig_rt_t<Sigs>>...>;
+
+public:
+	using RTs = t_list::rebind_t<RTS_UNIQUE, std::variant>;
 
 	FunctionAny() = default;
 
@@ -45,9 +54,10 @@ public:
 		func(std::in_place_index<I>, std::forward<Args>(args)...)
 	{}
 
-	// Invokes func if the all Args match EXACTLY that of the function signature (eval at compile time)
+	// Invokes func IF all Args match EXACTLY that of the function signature (eval at compile time)
+	// Returns VOID for void, and NO_CALL if the function signature did not match
 	template<typename... Args>
-	decltype(auto) operator()(Args&&... args) const
+	auto operator()(Args&&... args) const -> RTs
 	{
 		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
 		{
@@ -58,7 +68,7 @@ public:
 			else
 				func(std::forward<decltype(args)>(args)...);
 
-			//return RTs( VOID{} );
+			return RTs( VOID{} );
 		};
 
 		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) 
@@ -68,14 +78,15 @@ public:
 			if constexpr (ftraits::sig_same_args_v<Sig, Args...>)
 				return apply_first(f, func, tup); 
 
-			//return RTs( VOID{} );
+			return RTs( NO_CALL{} );
 		};
 
 		return std::visit(call, func);
 	}
 
 	// Invokes func if it has EXACTLY zero args (eval at compile time)
-	decltype(auto) operator()() const
+	// Returns VOID for void, and NO_CALL if the function expected arguments
+	auto operator()() const -> RTs
 	{
 		auto call = [](const auto& func) -> decltype(auto)
 		{
@@ -88,9 +99,11 @@ public:
 					return RTs(func());
 				else
 					func();
+
+				return RTs( VOID{} );
 			}
 
-			//return RTs(VOID{});
+			return RTs( NO_CALL{} );
 		};
 
 		return std::visit(call, func);
@@ -107,5 +120,5 @@ public:
 	}
 
 private:
-	std::variant<Function<Sigs>...> func;
+	t_list::rebind_t<SIGS_UNIQUE, std::variant> func;
 };

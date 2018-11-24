@@ -30,11 +30,11 @@ struct A
 	float m_f;
 };
 
-void Add(A& a, int v1, int v2)
+int Add(A& a, int v1, int v2)
 {
 	const auto res = v1 + v2;
 	std::cout << v1 << " + " << v2 << " = " <<  res << std::endl;
-	//return res;
+	return res;
 }
 
 using namespace ftraits;
@@ -55,7 +55,8 @@ int main()
 	//auto f = Function<void()>::Function(&A::Out, a, 5, 7.5);
 	//f();
 
-	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_s_t<decltype(&A::Out)>>> funcList;
+	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>>> funcList;
+	//std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_s_t<decltype(&A::Out)>>> funcList;
 	//std::vector<FunctionAny<decltype(&A::Out), decltype(&A::Moo), decltype(&Add)>, decltype(&hello_world)> funcList;
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out)>>, &A::Out, a, 5, 7.5);
 	//funcList.back()();
@@ -68,12 +69,31 @@ int main()
 	funcList.emplace_back(std::in_place_type<void()>, hello_world, "boo hoo");
 	//funcList.back()();
 
-	std::cout << std::endl;
+	//std::cout << std::endl;
 
 	for (auto& it : funcList)
 	{
-		it();
-		it(a, 5, 6);
+		auto ret = it();
+		auto f = [](const auto& ret)
+		{
+			using RT = std::decay_t<decltype(ret)>;
+			if constexpr (std::is_same_v<RT, VOID>)
+			{
+				std::cout << "Func returned with type: void" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, NO_CALL>)
+			{
+				//std::cout << "Func was not called" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, int>)
+			{
+				std::cout << "Func returned " << ret << " with type: int" << std::endl;
+			}
+		};
+		std::visit(f, ret);
+
+		ret = it(a, 5, 6);
+		std::visit(f, ret);
 	}
 
 	std::string s;

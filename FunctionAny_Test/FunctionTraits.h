@@ -113,7 +113,7 @@ namespace ftraits
 	struct sig_s<RT(O::*)(Args...) const> { using type = sig_create<RT>; };
 	template<typename FuncPT> using sig_s_t = typename sig_s<FuncPT>::type;
 
-	template<typename... Args> struct type_list {};
+	template<typename... Ts> struct type_list {};
 
 	template<typename Sig> struct sig_helper;
 	template<typename RT, typename... Args> 
