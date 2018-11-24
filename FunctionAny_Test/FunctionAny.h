@@ -1,22 +1,8 @@
 #pragma once
 #include <variant>
-#include <any>
 #include "Function.h"
 #include "FunctionTraits.h"
 #include "TypeList.h"
-
-template <class F, class T, class Tuple, std::size_t... I>
-inline constexpr decltype(auto) apply_first_impli(F&& f, T&& first, Tuple&& t, std::index_sequence<I...>)
-{
-	return std::invoke(std::forward<F>(f), std::forward<T>(first), std::get<I>(std::forward<Tuple>(t))...);
-}
-
-template <class F, class T, class Tuple>
-inline constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
-{
-	return apply_first_impli(std::forward<F>(f), std::forward<T>(first), std::forward<Tuple>(t),
-		std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
-}
 
 // Dummy structs for special return types
 struct VOID {};
@@ -35,6 +21,18 @@ private:
 	using SIGS_UNIQUE = t_list::type_list_unique<Function<Sigs>...>;
 	using RTS_UNIQUE = t_list::type_list_unique<NO_CALL, TO_VARIANT_TYPE<ftraits::sig_rt_t<Sigs>>...>;
 
+	template <class F, class T, class Tuple, std::size_t... I>
+	static constexpr decltype(auto) apply_first_impli(F&& f, T&& first, Tuple&& t, std::index_sequence<I...>)
+	{
+		return std::invoke(std::forward<F>(f), std::forward<T>(first), std::get<I>(std::forward<Tuple>(t))...);
+	}
+
+	template <class F, class T, class Tuple>
+	static constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
+	{
+		return apply_first_impli(std::forward<F>(f), std::forward<T>(first), std::forward<Tuple>(t),
+			std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
+	}
 public:
 	using RTs = t_list::rebind_t<RTS_UNIQUE, std::variant>;
 
