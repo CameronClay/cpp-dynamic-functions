@@ -21,6 +21,8 @@ inline constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
 struct VOID {};
 struct NO_CALL {};
 
+// Store any function given a list of signatures, duplicate signatures are removed from the variant
+// Reference return types are illegal
 template<typename... Sigs>
 class FunctionAny
 {
@@ -54,7 +56,7 @@ public:
 		func(std::in_place_index<I>, std::forward<Args>(args)...)
 	{}
 
-	// Invokes func IF all Args match EXACTLY that of the function signature (eval at compile time)
+	// Invokes func IF all Args are convertible to that of the function signature (eval at compile time)
 	// Returns VOID for void, and NO_CALL if the function signature did not match
 	template<typename... Args>
 	auto operator()(Args&&... args) const -> RTs
@@ -75,7 +77,7 @@ public:
 		{ 
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 			//if constexpr (ftraits::sig_nparams_v<Sig> == sizeof...(Args))
-			if constexpr (ftraits::sig_same_args_v<Sig, Args...>)
+			if constexpr(ftraits::sig_convertible_args_v<Sig, Args...>)
 				return apply_first(f, func, tup); 
 
 			return RTs( NO_CALL{} );

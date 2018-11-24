@@ -21,9 +21,9 @@ struct A
 		std::cout << v1 << std::endl;
 	}
 
-	static void Moo()
+	static std::string Moo()
 	{
-		std::cout << "MOOO" << std::endl;
+		return "MOOOOOOOO!";
 	}
 
 	int m_i;
@@ -35,6 +35,16 @@ int Add(A& a, int v1, int v2)
 	const auto res = v1 + v2;
 	std::cout << v1 << " + " << v2 << " = " <<  res << std::endl;
 	return res;
+}
+
+A MakeCopy(const A& a)
+{
+	return a;
+}
+
+A* ReturnPointer(A& a)
+{
+	return &a;
 }
 
 using namespace ftraits;
@@ -55,7 +65,7 @@ int main()
 	//auto f = Function<void()>::Function(&A::Out, a, 5, 7.5);
 	//f();
 
-	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>>> funcList;
+	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(&MakeCopy)>, sig_f_t<decltype(&ReturnPointer)>>> funcList;
 	//std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_s_t<decltype(&A::Out)>>> funcList;
 	//std::vector<FunctionAny<decltype(&A::Out), decltype(&A::Moo), decltype(&Add)>, decltype(&hello_world)> funcList;
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out)>>, &A::Out, a, 5, 7.5);
@@ -65,6 +75,10 @@ int main()
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out2)>>, &A::Out2, &a, 92);
 	//funcList.back()();
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&Add)>>, &Add);
+
+	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&MakeCopy)>>, &MakeCopy);
+
+	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&ReturnPointer)>>, &ReturnPointer);
 	//funcList.back()(a, 5, 6);
 	funcList.emplace_back(std::in_place_type<void()>, hello_world, "boo hoo");
 	//funcList.back()();
@@ -73,13 +87,12 @@ int main()
 
 	for (auto& it : funcList)
 	{
-		auto ret = it();
-		auto f = [](const auto& ret)
+		auto rt_visitor = [](const auto& ret)
 		{
 			using RT = std::decay_t<decltype(ret)>;
 			if constexpr (std::is_same_v<RT, VOID>)
 			{
-				std::cout << "Func returned with type: void" << std::endl;
+				//std::cout << "Func returned with type: void" << std::endl;
 			}
 			else if constexpr (std::is_same_v<RT, NO_CALL>)
 			{
@@ -89,11 +102,32 @@ int main()
 			{
 				std::cout << "Func returned " << ret << " with type: int" << std::endl;
 			}
+			else if constexpr (std::is_same_v<RT, std::string>)
+			{
+				std::cout << "Func returned " << ret << " with type: string" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, A>)
+			{
+				std::cout << "Func returned {" << static_cast<A>(ret).m_i << ", "  << static_cast<A>(ret).m_f << "} with type: A" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, A*>)
+			{
+				std::cout << "Func returned " << ret << " {" << static_cast<A*>(ret)->m_i << ", " << static_cast<A*>(ret)->m_f << "} with type: A*" << std::endl;
+			}
+			else
+			{
+				std::cout << "Invalid Return type" << std::endl;
+			}
 		};
-		std::visit(f, ret);
 
-		ret = it(a, 5, 6);
-		std::visit(f, ret);
+		auto ret = it();
+		std::visit(rt_visitor, ret);
+
+		ret = it(a, 5.0, 6);
+		std::visit(rt_visitor, ret);
+
+		ret = it(std::ref(a));
+		std::visit(rt_visitor, ret);
 	}
 
 	std::string s;

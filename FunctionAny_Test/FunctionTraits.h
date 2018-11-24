@@ -114,6 +114,9 @@ namespace ftraits
 	template<typename FuncPT> using sig_s_t = typename sig_s<FuncPT>::type;
 
 	template<typename... Ts> struct type_list {};
+	template <bool...> struct bool_pack;
+	template <bool... v>
+	using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
 
 	template<typename Sig> struct sig_helper;
 	template<typename RT, typename... Args> 
@@ -121,11 +124,22 @@ namespace ftraits
 	{
 		using return_t = RT;
 
+		static constexpr int  n_args = sizeof...(Args);
+
 		template<typename... Ts>
 		static constexpr bool same_args = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
-		static constexpr int  n_args    = sizeof...(Args);
+
+		template<typename... Ts>
+		static constexpr bool convertable_args()
+		{
+			if constexpr (sizeof...(Ts) == n_args)
+				return all_true<std::is_convertible<std::decay_t<Ts>, std::decay_t<Args>>{}...>::value;
+
+			return false;
+		}
 	};
 	template<typename Sig> using sig_rt_t = typename sig_helper<Sig>::return_t;
 	template<typename Sig> constexpr int sig_n_args_v = sig_helper<Sig>::n_args;
 	template<typename Sig, typename... Args> constexpr bool sig_same_args_v = sig_helper<Sig>::template same_args<Args...>;
+	template<typename Sig, typename... Args> constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<Args...>();
 }
