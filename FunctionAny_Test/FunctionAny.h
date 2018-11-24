@@ -61,7 +61,7 @@ public:
 		{
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 
-			if constexpr (ftraits::is_funcs<Sig>::value)
+			if constexpr (ftraits::is_funcs_v<Sig>)
 				return func();
 		};
 

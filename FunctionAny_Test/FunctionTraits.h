@@ -81,6 +81,7 @@ namespace ftraits
 
 	template<typename Sig> struct is_funcs : std::false_type {};
 	template<typename RT> struct is_funcs<RT()> : std::true_type {};
+	template<typename Sig> bool constexpr is_funcs_v = is_funcs<Sig>::value;
 
 	template<typename RT, typename... Args>
 	using sig_create = RT(Args...);
@@ -88,17 +89,27 @@ namespace ftraits
 	template<typename Func> struct sig_nparams;
 	template<typename RT, typename... Args>
 	struct sig_nparams<RT(Args...)> : std::integral_constant<int, sizeof...(Args)> {};
-	template <typename Func> int constexpr sig_nparams_v = sig_nparams<Func>::value;
+	template<typename Func> int constexpr sig_nparams_v = sig_nparams<Func>::value;
 
-	template<typename FuncPT> struct funcpt_to_sig;
+	template<typename FuncPT> struct get_sig_f;
 	template<typename RT, typename... Args>
-	struct funcpt_to_sig<RT(Args...)> { using type = sig_create<RT, Args...>; };
+	struct get_sig_f<RT(Args...)> { using type = sig_create<RT, Args...>; };
 	template<typename RT, typename... Args>
-	struct funcpt_to_sig<RT(*)(Args...)> { using type = sig_create<RT, Args...>; };
+	struct get_sig_f<RT(*)(Args...)> { using type = sig_create<RT, Args...>; };
 	template<typename RT, typename O, typename... Args>
-	struct funcpt_to_sig<RT(O::*)(Args...)> { using type = sig_create<RT, Args...>; };
+	struct get_sig_f<RT(O::*)(Args...)> { using type = sig_create<RT, Args...>; };
 	template<typename RT, typename O, typename... Args>
-	struct funcpt_to_sig<RT(O::*)(Args...) const> { using type = sig_create<RT, Args...>; };
+	struct get_sig_f<RT(O::*)(Args...) const> { using type = sig_create<RT, Args...>; };
+	template<typename FuncPT> using get_sig_f_t = typename get_sig_f<FuncPT>::type;
 
-	template<typename FuncPT> using funcpt_to_sig_t = typename funcpt_to_sig<FuncPT>::type;
+	template<typename FuncPT> struct get_sig_s;
+	template<typename RT, typename... Args>
+	struct get_sig_s<RT(Args...)> { using type = sig_create<RT>; };
+	template<typename RT, typename... Args>
+	struct get_sig_s<RT(*)(Args...)> { using type = sig_create<RT>; };
+	template<typename RT, typename O, typename... Args>
+	struct get_sig_s<RT(O::*)(Args...)> { using type = sig_create<RT>; };
+	template<typename RT, typename O, typename... Args>
+	struct get_sig_s<RT(O::*)(Args...) const> { using type = sig_create<RT>; };
+	template<typename FuncPT> using get_sig_s_t = typename get_sig_s<FuncPT>::type;
 }
