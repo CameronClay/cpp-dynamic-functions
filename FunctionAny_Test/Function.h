@@ -3,6 +3,12 @@
 #include <functional>
 #include "FunctionTraits.h"
 
+template<typename... Args>
+struct type_list : std::variant<Args...>
+{
+	using type = type_list<Args...>;
+};
+
 //Store function call without arugments bound
 template<typename RT, typename... Args>
 class Function<RT(Args...)>

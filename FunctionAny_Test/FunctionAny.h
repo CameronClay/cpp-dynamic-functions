@@ -20,6 +20,11 @@ template<typename... Sigs>
 class FunctionAny
 {
 public:
+	struct VOID {};
+	template<typename RT>
+	using TO_VARIANT_TYPE = std::conditional_t<std::is_void_v<RT>, VOID, RT>;
+	using RTs = std::variant<TO_VARIANT_TYPE<ftraits::sig_rt_t<Sigs>>...>;
+
 	FunctionAny() = default;
 
 	template<typename Sig>
@@ -40,36 +45,52 @@ public:
 		func(std::in_place_index<I>, std::forward<Args>(args)...)
 	{}
 
+	// Invokes func if the all Args match EXACTLY that of the function signature (eval at compile time)
 	template<typename... Args>
 	decltype(auto) operator()(Args&&... args) const
 	{
 		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
 		{
-			return func(std::forward<decltype(args)>(args)...);
-			//return std::any( func(std::forward<decltype(args)>(args)...) );
+			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+			using RT = ftraits::sig_rt_t<Sig>;
+			if constexpr (!std::is_same_v<RT, void>)
+				return RTs(func(std::forward<decltype(args)>(args)...));
+			else
+				func(std::forward<decltype(args)>(args)...);
+
+			//return RTs( VOID{} );
 		};
 
 		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) 
 		{ 
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-			if constexpr (ftraits::sig_nparams_v<Sig> == sizeof...(Args))
+			//if constexpr (ftraits::sig_nparams_v<Sig> == sizeof...(Args))
+			if constexpr (ftraits::sig_same_args_v<Sig, Args...>)
 				return apply_first(f, func, tup); 
+
+			//return RTs( VOID{} );
 		};
 
 		return std::visit(call, func);
 	}
 
+	// Invokes func if it has EXACTLY zero args (eval at compile time)
 	decltype(auto) operator()() const
 	{
 		auto call = [](const auto& func) -> decltype(auto)
 		{
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+			using RT = ftraits::sig_rt_t<Sig>;
 
-			if constexpr (ftraits::is_funcs_v<Sig>)
-				return func();
-				//return std::any( func() );
+			if constexpr (ftraits::sig_n_args_v<Sig> == 0)
+			{
+				if constexpr (!std::is_same_v<RT, void>)
+					return RTs(func());
+				else
+					func();
+			}
 
-			//return std::any{};
+			//return RTs(VOID{});
 		};
 
 		return std::visit(call, func);
