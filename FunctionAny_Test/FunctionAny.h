@@ -60,10 +60,10 @@ public:
 
 	// Invokes func IF all Args are convertible to that of the function signature (eval at compile time) and calls std::visit on the visitor with the return value
 	template<typename Visitor, typename... Args>
-	void Invoke(Visitor&& visitor, Args&&... args) const
+	decltype(auto) Invoke(Visitor&& visitor, Args&&... args) const
 	{
 		auto ret = operator()(std::forward<Args>(args)...);
-		std::visit(std::forward<Visitor>(visitor), ret);
+		return std::visit(std::forward<Visitor>(visitor), ret);
 	}
 
 	// Invokes func IF all Args are convertible to that of the function signature (eval at compile time)
