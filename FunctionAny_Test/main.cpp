@@ -121,7 +121,7 @@ int main()
 		};
 
 		it.Invoke(rt_visitor);
-		it.Invoke(rt_visitor,a, 5.0, 6);
+		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, std::ref(a));
 	}
 

@@ -124,7 +124,8 @@ namespace ftraits
 	{
 		using return_t = RT;
 
-		static constexpr int  n_args = sizeof...(Args);
+		static constexpr int  n_args    = sizeof...(Args);
+		static constexpr bool no_args   = n_args == 0;
 
 		template<typename... Ts>
 		static constexpr bool same_args = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
@@ -139,7 +140,8 @@ namespace ftraits
 		}
 	};
 	template<typename Sig> using sig_rt_t = typename sig_helper<Sig>::return_t;
-	template<typename Sig> constexpr int sig_n_args_v = sig_helper<Sig>::n_args;
+	template<typename Sig> constexpr int  sig_n_args_v  = sig_helper<Sig>::n_args;
+	template<typename Sig> constexpr bool sig_no_args_v = sig_helper<Sig>::no_args;
 	template<typename Sig, typename... Args> constexpr bool sig_same_args_v = sig_helper<Sig>::template same_args<Args...>;
 	template<typename Sig, typename... Args> constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<Args...>();
 }
