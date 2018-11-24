@@ -1,5 +1,6 @@
 #pragma once
 #include <variant>
+#include <any>
 #include "Function.h"
 
 template <class F, class T, class Tuple, std::size_t... I>
@@ -47,7 +48,10 @@ public:
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 
 			if constexpr (ftraits::sig_nparams_v<Sig> == sizeof...(Args))
-				return func(std::forward<Args>(args)...);
+				return func(std::forward<decltype(args)>(args)...);
+				//return std::any( func(std::forward<decltype(args)>(args)...) );
+
+			//return std::any{};
 		};
 
 		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) { return apply_first(f, func, tup); };
@@ -63,6 +67,9 @@ public:
 
 			if constexpr (ftraits::is_funcs_v<Sig>)
 				return func();
+				//return std::any( func() );
+
+			//return std::any{};
 		};
 
 		return std::visit(call, func);

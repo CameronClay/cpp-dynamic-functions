@@ -55,15 +55,16 @@ int main()
 	funcList.back()();
 	funcList.emplace_back(std::in_place_type<get_sig_f_t<decltype(&Add)>>, &Add);
 	funcList.back()(5, 6);
+	funcList.emplace_back(std::in_place_type<void()>, hello_world, "boo hoo");
+	funcList.back()();
 
 	std::cout << std::endl;
 
 	for (auto& it : funcList)
 	{
+		it();
 		it(5, 6);
 	}
-	//funcList.emplace_back(std::in_place_type<void()>, &hello_world, "boo hoo");
-	//funcList.back()();
 
 	std::string s;
 	std::getline(std::cin, s);
