@@ -11,10 +11,8 @@ namespace ftraits
 	{
 		template<typename RT, typename... Args>
 		using PFunc = RT(*)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncM = RT(O::*)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncMC = RT(O::*)(Args...) const;
 	};
@@ -22,10 +20,8 @@ namespace ftraits
 	{
 		template<typename RT, typename... Args>
 		using PFunc = RT(__cdecl *)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncM = RT(__cdecl O::*)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncMC = RT(__cdecl O::*)(Args...) const;
 	};
@@ -33,10 +29,8 @@ namespace ftraits
 	{
 		template<typename RT, typename... Args>
 		using PFunc = RT(__stdcall *)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncM = RT(__stdcall O::*)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncMC = RT(__stdcall O::*)(Args...) const;
 	};
@@ -44,10 +38,8 @@ namespace ftraits
 	{
 		template<typename RT, typename... Args>
 		using PFunc = RT(__fastcall *)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncM = RT(__fastcall O::*)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncMC = RT(__fastcall O::*)(Args...) const;
 	};
@@ -55,10 +47,8 @@ namespace ftraits
 	{
 		template<typename RT, typename... Args>
 		using PFunc = RT(__thiscall *)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncM = RT(__thiscall O::*)(Args...);
-
 		template<typename RT, typename O, typename... Args>
 		using PFuncMC = RT(__thiscall O::*)(Args...) const;
 	};
@@ -77,12 +67,15 @@ namespace ftraits
 	template<typename RT, typename O, typename... Args>
 	using PFuncMC = PFuncMCCC<CallingConvention::DEFAULT, RT, O, Args...>;
 
-	template <typename FUNC>
+	template <typename Func>
 	struct is_function_ptr :
-		std::integral_constant<bool, std::is_pointer<FUNC>::value &&
-		std::is_function<std::remove_pointer_t<FUNC>>::value &&
-		!std::is_member_function_pointer<FUNC>::value>
+		std::integral_constant<bool, std::is_pointer_v<Func> &&
+		std::is_function_v<std::remove_pointer_t<Func>> &&
+		!std::is_member_function_pointer_v<Func>>
 	{};
+
+	template <typename Func>
+	bool constexpr is_function_ptr_v = is_function_ptr<Func>::value;
 
 	template<typename Func> struct Function_to_sig { using type = Func; };
 	template<typename Sig>  struct Function_to_sig<Function<Sig>> { using type = Sig; };
