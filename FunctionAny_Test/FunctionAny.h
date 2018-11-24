@@ -58,7 +58,7 @@ public:
 		func(std::in_place_index<I>, std::forward<Args>(args)...)
 	{}
 
-	// Invokes func IF all Args are convertible to that of the function signature (eval at compile time) and calls std::visit on the visitor with the return value
+	// Invokes func IF all Args are convertible to that of the function signature and calls std::visit on the visitor with the return value
 	template<typename Visitor, typename... Args>
 	decltype(auto) Invoke(Visitor&& visitor, Args&&... args) const
 	{
@@ -66,7 +66,7 @@ public:
 		return std::visit(std::forward<Visitor>(visitor), ret);
 	}
 
-	// Invokes func IF all Args are convertible to that of the function signature (eval at compile time)
+	// Invokes func IF all Args are convertible to that of the function signature
 	// Returns VOID for void, and NO_CALL if the function signature did not match
 	template<typename... Args>
 	auto operator()(Args&&... args) const -> RTs
@@ -74,7 +74,7 @@ public:
 		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
 		{
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-			using RT = ftraits::sig_rt_t<Sig>;
+			using RT  = ftraits::sig_rt_t<Sig>;
 			if constexpr (!std::is_same_v<RT, void>)
 				return RTs(func(std::forward<decltype(args)>(args)...));
 			else
@@ -86,8 +86,7 @@ public:
 		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) 
 		{ 
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-			//if constexpr (ftraits::sig_nparams_v<Sig> == sizeof...(Args))
-			if constexpr(ftraits::sig_convertible_args_v<Sig, Args...>)
+			if constexpr (ftraits::sig_convertible_args_v<Sig, Args...>)
 				return apply_first(f, func, tup); 
 
 			return RTs( NO_CALL{} );
@@ -96,14 +95,14 @@ public:
 		return std::visit(call, func);
 	}
 
-	// Invokes func if it has EXACTLY zero args (eval at compile time)
+	// Invokes func if it has EXACTLY zero args
 	// Returns VOID for void, and NO_CALL if the function expected arguments
 	auto operator()() const -> RTs
 	{
 		auto call = [](const auto& func) -> decltype(auto)
 		{
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-			using RT = ftraits::sig_rt_t<Sig>;
+			using RT  = ftraits::sig_rt_t<Sig>;
 
 			if constexpr (ftraits::sig_no_args_v<Sig>)
 			{
