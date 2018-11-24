@@ -120,14 +120,9 @@ int main()
 			}
 		};
 
-		auto ret = it();
-		std::visit(rt_visitor, ret);
-
-		ret = it(a, 5.0, 6);
-		std::visit(rt_visitor, ret);
-
-		ret = it(std::ref(a));
-		std::visit(rt_visitor, ret);
+		it.Invoke(rt_visitor);
+		it.Invoke(rt_visitor,a, 5.0, 6);
+		it.Invoke(rt_visitor, std::ref(a));
 	}
 
 	std::string s;

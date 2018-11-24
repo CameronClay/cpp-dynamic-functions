@@ -18,10 +18,12 @@ inline constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
 		std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
 }
 
+// Dummy structs for special return types
 struct VOID {};
 struct NO_CALL {};
 
-// Store any function given a list of signatures, duplicate signatures are removed from the variant
+// Store any function given a list of signatures, of the format RT(Args...)
+// Duplicate signatures are removed from the variant
 // Reference return types are illegal
 template<typename... Sigs>
 class FunctionAny
@@ -55,6 +57,14 @@ public:
 		:
 		func(std::in_place_index<I>, std::forward<Args>(args)...)
 	{}
+
+	// Invokes func IF all Args are convertible to that of the function signature (eval at compile time) and calls std::visit on the visitor with the return value
+	template<typename Visitor, typename... Args>
+	void Invoke(Visitor&& visitor, Args&&... args) const
+	{
+		auto ret = operator()(std::forward<Args>(args)...);
+		std::visit(std::forward<Visitor>(visitor), ret);
+	}
 
 	// Invokes func IF all Args are convertible to that of the function signature (eval at compile time)
 	// Returns VOID for void, and NO_CALL if the function signature did not match
