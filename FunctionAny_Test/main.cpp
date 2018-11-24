@@ -45,14 +45,23 @@ int main()
 	//auto f = Function<void()>::Function(&A::Out, a, 5, 7.5);
 	//f();
 
-	std::vector<FunctionAny<funcpt_to_sig_t<decltype(&Add)>, funcpt_to_sig_t<decltype(&A::Out)>, funcpt_to_sig_t<decltype(&A::Out2)>, funcpt_to_sig_t<decltype(&A::Moo)>>> funcList;
+	std::vector<FunctionAny<funcpt_to_sig_t<decltype(&Add)>, funcpt_to_sig_t<decltype(&A::Out)>, funcpt_to_sig_t<decltype(&A::Moo)>>> funcList;
 	//std::vector<FunctionAny<decltype(&A::Out), decltype(&A::Moo), decltype(&Add)>, decltype(&hello_world)> funcList;
 	funcList.emplace_back(std::in_place_type<void()>, &A::Out, a, 5, 7.5);
 	funcList.back()();
 	funcList.emplace_back(std::in_place_type<void()>, &A::Moo);
 	funcList.back()();
+	funcList.emplace_back(std::in_place_type<void()>, &A::Out2, &a, 92);
+	funcList.back()();
 	funcList.emplace_back(std::in_place_type<void(int, int)>, &Add);
 	funcList.back()(5, 6);
+
+	std::cout << std::endl;
+
+	for (auto& it : funcList)
+	{
+		it(5, 6);
+	}
 	//funcList.emplace_back(std::in_place_type<void()>, &hello_world, "boo hoo");
 	//funcList.back()();
 
