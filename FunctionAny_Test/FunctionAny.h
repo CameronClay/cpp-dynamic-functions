@@ -45,16 +45,16 @@ public:
 	{
 		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
 		{
-			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-
-			if constexpr (ftraits::sig_nparams_v<Sig> == sizeof...(Args))
-				return func(std::forward<decltype(args)>(args)...);
-				//return std::any( func(std::forward<decltype(args)>(args)...) );
-
-			//return std::any{};
+			return func(std::forward<decltype(args)>(args)...);
+			//return std::any( func(std::forward<decltype(args)>(args)...) );
 		};
 
-		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) { return apply_first(f, func, tup); };
+		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) 
+		{ 
+			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+			if constexpr (ftraits::sig_nparams_v<Sig> == sizeof...(Args))
+				return apply_first(f, func, tup); 
+		};
 
 		return std::visit(call, func);
 	}
