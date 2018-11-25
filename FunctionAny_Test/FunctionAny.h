@@ -19,9 +19,9 @@ private:
 	template<typename RT>
 	using TO_RETURN_TYPE = std::conditional_t<std::is_lvalue_reference_v<RT>, std::add_pointer_t<std::remove_reference_t<RT>>, std::conditional_t<std::is_void_v<RT>, VOID, RT>>;
 public:
-	using SIGS_UNIQUE = t_list::type_list_unique<Sigs...>;
-	using RTS_UNIQUE = t_list::type_list_unique<t_list::type_list_apply_t<t_list::type_list_apply_t<SIGS_UNIQUE, ftraits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
-	using RTs = t_list::rebind_t<RTS_UNIQUE, std::variant>;
+	using SIGS_UNIQUE    = t_list::type_list_unique<Sigs...>;
+	using RTS_UNIQUE     = t_list::type_list_unique<t_list::type_list_apply_t<t_list::type_list_apply_t<SIGS_UNIQUE, ftraits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
+	using RT_VARIANT     = t_list::rebind_t<RTS_UNIQUE, std::variant>;
 public:
 	FunctionAny() = default;
 
@@ -48,7 +48,7 @@ public:
 	// Invokes function with supplied parameters if Args are convertible to that of the function signature
 	// Returns VOID instead of void, and NO_CALL if the function expected arguments
 	template<typename... Args>
-	auto operator()(Args&&... args) const -> RTs
+	auto operator()(Args&&... args) const -> RT_VARIANT
 	{
 		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
 		{
@@ -59,9 +59,9 @@ public:
 		{ 
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 			if constexpr (ftraits::sig_convertible_args_v<Sig, Args...>)
-				return RTs(apply_first(f, func, tup));
+				return RT_VARIANT(apply_first(f, func, tup));
 			else
-				return RTs(NO_CALL{});
+				return RT_VARIANT(NO_CALL{});
 		};
 
 		return std::visit(call, func);
@@ -69,7 +69,7 @@ public:
 
 	// Invokes func if it has EXACTLY zero args
 	// Returns VOID for void, and NO_CALL if the function expected arguments
-	auto operator()() const -> RTs
+	auto operator()() const -> RT_VARIANT
 	{
 		auto call = [](const auto& func) -> decltype(auto)
 		{
@@ -77,7 +77,7 @@ public:
 			if constexpr (ftraits::sig_no_args_v<Sig>)
 				return InvokeFunction(func);
 			else
-				return RTs(NO_CALL{});
+				return RT_VARIANT(NO_CALL{});
 		};
 
 		return std::visit(call, func);
@@ -108,16 +108,16 @@ private:
 		{
 			decltype(auto) ret = func(std::forward<Args>(args)...);
 			if constexpr (!std::is_lvalue_reference_v<RT>)
-				return RTs(ret);
+				return RT_VARIANT(ret);
 			else
-				return RTs(&ret);
+				return RT_VARIANT(&ret);
 		}
 		else
 		{
 			func();
 		}
 
-		return RTs(VOID{});
+		return RT_VARIANT(VOID{});
 	}
 
 	template <class F, class T, class Tuple, std::size_t... I>

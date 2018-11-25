@@ -54,9 +54,9 @@ namespace ftraits
 	};
 
 	template<CallingConvention CC, typename RT,             typename... Args>
-	using PFuncCC =	  typename CCHelper<CC>::template PFunc<RT,     Args...>;
+	using PFuncCC =	  typename CCHelper<CC>::template PFunc<RT,      Args...>;
 	template<CallingConvention CC, typename RT, typename O, typename... Args>
-	using PFuncMCC =  typename CCHelper<CC>::template PFuncM<RT, O, Args...>;
+	using PFuncMCC =  typename CCHelper<CC>::template PFuncM<RT, O,  Args...>;
 	template<CallingConvention CC, typename RT, typename O, typename... Args>
 	using PFuncMCCC = typename CCHelper<CC>::template PFuncMC<RT, O, Args...>;
 
@@ -113,10 +113,11 @@ namespace ftraits
 	struct sig_s<RT(O::*)(Args...) const> { using type = sig_create<RT>; };
 	template<typename FuncPT> using sig_s_t = typename sig_s<FuncPT>::type;
 
-	template<typename... Ts> struct type_list {};
 	template <bool...> struct bool_pack;
-	template <bool... v>
-	using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
+	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
+	template <bool... v> constexpr bool all_true_v = all_true<v...>::value;
+
+	template<typename... Ts> struct type_list {};
 
 	template<typename Sig> struct sig_helper;
 	template<typename RT, typename... Args> 
@@ -134,14 +135,17 @@ namespace ftraits
 		static constexpr bool convertable_args()
 		{
 			if constexpr (sizeof...(Ts) == n_args)
-				return all_true<std::is_convertible<std::decay_t<Ts>, std::decay_t<Args>>{}...>::value;
+				return all_true_v<std::is_convertible_v<std::decay_t<Ts>, std::decay_t<Args>>...>;
 
 			return false;
 		}
 	};
-	template<typename Sig> using sig_rt_t = typename sig_helper<Sig>::return_t;
-	template<typename Sig> constexpr int  sig_n_args_v  = sig_helper<Sig>::n_args;
-	template<typename Sig> constexpr bool sig_no_args_v = sig_helper<Sig>::no_args;
-	template<typename Sig, typename... Args> constexpr bool sig_same_args_v = sig_helper<Sig>::template same_args<Args...>;
-	template<typename Sig, typename... Args> constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<Args...>();
+	template<typename Sig> using          sig_rt_t      = typename sig_helper<Sig>::return_t;
+	template<typename Sig> constexpr int  sig_n_args_v  =          sig_helper<Sig>::n_args;
+	template<typename Sig> constexpr bool sig_no_args_v =          sig_helper<Sig>::no_args;
+
+	template<typename Sig, typename... Args> 
+	constexpr bool sig_same_args_v        = sig_helper<Sig>::template same_args<Args...>;
+	template<typename Sig, typename... Args> 
+	constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<Args...>();
 }
