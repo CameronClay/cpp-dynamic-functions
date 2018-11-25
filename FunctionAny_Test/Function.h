@@ -3,6 +3,8 @@
 #include <functional>
 #include "FunctionTraits.h"
 
+template<typename Sig> class Function;
+
 //Store function call without arugments bound
 template<typename RT, typename... Args>
 class Function<RT(Args...)>
