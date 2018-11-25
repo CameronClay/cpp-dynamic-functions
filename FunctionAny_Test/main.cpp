@@ -37,6 +37,13 @@ int Add(A& a, int v1, int v2)
 	return res;
 }
 
+float Add2(float v1, float v2, float v3)
+{
+	const auto res = v1 + v2 + v3;
+	std::cout << v1 << " + " << v2 << " + " << v3 << " = " << res << std::endl;
+	return res;
+}
+
 A MakeCopy(const A& a)
 {
 	return a;
@@ -59,11 +66,12 @@ int main()
 
 	A a{ 5, 2.34f };
 
-	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(&MakeCopy)>, sig_f_t<decltype(&ReturnRef)>>> funcList;
+	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&Add2)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(&MakeCopy)>, sig_f_t<decltype(&ReturnRef)>>> funcList;
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out)>>, &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&A::Moo)>>, &A::Moo);
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out2)>>, &A::Out2, &a, 92);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&Add)>>, &Add);
+	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&Add2)>>, &Add2);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&MakeCopy)>>, &MakeCopy);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&ReturnRef)>>, &ReturnRef);
 	funcList.emplace_back(std::in_place_type<void()>, hello_world, "boo hoo");
@@ -71,17 +79,21 @@ int main()
 	auto rt_visitor = [](const auto& ret)
 	{
 		using RT = std::decay_t<decltype(ret)>;
-		if constexpr (std::is_same_v<RT, VOID>)
-		{
-			//std::cout << "Func returned with type: void" << std::endl;
-		}
-		else if constexpr (std::is_same_v<RT, NO_CALL>)
+		if constexpr (std::is_same_v<RT, NO_CALL>)
 		{
 			//std::cout << "Func was not called" << std::endl;
+		}
+		else if constexpr (std::is_same_v<RT, VOID>)
+		{
+			//std::cout << "Func returned with type: void" << std::endl;
 		}
 		else if constexpr (std::is_same_v<RT, int>)
 		{
 			std::cout << "Func returned " << ret << " with type: int" << std::endl;
+		}
+		else if constexpr (std::is_same_v<RT, float>)
+		{
+			std::cout << "Func returned " << ret << " with type: float" << std::endl;
 		}
 		else if constexpr (std::is_same_v<RT, std::string>)
 		{
@@ -89,11 +101,11 @@ int main()
 		}
 		else if constexpr (std::is_same_v<RT, A>)
 		{
-			std::cout << "Func returned {" << static_cast<A>(ret).m_i << ", " << static_cast<A>(ret).m_f << "} with type: A" << std::endl;
+			std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << std::endl;
 		}
 		else if constexpr (std::is_same_v<RT, A*>)
 		{
-			std::cout << "Func returned " << ret << " {" << static_cast<A*>(ret)->m_i << ", " << static_cast<A*>(ret)->m_f << "} with type: A*" << std::endl;
+			std::cout << "Func returned " << ret << " {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
 		}
 		else
 		{
@@ -105,6 +117,7 @@ int main()
 	{
 		it.Invoke(rt_visitor);
 		it.Invoke(rt_visitor, a, 5.0, 6);
+		it.Invoke(rt_visitor, 1.f, 2, 3.5);
 		it.Invoke(rt_visitor, std::ref(a));
 	}
 
