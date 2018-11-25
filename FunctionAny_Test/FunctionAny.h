@@ -10,16 +10,17 @@ struct NO_CALL {};
 
 // Store any function given a list of signatures, of the format RT(Args...)
 // Duplicate signatures are removed from the variant
-// Reference return types are illegal
+// Reference return types are converted to pointer return types (T& -> T*)
 template<typename... Sigs>
 class FunctionAny
 {
 private:
+	//Convert references to pointers and void to VOID
 	template<typename RT>
-	using TO_VARIANT_TYPE = std::conditional_t<std::is_void_v<RT>, VOID, RT>;
+	using TO_RETURN_TYPE = std::conditional_t<std::is_lvalue_reference_v<RT>, std::add_pointer_t<std::remove_reference_t<RT>>, std::conditional_t<std::is_void_v<RT>, VOID, RT>>;
 
 	using SIGS_UNIQUE = t_list::type_list_unique<Function<Sigs>...>;
-	using RTS_UNIQUE = t_list::type_list_unique<NO_CALL, TO_VARIANT_TYPE<ftraits::sig_rt_t<Sigs>>...>;
+	using RTS_UNIQUE = t_list::type_list_unique<NO_CALL, TO_RETURN_TYPE<ftraits::sig_rt_t<Sigs>>...>;
 
 	template <class F, class T, class Tuple, std::size_t... I>
 	static constexpr decltype(auto) apply_first_impli(F&& f, T&& first, Tuple&& t, std::index_sequence<I...>)
@@ -65,24 +66,16 @@ public:
 	{
 		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
 		{
-			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-			using RT  = ftraits::sig_rt_t<Sig>;
-
-			if constexpr (!std::is_same_v<RT, void>)
-				return RTs(func(std::forward<decltype(args)>(args)...));
-			else
-				func(std::forward<decltype(args)>(args)...);
-
-			return RTs( VOID{} );
+			return InvokeFunction(func, std::forward<decltype(args)>(args)...);
 		};
 
 		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) 
 		{ 
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 			if constexpr (ftraits::sig_convertible_args_v<Sig, Args...>)
-				return apply_first(f, func, tup); 
-
-			return RTs( NO_CALL{} );
+				return RTs(apply_first(f, func, tup));
+			else
+				return RTs(NO_CALL{});
 		};
 
 		return std::visit(call, func);
@@ -95,19 +88,10 @@ public:
 		auto call = [](const auto& func) -> decltype(auto)
 		{
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-			using RT  = ftraits::sig_rt_t<Sig>;
-
 			if constexpr (ftraits::sig_no_args_v<Sig>)
-			{
-				if constexpr (!std::is_same_v<RT, void>)
-					return RTs(func());
-				else
-					func();
-
-				return RTs( VOID{} );
-			}
-
-			return RTs( NO_CALL{} );
+				return InvokeFunction(func);
+			else
+				return RTs(NO_CALL{});
 		};
 
 		return std::visit(call, func);
@@ -124,5 +108,25 @@ public:
 	}
 
 private:
+	template<typename Sig, typename... Args>
+	static decltype(auto) InvokeFunction(const Function<Sig>& func, Args&&... args)
+	{
+		using RT = ftraits::sig_rt_t<Sig>;
+		if constexpr (!std::is_same_v<RT, void>)
+		{
+			decltype(auto) ret = func(std::forward<Args>(args)...);
+			if constexpr (!std::is_lvalue_reference_v<RT>)
+				return RTs(ret);
+			else
+				return RTs(&ret);
+		}
+		else
+		{
+			func();
+		}
+
+		return RTs(VOID{});
+	}
+
 	t_list::rebind_t<SIGS_UNIQUE, std::variant> func;
 };

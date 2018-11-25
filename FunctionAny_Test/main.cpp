@@ -42,9 +42,9 @@ A MakeCopy(const A& a)
 	return a;
 }
 
-A* ReturnPointer(A& a)
+A& ReturnRef(A& a)
 {
-	return &a;
+	return a;
 }
 
 using namespace ftraits;
@@ -59,13 +59,13 @@ int main()
 
 	A a{ 5, 2.34f };
 
-	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(&MakeCopy)>, sig_f_t<decltype(&ReturnPointer)>>> funcList;
+	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(&MakeCopy)>, sig_f_t<decltype(&ReturnRef)>>> funcList;
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out)>>, &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&A::Moo)>>, &A::Moo);
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out2)>>, &A::Out2, &a, 92);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&Add)>>, &Add);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&MakeCopy)>>, &MakeCopy);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&ReturnPointer)>>, &ReturnPointer);
+	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&ReturnRef)>>, &ReturnRef);
 	funcList.emplace_back(std::in_place_type<void()>, hello_world, "boo hoo");
 
 	auto rt_visitor = [](const auto& ret)
