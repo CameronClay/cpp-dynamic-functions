@@ -99,7 +99,7 @@ private:
 	t_list::rebind_t<FSIGS_UNIQUE, std::variant> func;
 
 	// Invokes function with supplied parameters if Args are convertible to that of the function signature
-	// Returns VOID instead of void
+	// Returns VOID instead of void and pointer instead of reference
 	template<typename Sig, typename... Args>
 	static decltype(auto) InvokeFunction(const Function<Sig>& func, Args&&... args)
 	{
