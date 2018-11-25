@@ -18,25 +18,11 @@ private:
 	//Convert references to pointers and void to VOID
 	template<typename RT>
 	using TO_RETURN_TYPE = std::conditional_t<std::is_lvalue_reference_v<RT>, std::add_pointer_t<std::remove_reference_t<RT>>, std::conditional_t<std::is_void_v<RT>, VOID, RT>>;
-
-	using SIGS_UNIQUE = t_list::type_list_unique<Function<Sigs>...>;
-	using RTS_UNIQUE = t_list::type_list_unique<NO_CALL, TO_RETURN_TYPE<ftraits::sig_rt_t<Sigs>>...>;
-
-	template <class F, class T, class Tuple, std::size_t... I>
-	static constexpr decltype(auto) apply_first_impli(F&& f, T&& first, Tuple&& t, std::index_sequence<I...>)
-	{
-		return std::invoke(std::forward<F>(f), std::forward<T>(first), std::get<I>(std::forward<Tuple>(t))...);
-	}
-
-	template <class F, class T, class Tuple>
-	static constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
-	{
-		return apply_first_impli(std::forward<F>(f), std::forward<T>(first), std::forward<Tuple>(t),
-			std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
-	}
 public:
+	using SIGS_UNIQUE = t_list::type_list_unique<Sigs...>;
+	using RTS_UNIQUE = t_list::type_list_unique<t_list::type_list_apply_t<t_list::type_list_apply_t<SIGS_UNIQUE, ftraits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
 	using RTs = t_list::rebind_t<RTS_UNIQUE, std::variant>;
-
+public:
 	FunctionAny() = default;
 
 	template<typename Sig>
@@ -108,6 +94,9 @@ public:
 	}
 
 private:
+	using FSIGS_UNIQUE = t_list::type_list_apply_t<SIGS_UNIQUE, Function>;
+	t_list::rebind_t<FSIGS_UNIQUE, std::variant> func;
+
 	template<typename Sig, typename... Args>
 	static decltype(auto) InvokeFunction(const Function<Sig>& func, Args&&... args)
 	{
@@ -128,5 +117,16 @@ private:
 		return RTs(VOID{});
 	}
 
-	t_list::rebind_t<SIGS_UNIQUE, std::variant> func;
+	template <class F, class T, class Tuple, std::size_t... I>
+	static constexpr decltype(auto) apply_first_impli(F&& f, T&& first, Tuple&& t, std::index_sequence<I...>)
+	{
+		return std::invoke(std::forward<F>(f), std::forward<T>(first), std::get<I>(std::forward<Tuple>(t))...);
+	}
+
+	template <class F, class T, class Tuple>
+	static constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
+	{
+		return apply_first_impli(std::forward<F>(f), std::forward<T>(first), std::forward<Tuple>(t),
+			std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
+	}
 };

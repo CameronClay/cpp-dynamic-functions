@@ -47,4 +47,15 @@ namespace t_list
 
 	template<class T1, template<typename...> class T2>
 	using rebind_t = typename rebind<T1, T2>::type;
+
+	// rebind - Rebinds template arguments from T1 to T2 where T1 and T2 are templates
+	template<class Outer, template<typename...> class Inner> struct type_list_apply;
+	template<template<typename...> class Outer, template<typename...> class Inner, typename... Ts>
+	struct type_list_apply<Outer<Ts...>, Inner>
+	{
+		using type = Outer<Inner<Ts>...>;
+	};
+
+	template<class Outer, template<typename...> class Inner>
+	using type_list_apply_t = typename type_list_apply<Outer, Inner>::type;
 }
