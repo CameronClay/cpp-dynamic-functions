@@ -45,8 +45,8 @@ public:
 		return std::visit(std::forward<Visitor>(visitor), ret);
 	}
 
-	// Invokes func IF all Args are convertible to that of the function signature
-	// Returns VOID for void, and NO_CALL if the function signature did not match
+	// Invokes function with supplied parameters if Args are convertible to that of the function signature
+	// Returns VOID for void, and NO_CALL if the function expected arguments
 	template<typename... Args>
 	auto operator()(Args&&... args) const -> RTs
 	{
@@ -97,6 +97,8 @@ private:
 	using FSIGS_UNIQUE = t_list::type_list_apply_t<SIGS_UNIQUE, Function>;
 	t_list::rebind_t<FSIGS_UNIQUE, std::variant> func;
 
+	// Invokes function with supplied parameters if Args are convertible to that of the function signature
+	// Returns VOID for void, and NO_CALL if the function expected arguments
 	template<typename Sig, typename... Args>
 	static decltype(auto) InvokeFunction(const Function<Sig>& func, Args&&... args)
 	{
