@@ -46,7 +46,7 @@ public:
 	}
 
 	// Invokes function with supplied parameters if Args are convertible to that of the function signature
-	// Returns VOID for void, and NO_CALL if the function expected arguments
+	// Returns VOID instead of void, and NO_CALL if the function expected arguments
 	template<typename... Args>
 	auto operator()(Args&&... args) const -> RTs
 	{
@@ -83,6 +83,7 @@ public:
 		return std::visit(call, func);
 	}
 
+	// Checks to see if a valid function is stored
 	operator bool() const
 	{
 		auto call = [](const auto& func) -> bool
@@ -98,7 +99,7 @@ private:
 	t_list::rebind_t<FSIGS_UNIQUE, std::variant> func;
 
 	// Invokes function with supplied parameters if Args are convertible to that of the function signature
-	// Returns VOID for void, and NO_CALL if the function expected arguments
+	// Returns VOID instead of void
 	template<typename Sig, typename... Args>
 	static decltype(auto) InvokeFunction(const Function<Sig>& func, Args&&... args)
 	{
