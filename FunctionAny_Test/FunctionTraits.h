@@ -54,13 +54,13 @@ namespace ftraits
 	};
 
 	template<CallingConvention CC, typename RT,             typename... Args>
-	using PFuncCC =	  typename CCHelper<CC>::template PFunc<RT, Args...>;
+	using PFuncCC =	  typename CCHelper<CC>::template PFunc<RT,     Args...>;
 	template<CallingConvention CC, typename RT, typename O, typename... Args>
 	using PFuncMCC =  typename CCHelper<CC>::template PFuncM<RT, O, Args...>;
 	template<CallingConvention CC, typename RT, typename O, typename... Args>
 	using PFuncMCCC = typename CCHelper<CC>::template PFuncMC<RT, O, Args...>;
 
-	template<typename RT, typename... Args>
+	template<typename RT,             typename... Args>
 	using PFunc =   PFuncCC<CallingConvention::DEFAULT,   RT,    Args...>;
 	template<typename RT, typename O, typename... Args>
 	using PFuncM =  PFuncMCC<CallingConvention::DEFAULT,  RT, O, Args...>;
@@ -81,7 +81,7 @@ namespace ftraits
 
 	template<typename Sig> struct is_funcs       : std::false_type {};
 	template<typename RT>  struct is_funcs<RT()> : std::true_type {};
-	template<typename Sig> bool constexpr is_funcs_v = is_funcs<Sig>::value;
+	template<typename Sig> constexpr bool is_funcs_v = is_funcs<Sig>::value;
 
 	template<typename RT, typename... Args>
 	using sig_create = RT(Args...);

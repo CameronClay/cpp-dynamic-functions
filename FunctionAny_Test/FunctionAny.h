@@ -67,6 +67,7 @@ public:
 		{
 			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 			using RT  = ftraits::sig_rt_t<Sig>;
+
 			if constexpr (!std::is_same_v<RT, void>)
 				return RTs(func(std::forward<decltype(args)>(args)...));
 			else

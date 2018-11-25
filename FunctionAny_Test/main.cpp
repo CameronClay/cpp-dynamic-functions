@@ -59,12 +59,6 @@ int main()
 
 	A a{ 5, 2.34f };
 
-	//Function<void()> f{ &A::Out, &a, 5, 7.5 };
-	//auto f = Function<void()>::MakeFunc(&A::Out, a, 5, 7.5);
-	//auto f = Function<void()>::Function(&A::Out, a, 5, 7.5);
-	//auto f = Function<void()>::Function(&A::Out, a, 5, 7.5);
-	//f();
-
 	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(&MakeCopy)>, sig_f_t<decltype(&ReturnPointer)>>> funcList;
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out)>>, &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&A::Moo)>>, &A::Moo);
