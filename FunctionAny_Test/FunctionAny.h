@@ -50,12 +50,6 @@ public:
 		func(std::in_place_type<Function<Sig>>, std::forward<Args>(args)...)
 	{}
 
-	template<std::size_t I, typename... Args>
-	explicit FunctionAny(std::in_place_index_t<I>, Args&&... args)
-		:
-		func(std::in_place_index<I>, std::forward<Args>(args)...)
-	{}
-
 	// Invokes func IF all Args are convertible to that of the function signature and calls std::visit on the visitor with the return value
 	template<typename Visitor, typename... Args>
 	decltype(auto) Invoke(Visitor&& visitor, Args&&... args) const
