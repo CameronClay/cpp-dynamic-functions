@@ -64,17 +64,18 @@ int main()
 		std::cout << local << " says " << str << std::endl;
 	};
 
+
 	A a{ 5, 2.34f };
 
-	std::vector<FunctionAny<sig_f_t<decltype(&Add)>, sig_f_t<decltype(&Add2)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(&MakeCopy)>, sig_f_t<decltype(&ReturnRef)>>> funcList;
+	std::vector<FunctionAny<sig_f_t<decltype(Add)>, sig_f_t<decltype(Add2)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(MakeCopy)>, sig_f_t<decltype(ReturnRef)>, sig_fobj_s_t<decltype(hello_world)>>> funcList;
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out)>>, &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&A::Moo)>>, &A::Moo);
 	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out2)>>, &A::Out2, &a, 92);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&Add)>>, &Add);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&Add2)>>, &Add2);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&MakeCopy)>>, &MakeCopy);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&ReturnRef)>>, &ReturnRef);
-	funcList.emplace_back(std::in_place_type<void()>, hello_world, "boo hoo");
+	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(Add)>>, &Add);
+	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(Add2)>>, &Add2);
+	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(MakeCopy)>>, &MakeCopy);
+	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(ReturnRef)>>, &ReturnRef);
+	funcList.emplace_back(std::in_place_type<sig_fobj_s_t<decltype(hello_world)>>, hello_world, "boo hoo");
 
 	auto rt_visitor = [](const auto& ret)
 	{

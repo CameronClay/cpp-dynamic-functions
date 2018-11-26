@@ -113,6 +113,11 @@ namespace ftraits
 	struct sig_s<RT(O::*)(Args...) const> { using type = sig_create<RT>; };
 	template<typename FuncPT> using sig_s_t = typename sig_s<FuncPT>::type;
 
+	template<typename FuncObj>
+	using sig_fobj_f_t = sig_f_t<decltype(&FuncObj::operator())>;
+	template<typename FuncObj>
+	using sig_fobj_s_t = sig_s_t<decltype(&FuncObj::operator())>;
+
 	template <bool...> struct bool_pack;
 	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
 	template <bool... v> constexpr bool all_true_v = all_true<v...>::value;
