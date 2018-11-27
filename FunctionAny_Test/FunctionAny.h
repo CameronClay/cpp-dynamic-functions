@@ -22,7 +22,7 @@ public:
 	using SIGS_UNIQUE    = t_list::type_list_unique<Sigs...>;
 	using RTS_UNIQUE     = t_list::type_list_unique<t_list::type_list_apply_t<t_list::type_list_apply_t<SIGS_UNIQUE, f_traits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
 	using RT_VARIANT     = t_list::rebind_t<RTS_UNIQUE, std::variant>;
-public:
+
 	FunctionAny() = default;
 
 	template<typename Sig>
