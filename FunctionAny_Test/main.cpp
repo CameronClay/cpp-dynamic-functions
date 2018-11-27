@@ -54,11 +54,6 @@ A& ReturnRef(A& a)
 	return a;
 }
 
-int __stdcall SCallFunc(int, float)
-{
-	return 0;
-}
-
 using namespace ftraits;
 
 int main()
