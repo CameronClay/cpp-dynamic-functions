@@ -66,7 +66,10 @@ int main()
 
 	A a{ 5, 2.34f };
 
-	std::vector<FunctionAny<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2), SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef)>> funcList;
+	using L_FUNC_S = t_list::type_list<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2)>;
+	using L_FUNC_F = t_list::type_list<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef)>;
+
+	std::vector<FunctionAny_TList<L_FUNC_S, L_FUNC_F>> funcList;
 	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "boo hoo");
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>, &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
