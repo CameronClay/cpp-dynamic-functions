@@ -21,6 +21,11 @@ namespace t_list
 	{ 
 		using type = typename type_list_unique_helper<TypeListArgs..., Args...>::type; 
 	};
+	template <typename... TLList1Args, typename... TLList2Args>
+	struct type_list_unique_helper<type_list<TLList1Args...>, type_list<TLList2Args...>>
+	{
+		using type = typename type_list_unique_helper<TLList1Args..., TLList2Args...>::type;
+	};
 
 	template <> struct type_list_unique_helper<>
 	{
