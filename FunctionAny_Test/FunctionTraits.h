@@ -86,11 +86,6 @@ namespace ftraits
 	template<typename RT, typename... Args>
 	using sig_create = RT(Args...);
 
-	template<typename Func> struct sig_nparams;
-	template<typename RT, typename... Args>
-	struct sig_nparams<RT(Args...)> : std::integral_constant<int, sizeof...(Args)> {};
-	template<typename Func> constexpr int sig_nparams_v = sig_nparams<Func>::value;
-
 	template<typename FuncObj> struct sig_f { using type = typename sig_f<decltype(&FuncObj::operator())>::type; };
 	template<typename RT, typename... Args>
 	struct sig_f<RT(Args...)>			    { using type = sig_create<RT, Args...>; };
