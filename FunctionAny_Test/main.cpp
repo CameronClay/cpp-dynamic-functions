@@ -43,7 +43,6 @@ float Add2(float v1, float v2, float v3)
 	std::cout << v1 << " + " << v2 << " + " << v3 << " = " << res << std::endl;
 	return res;
 }
-
 A MakeCopy(const A& a)
 {
 	return a;
@@ -54,7 +53,13 @@ A& ReturnRef(A& a)
 	return a;
 }
 
-using namespace ftraits;
+using namespace f_traits;
+
+enum
+{
+	e = sig_has_arg<SIG_S_T(Add), int>
+};
+
 
 int main()
 {
@@ -66,10 +71,14 @@ int main()
 
 	A a{ 5, 2.34f };
 
+	// In most cases the names of the functions used will not be known.
+	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.
 	using L_FUNC_S = t_list::type_list<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2)>;
 	using L_FUNC_F = t_list::type_list<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef)>;
+	using FUNC_ANY = FunctionAny_TList<L_FUNC_S, L_FUNC_F>;
 
-	std::vector<FunctionAny_TList<L_FUNC_S, L_FUNC_F>> funcList;
+	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
+	std::vector<FUNC_ANY> funcList;
 	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "boo hoo");
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>, &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
@@ -79,43 +88,54 @@ int main()
 	funcList.emplace_back(std::in_place_type<SIG_F_T(MakeCopy)>, MakeCopy);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(ReturnRef)>, ReturnRef);
 
+	// Catch and process the return value
 	auto rt_visitor = [](const auto& ret)
 	{
 		using RT = std::decay_t<decltype(ret)>;
-		if constexpr (std::is_same_v<RT, NO_CALL>)
+
+		// Not possible for RT not to exist in RTS_UNIQUE but nice to check anyways
+		if constexpr (t_list::type_list_has_v<RT, FUNC_ANY::RTS_UNIQUE>)
 		{
-			//std::cout << "Func was not called" << std::endl;
-		}
-		else if constexpr (std::is_same_v<RT, VOID>)
-		{
-			//std::cout << "Func returned with type: void" << std::endl;
-		}
-		else if constexpr (std::is_same_v<RT, int>)
-		{
-			std::cout << "Func returned " << ret << " with type: int" << std::endl;
-		}
-		else if constexpr (std::is_same_v<RT, float>)
-		{
-			std::cout << "Func returned " << ret << " with type: float" << std::endl;
-		}
-		else if constexpr (std::is_same_v<RT, std::string>)
-		{
-			std::cout << "Func returned " << ret << " with type: string" << std::endl;
-		}
-		else if constexpr (std::is_same_v<RT, A>)
-		{
-			std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << std::endl;
-		}
-		else if constexpr (std::is_same_v<RT, A*>)
-		{
-			std::cout << "Func returned " << ret << " {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
+			if constexpr (std::is_same_v<RT, NO_CALL>)
+			{
+				//std::cout << "Func was not called" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, VOID>)
+			{
+				//std::cout << "Func returned with type: void" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, int>)
+			{
+				std::cout << "Func returned " << ret << " with type: int" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, float>)
+			{
+				std::cout << "Func returned " << ret << " with type: float" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, std::string>)
+			{
+				std::cout << "Func returned " << ret << " with type: string" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, A>)
+			{
+				std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << std::endl;
+			}
+			else if constexpr (std::is_same_v<RT, A*>)
+			{
+				std::cout << "Func returned " << ret << " {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
+			}
+			else
+			{
+				std::cout << "Return Type not handled" << std::endl;
+			}
 		}
 		else
 		{
-			std::cout << "Invalid Return type" << std::endl;
+			std::cout << "Error invalid return type" << std::endl;
 		}
 	};
 
+	// Try to invoke each function in funcList with a set of parameters
 	for (auto& it : funcList)
 	{
 		it.Invoke(rt_visitor);

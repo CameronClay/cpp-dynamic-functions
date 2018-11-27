@@ -11,12 +11,12 @@ class Function<RT(Args...)>
 {
 public:
 	template<typename Func>
-	Function(Func func, typename std::enable_if_t<!ftraits::is_function_ptr_v<Func>>* = nullptr)
+	Function(Func func, typename std::enable_if_t<!f_traits::is_function_ptr_v<Func>>* = nullptr)
 		: action(func)
 	{}
 
 	template<typename Func>
-	Function(Func func, typename std::enable_if_t<ftraits::is_function_ptr_v<Func>>* = nullptr)
+	Function(Func func, typename std::enable_if_t<f_traits::is_function_ptr_v<Func>>* = nullptr)
 		: action([func](Args&&... args)->RT {return (*func)(std::forward<Args>(args)...); })
 	{}
 
@@ -68,7 +68,7 @@ public:
 	using Action = std::function<RT()>;
 
 	template<typename Func, typename... Args>
-	static std::enable_if_t<!ftraits::is_function_ptr_v<Func>, Action> MakeFunc(Func func, Args&&... args)
+	static std::enable_if_t<!f_traits::is_function_ptr_v<Func>, Action> MakeFunc(Func func, Args&&... args)
 	{
 		auto f = [func](auto&&... args) -> RT {return func(std::forward<decltype(args)>(args)...);};
 
@@ -76,7 +76,7 @@ public:
 	}
 
 	template<typename Func, typename... Args>
-	static std::enable_if_t<ftraits::is_function_ptr_v<Func>, Action> MakeFunc(Func func, Args&&... args)
+	static std::enable_if_t<f_traits::is_function_ptr_v<Func>, Action> MakeFunc(Func func, Args&&... args)
 	{
 		auto f = [func](auto&&... args) -> RT {return (*func)(std::forward<decltype(args)>(args)...);};
 

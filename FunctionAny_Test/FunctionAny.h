@@ -20,7 +20,7 @@ private:
 	using TO_RETURN_TYPE = std::conditional_t<std::is_lvalue_reference_v<RT>, std::add_pointer_t<std::remove_reference_t<RT>>, std::conditional_t<std::is_void_v<RT>, VOID, RT>>;
 public:
 	using SIGS_UNIQUE    = t_list::type_list_unique<Sigs...>;
-	using RTS_UNIQUE     = t_list::type_list_unique<t_list::type_list_apply_t<t_list::type_list_apply_t<SIGS_UNIQUE, ftraits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
+	using RTS_UNIQUE     = t_list::type_list_unique<t_list::type_list_apply_t<t_list::type_list_apply_t<SIGS_UNIQUE, f_traits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
 	using RT_VARIANT     = t_list::rebind_t<RTS_UNIQUE, std::variant>;
 public:
 	FunctionAny() = default;
@@ -57,8 +57,8 @@ public:
 
 		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) 
 		{ 
-			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-			if constexpr (ftraits::sig_convertible_args_v<Sig, Args...>)
+			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+			if constexpr (f_traits::sig_convertible_args_v<Sig, Args...>)
 				return RT_VARIANT(apply_first(f, func, tup));
 			else
 				return RT_VARIANT(NO_CALL{});
@@ -73,8 +73,8 @@ public:
 	{
 		auto call = [](const auto& func) -> decltype(auto)
 		{
-			using Sig = ftraits::Function_to_sig_t<std::decay_t<decltype(func)>>;
-			if constexpr (ftraits::sig_no_args_v<Sig>)
+			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+			if constexpr (f_traits::sig_no_args_v<Sig>)
 				return InvokeFunction(func);
 			else
 				return RT_VARIANT(NO_CALL{});
@@ -103,7 +103,7 @@ private:
 	template<typename Sig, typename... Args>
 	static decltype(auto) InvokeFunction(const Function<Sig>& func, Args&&... args)
 	{
-		using RT = ftraits::sig_rt_t<Sig>;
+		using RT = f_traits::sig_rt_t<Sig>;
 		if constexpr (!std::is_same_v<RT, void>)
 		{
 			decltype(auto) ret = func(std::forward<Args>(args)...);

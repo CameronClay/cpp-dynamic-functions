@@ -1,8 +1,9 @@
 #pragma once
+#include <type_traits>
 
 template<typename Sig> class Function;
 
-namespace ftraits
+namespace f_traits
 {
 	enum class CallingConvention { DEFAULT, CDECLR, STDCALL, FASTCALL, THISCALL };
 	template<CallingConvention> struct CCHelper;
@@ -114,12 +115,21 @@ namespace ftraits
 #define SIG_S_T(Func) \
 	sig_s_t<decltype(Func)>
 
+	template <typename T, typename... Args> struct contains;
+	template <typename T>
+	struct contains<T> : std::false_type {};
+	template <typename T, typename... Args>
+	struct contains<T, T, Args...> : std::true_type {};
+	template <typename T, typename A, typename... Args>
+	struct contains<T, A, Args...> : contains<T, Args...> {};
+	template <typename T, typename... Args>
+	constexpr bool contains_v = contains<T, Args...>::value;
+
+	template <typename... Args> struct type_list {};
 
 	template <bool...> struct bool_pack;
 	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
 	template <bool... v> constexpr bool all_true_v = all_true<v...>::value;
-
-	template<typename... Ts> struct type_list {};
 
 	template<typename Sig> struct sig_helper;
 	template<typename RT, typename... Args> 
@@ -129,6 +139,9 @@ namespace ftraits
 
 		static constexpr int  n_args    = sizeof...(Args);
 		static constexpr bool no_args   = n_args == 0;
+
+		template<typename T>
+		static constexpr bool has_arg = contains_v<T, Args...>;
 
 		template<typename... Ts>
 		static constexpr bool same_args = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
@@ -147,6 +160,8 @@ namespace ftraits
 	template<typename Sig> constexpr int  sig_n_args_v  =          sig_helper<Sig>::n_args;
 	template<typename Sig> constexpr bool sig_no_args_v =          sig_helper<Sig>::no_args;
 
+	template<typename Sig, typename Arg> 
+	constexpr bool sig_has_arg            = sig_helper<Sig>::template has_arg<Arg>;
 	template<typename Sig, typename... Args> 
 	constexpr bool sig_same_args_v        = sig_helper<Sig>::template same_args<Args...>;
 	template<typename Sig, typename... Args> 
