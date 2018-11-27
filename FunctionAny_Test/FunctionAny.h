@@ -133,3 +133,6 @@ private:
 			std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
 	}
 };
+
+template <class... Sig_Tists>
+using FunctionAny_TList = t_list::rebind_t<t_list::type_list_unique<Sig_Tists...>, FunctionAny>;
