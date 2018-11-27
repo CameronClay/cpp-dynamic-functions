@@ -91,32 +91,34 @@ namespace ftraits
 	struct sig_nparams<RT(Args...)> : std::integral_constant<int, sizeof...(Args)> {};
 	template<typename Func> constexpr int sig_nparams_v = sig_nparams<Func>::value;
 
-	template<typename FuncPT> struct sig_f;
+	template<typename FuncObj> struct sig_f { using type = typename sig_f<decltype(&FuncObj::operator())>::type; };
 	template<typename RT, typename... Args>
-	struct sig_f<RT(Args...)>			  { using type = sig_create<RT, Args...>; };
+	struct sig_f<RT(Args...)>			    { using type = sig_create<RT, Args...>; };
 	template<typename RT, typename... Args>
-	struct sig_f<RT(*)(Args...)>		  { using type = sig_create<RT, Args...>; };
+	struct sig_f<RT(*)(Args...)>		    { using type = sig_create<RT, Args...>; };
 	template<typename RT, typename O, typename... Args>
-	struct sig_f<RT(O::*)(Args...)>		  { using type = sig_create<RT, Args...>; };
+	struct sig_f<RT(O::*)(Args...)>		    { using type = sig_create<RT, Args...>; };
 	template<typename RT, typename O, typename... Args>
-	struct sig_f<RT(O::*)(Args...) const> { using type = sig_create<RT, Args...>; };
+	struct sig_f<RT(O::*)(Args...) const>   { using type = sig_create<RT, Args...>; };
 	template<typename FuncPT> using sig_f_t = typename sig_f<FuncPT>::type;
 
-	template<typename FuncPT> struct sig_s;
+	template<typename FuncObj> struct sig_s { using type = typename sig_s<decltype(&FuncObj::operator())>::type; };
 	template<typename RT, typename... Args>
-	struct sig_s<RT(Args...)>			  { using type = sig_create<RT>; };
+	struct sig_s<RT(Args...)>			    { using type = sig_create<RT>; };
 	template<typename RT, typename... Args>
-	struct sig_s<RT(*)(Args...)>		  { using type = sig_create<RT>; };
+	struct sig_s<RT(*)(Args...)>		    { using type = sig_create<RT>; };
 	template<typename RT, typename O, typename... Args>
-	struct sig_s<RT(O::*)(Args...)>		  { using type = sig_create<RT>; };
+	struct sig_s<RT(O::*)(Args...)>		    { using type = sig_create<RT>; };
 	template<typename RT, typename O, typename... Args>
-	struct sig_s<RT(O::*)(Args...) const> { using type = sig_create<RT>; };
+	struct sig_s<RT(O::*)(Args...) const>   { using type = sig_create<RT>; };
 	template<typename FuncPT> using sig_s_t = typename sig_s<FuncPT>::type;
 
-	template<typename FuncObj>
-	using sig_fobj_f_t = sig_f_t<decltype(&FuncObj::operator())>;
-	template<typename FuncObj>
-	using sig_fobj_s_t = sig_s_t<decltype(&FuncObj::operator())>;
+#define SIG_F_T(Func) \
+	sig_f_t<decltype(Func)>
+
+#define SIG_S_T(Func) \
+	sig_s_t<decltype(Func)>
+
 
 	template <bool...> struct bool_pack;
 	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
@@ -145,6 +147,7 @@ namespace ftraits
 			return false;
 		}
 	};
+
 	template<typename Sig> using          sig_rt_t      = typename sig_helper<Sig>::return_t;
 	template<typename Sig> constexpr int  sig_n_args_v  =          sig_helper<Sig>::n_args;
 	template<typename Sig> constexpr bool sig_no_args_v =          sig_helper<Sig>::no_args;

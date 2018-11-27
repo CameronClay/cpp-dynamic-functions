@@ -54,6 +54,11 @@ A& ReturnRef(A& a)
 	return a;
 }
 
+int __stdcall SCallFunc(int, float)
+{
+	return 0;
+}
+
 using namespace ftraits;
 
 int main()
@@ -64,18 +69,17 @@ int main()
 		std::cout << local << " says " << str << std::endl;
 	};
 
-
 	A a{ 5, 2.34f };
 
-	std::vector<FunctionAny<sig_f_t<decltype(Add)>, sig_f_t<decltype(Add2)>, sig_f_t<decltype(&A::Moo)>, sig_s_t<decltype(&A::Out)>, sig_s_t<decltype(&A::Out2)>, sig_f_t<decltype(MakeCopy)>, sig_f_t<decltype(ReturnRef)>, sig_fobj_s_t<decltype(hello_world)>>> funcList;
-	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out)>>, &A::Out, a, 5, 7.5);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(&A::Moo)>>, &A::Moo);
-	funcList.emplace_back(std::in_place_type<sig_s_t<decltype(&A::Out2)>>, &A::Out2, &a, 92);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(Add)>>, &Add);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(Add2)>>, &Add2);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(MakeCopy)>>, &MakeCopy);
-	funcList.emplace_back(std::in_place_type<sig_f_t<decltype(ReturnRef)>>, &ReturnRef);
-	funcList.emplace_back(std::in_place_type<sig_fobj_s_t<decltype(hello_world)>>, hello_world, "boo hoo");
+	std::vector<FunctionAny<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2), SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef)>> funcList;
+	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "boo hoo");
+	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>, &A::Out, a, 5, 7.5);
+	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
+	funcList.emplace_back(std::in_place_type<SIG_F_T(&A::Moo)>, &A::Moo);
+	funcList.emplace_back(std::in_place_type<SIG_F_T(Add)>, Add);
+	funcList.emplace_back(std::in_place_type<SIG_F_T(Add2)>, Add2);
+	funcList.emplace_back(std::in_place_type<SIG_F_T(MakeCopy)>, MakeCopy);
+	funcList.emplace_back(std::in_place_type<SIG_F_T(ReturnRef)>, ReturnRef);
 
 	auto rt_visitor = [](const auto& ret)
 	{
