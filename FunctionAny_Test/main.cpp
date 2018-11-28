@@ -30,6 +30,14 @@ struct A
 	float m_f;
 };
 
+struct Functor
+{
+	int operator()(int i)
+	{
+		return i + 1;
+	}
+};
+
 int Add(A& a, int v1, int v2)
 {
 	const auto res = v1 + v2;
@@ -63,12 +71,14 @@ int main()
 		std::cout << local << " says " << str << std::endl;
 	};
 
+	Functor functor;
+
 	A a{ 5, 2.34f };
 
-	// In most cases the names of the functions used will not be known.
+	// In most cases the list of the functions used will not be known.
 	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.
 	using L_FUNC_S = t_list::type_list<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2)>;
-	using L_FUNC_F = t_list::type_list<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef)>;
+	using L_FUNC_F = t_list::type_list<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef), SIG_F_T(functor)>;
 	using FUNC_ANY = FunctionAny_TList<L_FUNC_S, L_FUNC_F>;
 
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
@@ -77,10 +87,12 @@ int main()
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>, &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(&A::Moo)>, &A::Moo);
+
 	funcList.emplace_back(std::in_place_type<SIG_F_T(Add)>, Add);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(Add2)>, Add2);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(MakeCopy)>, MakeCopy);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(ReturnRef)>, ReturnRef);
+	funcList.emplace_back(std::in_place_type<SIG_F_T(functor)>, functor);
 
 	// Catch and process the return value
 	auto rt_visitor = [](const auto& ret)
@@ -133,6 +145,7 @@ int main()
 	for (auto& it : funcList)
 	{
 		it.Invoke(rt_visitor);
+		it.Invoke(rt_visitor, 0);
 		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
 		it.Invoke(rt_visitor, std::ref(a));
