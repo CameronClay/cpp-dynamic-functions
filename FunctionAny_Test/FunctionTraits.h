@@ -161,7 +161,7 @@ namespace f_traits
 	template<typename Sig> constexpr bool sig_no_args_v =          sig_helper<Sig>::no_args;
 
 	template<typename Sig, typename Arg> 
-	constexpr bool sig_has_arg_v            = sig_helper<Sig>::template has_arg<Arg>;
+	constexpr bool sig_has_arg_v          = sig_helper<Sig>::template has_arg<Arg>;
 	template<typename Sig, typename... Args> 
 	constexpr bool sig_same_args_v        = sig_helper<Sig>::template same_args<Args...>;
 	template<typename Sig, typename... Args> 
