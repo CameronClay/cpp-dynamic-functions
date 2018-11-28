@@ -55,12 +55,6 @@ A& ReturnRef(A& a)
 
 using namespace f_traits;
 
-enum
-{
-	e = sig_has_arg<SIG_S_T(Add), int>
-};
-
-
 int main()
 {
 	std::string local = "the world";
