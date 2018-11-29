@@ -84,11 +84,11 @@ int main()
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY> funcList;
 	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "boo hoo");
-	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>, &A::Out, a, 5, 7.5);
+	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>,  &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
-	funcList.emplace_back(std::in_place_type<SIG_F_T(&A::Moo)>, &A::Moo);
+	funcList.emplace_back(std::in_place_type<SIG_F_T(&A::Moo)>,  &A::Moo);
 
-	funcList.emplace_back(std::in_place_type<SIG_F_T(Add)>, Add);
+	funcList.emplace_back(std::in_place_type<SIG_F_T(Add)>,  Add);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(Add2)>, Add2);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(MakeCopy)>, MakeCopy);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(ReturnRef)>, ReturnRef);
@@ -102,7 +102,7 @@ int main()
 		// Not possible for RT not to exist in RTS_UNIQUE but nice to check anyways
 		if constexpr (t_list::type_list_has_v<RT, FUNC_ANY::RTS_UNIQUE>)
 		{
-			if constexpr (std::is_same_v<RT, NO_CALL>)
+			if constexpr      (std::is_same_v<RT, NO_CALL>)
 			{
 				//std::cout << "Func was not called" << std::endl;
 			}
@@ -126,7 +126,7 @@ int main()
 			{
 				std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << std::endl;
 			}
-			else if constexpr (std::is_same_v<RT, A*>)
+			else if constexpr (std::is_same_v<RT, A*>)         // Reference converted to pointer type
 			{
 				std::cout << "Func returned " << ret << " {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
 			}
@@ -137,7 +137,7 @@ int main()
 		}
 		else
 		{
-			std::cout << "Error invalid return type" << std::endl;
+			std::cout << "Error: Return Type invalid" << std::endl;
 		}
 	};
 
