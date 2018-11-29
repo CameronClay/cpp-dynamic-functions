@@ -128,7 +128,7 @@ int main()
 			}
 			else if constexpr (std::is_same_v<RT, A*>)         // Reference converted to pointer type
 			{
-				std::cout << "Func returned " << ret << " {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
+				std::cout << "Func returned " << ret << ", *A = {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
 			}
 			else
 			{
