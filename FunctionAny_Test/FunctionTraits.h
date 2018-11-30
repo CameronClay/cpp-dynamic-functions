@@ -81,7 +81,7 @@ namespace f_traits
 	template<typename Func> using Function_to_sig_t = typename Function_to_sig<Func>::type;
 
 	template<typename Sig> struct is_funcs       : std::false_type {};
-	template<typename RT>  struct is_funcs<RT()> : std::true_type {};
+	template<typename RT>  struct is_funcs<RT()> : std::true_type  {};
 	template<typename Sig> constexpr bool is_funcs_v = is_funcs<Sig>::value;
 
 	template<typename RT, typename... Args>
@@ -141,7 +141,7 @@ namespace f_traits
 		static constexpr bool no_args   = n_args == 0;
 
 		template<typename T>
-		static constexpr bool has_arg = contains_v<T, Args...>;
+		static constexpr bool has_arg   = contains_v<T, Args...>;
 
 		template<typename... Ts>
 		static constexpr bool same_args = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
