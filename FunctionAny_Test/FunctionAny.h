@@ -114,7 +114,7 @@ private:
 		}
 		else
 		{
-			func();
+			func(std::forward<Args>(args)...);
 		}
 
 		return RT_VARIANT(VOID{});
@@ -134,5 +134,25 @@ private:
 	}
 };
 
+namespace FAny_Utili
+{
+	template <typename SigPair> struct pair_create_sig;
+	template <typename RT, typename... Args>
+	struct pair_create_sig<t_list::pair<RT, t_list::type_list<Args...>>>
+	{
+		using type = f_traits::sig_create<RT, Args...>;
+	};
+
+	template <typename SigPair>
+	using pair_create_sig_t = typename pair_create_sig<SigPair>::type;
+}
+
+// FunctionAny alias, taking any signatures contained in Sig_TLists
+// Sig_TLists are type_list<Sigs...>....
 template <class... Sig_Tists>
-using FunctionAny_TList = t_list::rebind_t<t_list::type_list_unique<Sig_Tists...>, FunctionAny>;
+using FunctionAny_Sig_Lists = t_list::rebind_t<t_list::type_list_unique<Sig_Tists...>, FunctionAny>;
+
+// FunctionAny alias, taking all signatures in the cartesian product of all RTs in RTTList and all Args in ArgTLists
+// RTList is a type_list<RTs...>, ArgTLists is a type_list<type_list<Args...>....>
+template <class RTTList, class ArgTLists>
+using FunctionAny_RT_Args = t_list::rebind_t<t_list::type_list_apply_t<t_list::cartesian_product_t<RTTList, ArgTLists>, FAny_Utili::pair_create_sig_t>, FunctionAny>;

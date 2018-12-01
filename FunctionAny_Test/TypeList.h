@@ -33,10 +33,27 @@ namespace t_list
 		using type = typename add_unique<THead, typename type_list_unique_helper<TTail...>::type>::type; 
 	};
 
-	//make unique type list given list of types (also concatenates multiple type_lists)
+	// type_list_unique -  Make unique type_list given list of types (also concatenates multiple type_lists)
 	template <typename... Ts>
 	using type_list_unique = typename type_list_unique_helper<Ts...>::type;
 
+	// cartesian_product - Cross Product of two type_lists
+	template<typename T1, typename T2> struct pair {};
+	template <typename T, typename U> struct cartesian_product;
+	template <typename... Us>
+	struct cartesian_product<type_list<>, type_list<Us...>> 
+	{
+		using type = type_list<>;
+	};
+	template <typename T, typename... Ts, typename... Us>
+	struct cartesian_product<type_list<T, Ts...>, type_list<Us...>>
+	{
+		using type = type_list_unique<type_list<pair<T, Us>...>,
+			typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type>;
+	};
+
+	template <typename T, typename U>
+	using cartesian_product_t = typename cartesian_product<T, U>::type;
 
 	// rebind - Rebinds template arguments from T1 to T2 where T1 and T2 are templates
 	template<class T1, template<typename...> class T2> struct rebind;

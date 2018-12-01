@@ -79,7 +79,12 @@ int main()
 	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.
 	using L_FUNC_S = t_list::type_list<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2)>;
 	using L_FUNC_F = t_list::type_list<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef), SIG_F_T(functor)>;
-	using FUNC_ANY = FunctionAny_TList<L_FUNC_S, L_FUNC_F>;
+	using FUNC_ANY = FunctionAny_Sig_Lists<L_FUNC_S, L_FUNC_F>;
+
+	// Declare FunctionAny taking any combination of the following RTs and Arg lists
+	/*using RT_List = t_list::type_list<void, std::string, int, float, A, A&>;
+	using Arg_Lists = t_list::type_list<t_list::type_list<>, t_list::type_list<int>, t_list::type_list<int, float>, t_list::type_list<float, float, float>, t_list::type_list<A&, int, int>, t_list::type_list<const A&>, t_list::type_list<A&>, t_list::type_list<const char*>>;
+	using FUNC_ANY = FunctionAny_RT_Args<RT_List, Arg_Lists>;*/
 
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY> funcList;
