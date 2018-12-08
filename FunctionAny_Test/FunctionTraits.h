@@ -115,15 +115,10 @@ namespace f_traits
 #define SIG_S_T(Func) \
 	sig_s_t<decltype(Func)>
 
-	template <typename T, typename... Args> struct contains;
-	template <typename T>
-	struct contains<T> : std::false_type {};
-	template <typename T, typename... Args>
-	struct contains<T, T, Args...> : std::true_type {};
-	template <typename T, typename A, typename... Args>
-	struct contains<T, A, Args...> : contains<T, Args...> {};
-	template <typename T, typename... Args>
-	constexpr bool contains_v = contains<T, Args...>::value;
+	template <typename T, typename... Ts>
+	struct contains : std::disjunction<std::is_same<T, Ts>...> {};
+	template <typename T, typename... Ts>
+	constexpr bool contains_v = contains<T, Ts...>::value;
 
 	template <typename... Args> struct type_list {};
 

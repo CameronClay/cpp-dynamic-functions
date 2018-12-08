@@ -20,8 +20,8 @@ private:
 	using TO_RETURN_TYPE = std::conditional_t<std::is_lvalue_reference_v<RT>, std::add_pointer_t<std::remove_reference_t<RT>>, std::conditional_t<std::is_void_v<RT>, VOID, RT>>;
 public:
 	using SIGS_UNIQUE    = t_list::type_list_unique<Sigs...>;
-	using RTS_UNIQUE     = t_list::type_list_unique<t_list::apply_inner_t<t_list::apply_inner_t<SIGS_UNIQUE, f_traits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
-	using RT_VARIANT     = t_list::rebind_t<RTS_UNIQUE, std::variant>;
+	using RTS_UNIQUE     = t_list::type_list_unique<typename SIGS_UNIQUE::template apply<f_traits::sig_rt_t>::template apply<TO_RETURN_TYPE>, NO_CALL>;
+	using RT_VARIANT     = typename RTS_UNIQUE::template rebind<std::variant>;
 
 	FunctionAny() = default;
 
@@ -95,8 +95,8 @@ public:
 	}
 
 private:
-	using FSIGS_UNIQUE = t_list::apply_inner_t<SIGS_UNIQUE, Function>;
-	t_list::rebind_t<FSIGS_UNIQUE, std::variant> func;
+	using FSIGS_UNIQUE = typename SIGS_UNIQUE::template apply<Function>;
+	typename FSIGS_UNIQUE::template rebind<std::variant> func;
 
 	// Invokes function with supplied parameters if Args are convertible to that of the function signature
 	// Returns VOID instead of void and pointer instead of reference
@@ -150,9 +150,9 @@ namespace FAny_Utili
 // FunctionAny alias, taking any signatures contained in Sig_TLists
 // Sig_TLists are type_list<Sigs...>....
 template <class... Sig_Tists>
-using FunctionAny_Sig_Lists = t_list::rebind_t<t_list::type_list_unique<Sig_Tists...>, FunctionAny>;
+using FunctionAny_Sig_Lists = typename t_list::type_list_unique<Sig_Tists...>::template rebind<FunctionAny>;
 
 // FunctionAny alias, taking all signatures in the cartesian product of all RTs in RTTList and all Args in ArgTLists
 // RTList is a type_list<RTs...>, ArgTLists is a type_list<type_list<Args...>....>
 template <class RTTList, class ArgTLists>
-using FunctionAny_RT_Args = t_list::rebind_t<t_list::apply_inner_t<t_list::cartesian_product_t<RTTList, ArgTLists>, FAny_Utili::pair_create_sig_t>, FunctionAny>;
+using FunctionAny_RT_Args   = typename RTTList::template cartesian_product<ArgTLists>::template apply<FAny_Utili::pair_create_sig_t>::template rebind<FunctionAny>;
