@@ -15,6 +15,20 @@ namespace t_list
 	template <typename List, typename T>
 	constexpr bool type_list_contains_v = type_list_contains<T, List>::value;
 
+	template <typename... Ts> struct is_unique;
+
+	template <> struct is_unique<>
+	{
+		static constexpr bool value = true;
+	};
+	template <typename THead, typename... TTail>
+	struct is_unique<THead, TTail...>
+	{
+		static constexpr bool value = !contains_v<THead, TTail...> && is_unique<TTail...>::value;
+	};
+
+	template <typename... Ts>
+	constexpr bool is_unique_v = is_unique<Ts...>::value;
 
 	template <typename TNew, typename Ts, bool is_duplicate = type_list_contains_v<TNew, Ts>>
 	struct add_unique;
@@ -143,14 +157,16 @@ namespace t_list
 		static constexpr int  n_types    = sizeof...(Ts);
 		static constexpr bool empty      = n_types == 0;
 
+		static constexpr bool is_unique = is_unique_v<Ts...>;
+
 		template<typename T>
-		static constexpr bool has_type   = contains_v<T, Ts...>;
+		static constexpr bool contains   = contains_v<T, Ts...>;
 
 		template<typename... Args>
-		static constexpr bool same_types = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+		static constexpr bool same       = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
 
 		template<typename... Args>
-		static constexpr bool convertable_types()
+		static constexpr bool convertible()
 		{
 			if constexpr (sizeof...(Args) == n_types)
 				return all_true_v<std::is_convertible_v<std::decay_t<Ts>, std::decay_t<Args>>...>;

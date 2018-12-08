@@ -108,7 +108,7 @@ int main()
 		using RT = std::decay_t<decltype(ret)>;
 
 		// Not possible for RT not to exist in RTS_UNIQUE but nice to check anyways
-		if constexpr (FUNC_ANY::RTS_UNIQUE::has_type<RT>)
+		if constexpr (FUNC_ANY::RTS_UNIQUE::contains<RT>)
 		{
 			if constexpr      (std::is_same_v<RT, NO_CALL>)
 			{
