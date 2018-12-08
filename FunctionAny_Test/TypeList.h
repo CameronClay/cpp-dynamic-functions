@@ -37,6 +37,7 @@ namespace t_list
 	template <typename... Ts>
 	using type_list_unique = typename type_list_unique_helper<Ts...>::type;
 
+	// extract -  Extract type at idx in Ts...
 	template <std::size_t idx, typename... Ts>
 	class extract
 	{
@@ -70,20 +71,19 @@ namespace t_list
 		using type = typename extract<idx, Ts...>::type;
 	};
 
-	// type_list_extract_t -  Extract type at idx in TypeList
 	template <std::size_t idx, class TypeList>
 	using type_list_extract_t = typename type_list_extract<idx, TypeList>::type;
 
 	// cartesian_product - Cross Product of two type_lists
 	template<typename T1, typename T2> struct pair {};
 	template <typename T, typename U> struct cartesian_product;
-	template <typename... Us>
-	struct cartesian_product<type_list<>, type_list<Us...>> 
+	template <template <class...> class TypeList1, template <class...> class TypeList2, typename... Us>
+	struct cartesian_product<TypeList1<>, TypeList2<Us...>>
 	{
 		using type = type_list<>;
 	};
-	template <typename T, typename... Ts, typename... Us>
-	struct cartesian_product<type_list<T, Ts...>, type_list<Us...>>
+	template <template <class...> class TypeList1, template <class...> class TypeList2, typename T, typename... Ts, typename... Us>
+	struct cartesian_product<TypeList1<T, Ts...>, TypeList2<Us...>>
 	{
 		using type = type_list_unique<type_list<pair<T, Us>...>,
 			typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type>;
