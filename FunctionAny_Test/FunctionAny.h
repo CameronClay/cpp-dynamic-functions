@@ -20,7 +20,7 @@ private:
 	using TO_RETURN_TYPE = std::conditional_t<std::is_lvalue_reference_v<RT>, std::add_pointer_t<std::remove_reference_t<RT>>, std::conditional_t<std::is_void_v<RT>, VOID, RT>>;
 public:
 	using SIGS_UNIQUE    = t_list::type_list_unique<Sigs...>;
-	using RTS_UNIQUE     = t_list::type_list_unique<t_list::type_list_apply_t<t_list::type_list_apply_t<SIGS_UNIQUE, f_traits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
+	using RTS_UNIQUE     = t_list::type_list_unique<t_list::apply_inner_t<t_list::apply_inner_t<SIGS_UNIQUE, f_traits::sig_rt_t>, TO_RETURN_TYPE>, NO_CALL>;
 	using RT_VARIANT     = t_list::rebind_t<RTS_UNIQUE, std::variant>;
 
 	FunctionAny() = default;
@@ -95,7 +95,7 @@ public:
 	}
 
 private:
-	using FSIGS_UNIQUE = t_list::type_list_apply_t<SIGS_UNIQUE, Function>;
+	using FSIGS_UNIQUE = t_list::apply_inner_t<SIGS_UNIQUE, Function>;
 	t_list::rebind_t<FSIGS_UNIQUE, std::variant> func;
 
 	// Invokes function with supplied parameters if Args are convertible to that of the function signature
@@ -155,4 +155,4 @@ using FunctionAny_Sig_Lists = t_list::rebind_t<t_list::type_list_unique<Sig_Tist
 // FunctionAny alias, taking all signatures in the cartesian product of all RTs in RTTList and all Args in ArgTLists
 // RTList is a type_list<RTs...>, ArgTLists is a type_list<type_list<Args...>....>
 template <class RTTList, class ArgTLists>
-using FunctionAny_RT_Args = t_list::rebind_t<t_list::type_list_apply_t<t_list::cartesian_product_t<RTTList, ArgTLists>, FAny_Utili::pair_create_sig_t>, FunctionAny>;
+using FunctionAny_RT_Args = t_list::rebind_t<t_list::apply_inner_t<t_list::cartesian_product_t<RTTList, ArgTLists>, FAny_Utili::pair_create_sig_t>, FunctionAny>;

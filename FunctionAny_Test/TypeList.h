@@ -37,6 +37,43 @@ namespace t_list
 	template <typename... Ts>
 	using type_list_unique = typename type_list_unique_helper<Ts...>::type;
 
+	template <std::size_t idx, typename... Ts>
+	class extract
+	{
+		static_assert(idx < sizeof...(Ts), "idx out of bounds");
+
+		template <std::size_t i, std::size_t n, typename... TTail>
+		struct extract_impl;
+
+		template <std::size_t i, std::size_t n, typename T, typename... TTail>
+		struct extract_impl<i, n, T, TTail...>
+		{
+			using type = typename extract_impl<i + 1, n, TTail...>::type;
+		};
+
+		template <std::size_t n, typename T, typename... TTail>
+		struct extract_impl<n, n, T, TTail...>
+		{
+			using type = T;
+		};
+
+	public:
+		using type = typename extract_impl<0, idx, Ts...>::type;
+	};
+
+	template <std::size_t idx, class TypeList>
+	struct type_list_extract;
+
+	template <std::size_t idx, template <class...> class TypeList, typename... Ts>
+	struct type_list_extract<idx, TypeList<Ts...>>
+	{
+		using type = typename extract<idx, Ts...>::type;
+	};
+
+	// type_list_extract_t -  Extract type at idx in TypeList
+	template <std::size_t idx, class TypeList>
+	using type_list_extract_t = typename type_list_extract<idx, TypeList>::type;
+
 	// cartesian_product - Cross Product of two type_lists
 	template<typename T1, typename T2> struct pair {};
 	template <typename T, typename U> struct cartesian_product;
@@ -67,13 +104,13 @@ namespace t_list
 	using rebind_t = typename rebind<T1, T2>::type;
 
 	// type_list_apply - applies each template argument from outer to inner
-	template<class Outer, template<typename...> class Inner> struct type_list_apply;
+	template<class Outer, template<typename...> class Inner> struct apply_inner;
 	template<template<typename...> class Outer, template<typename...> class Inner, typename... Ts>
-	struct type_list_apply<Outer<Ts...>, Inner>
+	struct apply_inner<Outer<Ts...>, Inner>
 	{
 		using type = Outer<Inner<Ts>...>;
 	};
 
 	template<class Outer, template<typename...> class Inner>
-	using type_list_apply_t = typename type_list_apply<Outer, Inner>::type;
+	using apply_inner_t = typename apply_inner<Outer, Inner>::type;
 }
