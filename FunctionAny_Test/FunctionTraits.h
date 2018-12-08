@@ -1,5 +1,6 @@
 #pragma once
 #include <type_traits>
+#include "TypeList.h"
 
 template<typename Sig> class Function;
 
@@ -115,40 +116,23 @@ namespace f_traits
 #define SIG_S_T(Func) \
 	sig_s_t<decltype(Func)>
 
-	template <typename T, typename... Ts>
-	struct contains : std::disjunction<std::is_same<T, Ts>...> {};
-	template <typename T, typename... Ts>
-	constexpr bool contains_v = contains<T, Ts...>::value;
-
-	template <typename... Args> struct type_list {};
-
-	template <bool...> struct bool_pack;
-	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
-	template <bool... v> constexpr bool all_true_v = all_true<v...>::value;
-
 	template<typename Sig> struct sig_helper;
 	template<typename RT, typename... Args> 
 	struct sig_helper<RT(Args...)>
 	{
 		using return_t = RT;
 
-		static constexpr int  n_args    = sizeof...(Args);
-		static constexpr bool no_args   = n_args == 0;
+		static constexpr int  n_args    = t_list::type_list<Args...>::n_types;
+		static constexpr bool no_args   = t_list::type_list<Args...>::empty;
 
 		template<typename T>
-		static constexpr bool has_arg   = contains_v<T, Args...>;
+		static constexpr bool has_arg   = t_list::contains_v<T, Args...>;
 
 		template<typename... Ts>
-		static constexpr bool same_args = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+		static constexpr bool same_args = t_list::type_list<Args...>::template same<Ts...>;
 
 		template<typename... Ts>
-		static constexpr bool convertable_args()
-		{
-			if constexpr (sizeof...(Ts) == n_args)
-				return all_true_v<std::is_convertible_v<std::decay_t<Ts>, std::decay_t<Args>>...>;
-
-			return false;
-		}
+		static constexpr bool convertable_args = t_list::type_list<Args...>::template convertible<Ts...>();
 	};
 
 	template<typename Sig> using          sig_rt_t      = typename sig_helper<Sig>::return_t;
@@ -160,5 +144,5 @@ namespace f_traits
 	template<typename Sig, typename... Args> 
 	constexpr bool sig_same_args_v        = sig_helper<Sig>::template same_args<Args...>;
 	template<typename Sig, typename... Args> 
-	constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<Args...>();
+	constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<Args...>;
 }

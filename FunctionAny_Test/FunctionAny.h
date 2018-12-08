@@ -2,7 +2,6 @@
 #include <variant>
 #include "Function.h"
 #include "FunctionTraits.h"
-#include "TypeList.h"
 
 // Dummy structs for special return types
 struct VOID {};

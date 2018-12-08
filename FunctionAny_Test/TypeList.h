@@ -154,7 +154,7 @@ namespace t_list
 		template <std::size_t idx>
 		using extract           = type_list_extract_t<idx, type_list<Ts...>>;
 
-		static constexpr int  n_types    = sizeof...(Ts);
+		static constexpr int  n_types    = sizeof... (Ts);
 		static constexpr bool empty      = n_types == 0;
 
 		static constexpr bool is_unique = is_unique_v<Ts...>;
