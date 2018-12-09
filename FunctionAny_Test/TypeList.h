@@ -97,12 +97,12 @@ namespace t_list
 	// cartesian_product - Cross Product of two type_lists
 	template<typename T1, typename T2> struct pair {};
 	template <typename T, typename U> struct cartesian_product;
-	template <template <class...> class TypeList1, template <class...> class TypeList2, typename... Us>
+	template <template<typename...> class TypeList1, template<typename...> class TypeList2, typename... Us>
 	struct cartesian_product<TypeList1<>, TypeList2<Us...>>
 	{
 		using type = type_list<>;
 	};
-	template <template <class...> class TypeList1, template <class...> class TypeList2, typename T, typename... Ts, typename... Us>
+	template <template<typename...> class TypeList1, template<typename...> class TypeList2, typename T, typename... Ts, typename... Us>
 	struct cartesian_product<TypeList1<T, Ts...>, TypeList2<Us...>>
 	{
 		using type = type_list<type_list<pair<T, Us>...>,
@@ -138,37 +138,38 @@ namespace t_list
 	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
 	template <bool... v> constexpr bool all_true_v = all_true<v...>::value;
 
-	template <typename... Ts> struct type_list
+	template <typename... Ts> class type_list
 	{
-		using unique            = type_list_unique<Ts...>;
+	public:
+		using unique = type_list_unique<Ts...>;
+		template <typename... Args>
+		using append            = type_list<Ts..., Args...>;
+		template <typename... Args>
+		using append_unique     = type_list_unique<Ts..., Args...>;
 
-		template <template <class...> class TypeList>
+		template <template<typename...> class TypeList>
 		using cartesian_product = cartesian_product_t<type_list<Ts...>, TypeList>;
-
 		template<template<typename...> class TTo>
 		using rebind            = rebind_t<type_list<Ts...>, TTo>;
-
 		template<template<typename...> class Inner>
 		using apply             = apply_inner_t<type_list<Ts...>, Inner>;
-
 		template <std::size_t idx>
 		using extract           = type_list_extract_t<idx, type_list<Ts...>>;
 
-		static constexpr int  n_types    = sizeof... (Ts);
-		static constexpr bool empty      = n_types == 0;
-
+		static constexpr int  n_types   = sizeof... (Ts);
+		static constexpr bool empty     = n_types == 0;
 		static constexpr bool is_unique = is_unique_v<Ts...>;
 
 		template<typename T>
-		static constexpr bool contains   = contains_v<T, Ts...>;
+		static constexpr bool contains  = contains_v<T, Ts...>;
 
 		template<typename... Args>
-		static constexpr bool same       = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+		static constexpr bool same      = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
 
 		template<typename... Args>
 		static constexpr bool convertible()
 		{
-			if constexpr (sizeof...(Args) == n_types)
+			if constexpr (sizeof... (Args) == n_types)
 				return all_true_v<std::is_convertible_v<std::decay_t<Ts>, std::decay_t<Args>>...>;
 
 			return false;
