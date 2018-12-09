@@ -12,7 +12,7 @@ namespace f_traits
 	template<> struct CCHelper<CallingConvention::DEFAULT>
 	{
 		template<typename RT, typename... Args>
-		using PFunc =   RT(   *)(Args...);
+		using PFunc  =  RT(   *)(Args...);
 		template<typename RT, typename O, typename... Args>
 		using PFuncM =  RT(O::*)(Args...);
 		template<typename RT, typename O, typename... Args>
@@ -21,7 +21,7 @@ namespace f_traits
 	template<> struct CCHelper<CallingConvention::CDECLR>
 	{
 		template<typename RT, typename... Args>
-		using PFunc =   RT(__cdecl    *)(Args...);
+		using PFunc  =  RT(__cdecl    *)(Args...);
 		template<typename RT, typename O, typename... Args>
 		using PFuncM =  RT(__cdecl O::*)(Args...);
 		template<typename RT, typename O, typename... Args>
@@ -30,7 +30,7 @@ namespace f_traits
 	template<> struct CCHelper<CallingConvention::STDCALL>
 	{
 		template<typename RT, typename... Args>
-		using PFunc =   RT(__stdcall    *)(Args...);
+		using PFunc  =  RT(__stdcall    *)(Args...);
 		template<typename RT, typename O, typename... Args>
 		using PFuncM =  RT(__stdcall O::*)(Args...);
 		template<typename RT, typename O, typename... Args>
@@ -39,7 +39,7 @@ namespace f_traits
 	template<> struct CCHelper<CallingConvention::FASTCALL>
 	{
 		template<typename RT, typename... Args>
-		using PFunc =  RT(__fastcall     *)(Args...);
+		using PFunc  =  RT(__fastcall    *)(Args...);
 		template<typename RT, typename O, typename... Args>
 		using PFuncM =  RT(__fastcall O::*)(Args...);
 		template<typename RT, typename O, typename... Args>
@@ -48,7 +48,7 @@ namespace f_traits
 	template<> struct CCHelper<CallingConvention::THISCALL>
 	{
 		template<typename RT, typename... Args>
-		using PFunc =   RT(__thiscall    *)(Args...);
+		using PFunc  =  RT(__thiscall    *)(Args...);
 		template<typename RT, typename O, typename... Args>
 		using PFuncM =  RT(__thiscall O::*)(Args...);
 		template<typename RT, typename O, typename... Args>

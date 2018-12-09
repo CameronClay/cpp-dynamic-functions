@@ -7,8 +7,7 @@ namespace t_list
 
 	// type_list_cat - concatenate multiple type_list's
 	template <class... TLists> struct type_list_cat;
-	template <>
-	struct type_list_cat<>
+	template <> struct type_list_cat<>
 	{
 		using type = type_list<>;
 	};
@@ -79,7 +78,7 @@ namespace t_list
 	template <typename TNew, typename Ts, bool is_duplicate = type_list_contains_v<TNew, Ts>>
 	struct add_unique;
 	template <typename TNew, typename... Ts>
-	struct add_unique<TNew, type_list<Ts...>, true> { using type = type_list<Ts...>; };
+	struct add_unique<TNew, type_list<Ts...>, true>  { using type = type_list<Ts...>; };
 	template <typename TNew, typename... Ts >
 	struct add_unique<TNew, type_list<Ts...>, false> { using type = type_list<TNew, Ts...>; };
 
