@@ -95,17 +95,18 @@ namespace t_list
 	using type_list_extract_t = typename type_list_extract<idx, TypeList>::type;
 
 	// cartesian_product - Cross Product of two type_lists
+	//		type = pair<T, U>...;
 	template<typename T1, typename T2> struct pair {};
 	template <typename T, typename U> struct cartesian_product;
-	template <template<typename...> class TypeList1, template<typename...> class TypeList2, typename... Us>
-	struct cartesian_product<TypeList1<>, TypeList2<Us...>>
+	template <typename... Us>
+	struct cartesian_product<type_list<>, type_list<Us...>>
 	{
 		using type = type_list<>;
 	};
-	template <template<typename...> class TypeList1, template<typename...> class TypeList2, typename T, typename... Ts, typename... Us>
-	struct cartesian_product<TypeList1<T, Ts...>, TypeList2<Us...>>
+	template <typename T, typename... Ts, typename... Us>
+	struct cartesian_product<type_list<T, Ts...>, type_list<Us...>>
 	{
-		using type = type_list<type_list<pair<T, Us>...>,
+		using type = type_list_unique<type_list<pair<T, Us>...>,
 			typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type>;
 	};
 
@@ -113,19 +114,19 @@ namespace t_list
 	using cartesian_product_t = typename cartesian_product<T, U>::type;
 
 	// rebind - Rebinds template arguments from T1 to T2 where T1 and T2 are templates
-	template<class TFrom, template<typename...> class TTo> struct rebind;
-	template<template<typename...> class TFrom, typename... Ts, template<typename...> class TTo>
+	template<class TFrom, template<class...> class TTo> struct rebind;
+	template<template<class...> class TFrom, class... Ts, template<typename...> class TTo>
 	struct rebind<TFrom<Ts...>, TTo>
 	{ 
 		using type = TTo<Ts...>; 
 	};
 
-	template<class T1, template<typename...> class T2>
+	template<class T1, template<class...> class T2>
 	using rebind_t = typename rebind<T1, T2>::type;
 
 	// type_list_apply - applies each template argument from outer to inner
-	template<class Outer, template<typename...> class Inner> struct apply_inner;
-	template<template<typename...> class Outer, template<typename...> class Inner, typename... Ts>
+	template<class Outer, template<class...> class Inner> struct apply_inner;
+	template<template<class...> class Outer, template<class...> class Inner, class... Ts>
 	struct apply_inner<Outer<Ts...>, Inner>
 	{
 		using type = Outer<Inner<Ts>...>;
@@ -138,20 +139,19 @@ namespace t_list
 	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
 	template <bool... v> constexpr bool all_true_v = all_true<v...>::value;
 
-	template <typename... Ts> class type_list
+	template <typename... Ts> struct type_list
 	{
-	public:
 		using unique = type_list_unique<Ts...>;
 		template <typename... Args>
 		using append            = type_list<Ts..., Args...>;
 		template <typename... Args>
 		using append_unique     = type_list_unique<Ts..., Args...>;
 
-		template <template<typename...> class TypeList>
+		template <class TypeList>
 		using cartesian_product = cartesian_product_t<type_list<Ts...>, TypeList>;
-		template<template<typename...> class TTo>
+		template<template<class...> class TTo>
 		using rebind            = rebind_t<type_list<Ts...>, TTo>;
-		template<template<typename...> class Inner>
+		template<template<class...> class Inner>
 		using apply             = apply_inner_t<type_list<Ts...>, Inner>;
 		template <std::size_t idx>
 		using extract           = type_list_extract_t<idx, type_list<Ts...>>;
