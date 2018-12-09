@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 
 namespace t_list
 {
@@ -139,6 +140,29 @@ namespace t_list
 	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
 	template <bool... v> constexpr bool all_true_v = all_true<v...>::value;
 
+	template <typename... Ts> struct smallest_type;
+	template <typename T>
+	struct smallest_type<T>{ using type = T; };
+	template <typename T, typename U, typename... Ts>
+	struct smallest_type<T, U, Ts...>
+	{
+		using type = typename smallest_type<typename std::conditional<(sizeof(U) > sizeof(T)), T, U>::type, Ts...>::type;
+	};
+	template <typename... Ts>
+	using smallest_type_t = typename smallest_type<Ts...>::type;
+
+	template <typename... Ts> struct largest_type;
+	template <typename T>
+	struct largest_type<T> { using type = T; };
+	template <typename T, typename U, typename... Ts>
+	struct largest_type<T, U, Ts...>
+	{
+		using type = typename largest_type<typename std::conditional<
+			(sizeof(U) <= sizeof(T)), T, U>::type, Ts...>::type;
+	};
+	template <typename... Ts>
+	using largest_type_t = typename largest_type<Ts...>::type;
+
 	template <typename... Ts> struct type_list
 	{
 		using unique = type_list_unique<Ts...>;
@@ -156,15 +180,20 @@ namespace t_list
 		template <std::size_t idx>
 		using extract           = type_list_extract_t<idx, type_list<Ts...>>;
 
-		static constexpr int  n_types   = sizeof... (Ts);
-		static constexpr bool empty     = n_types == 0;
-		static constexpr bool is_unique = is_unique_v<Ts...>;
+		//using min_t             = smallest_type_t<Ts...>;
+		//using max_t             = largest_type_t<Ts...>;
+
+		//static constexpr std::size_t sizeof_min = sizeof(min_t);
+		//static constexpr std::size_t sizeof_max = sizeof(max_t);
+		static constexpr std::size_t n_types    = sizeof... (Ts);
+		static constexpr bool        empty      = n_types == 0;
+		static constexpr bool        is_unique  = is_unique_v<Ts...>;
 
 		template<typename T>
-		static constexpr bool contains  = contains_v<T, Ts...>;
+		static constexpr bool        contains  = contains_v<T, Ts...>;
 
 		template<typename... Args>
-		static constexpr bool same      = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+		static constexpr bool        same      = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
 
 		template<typename... Args>
 		static constexpr bool convertible()

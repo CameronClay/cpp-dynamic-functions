@@ -133,9 +133,9 @@ namespace f_traits
 		static constexpr bool convertable_args = t_list::type_list<Args...>::template convertible<Ts...>();
 	};
 
-	template<typename Sig> using          sig_rt_t      = typename sig_helper<Sig>::return_t;
-	template<typename Sig> constexpr int  sig_n_args_v  =          sig_helper<Sig>::n_args;
-	template<typename Sig> constexpr bool sig_no_args_v =          sig_helper<Sig>::no_args;
+	template<typename Sig> using                  sig_rt_t      = typename sig_helper<Sig>::return_t;
+	template<typename Sig> constexpr std::size_t  sig_n_args_v  = sig_helper<Sig>::n_args;
+	template<typename Sig> constexpr bool         sig_no_args_v = sig_helper<Sig>::no_args;
 
 	template<typename Sig, typename Arg> 
 	constexpr bool sig_has_arg_v          = sig_helper<Sig>::template has_arg<Arg>;
