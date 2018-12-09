@@ -190,11 +190,11 @@ namespace t_list
 		static constexpr bool        is_unique  = is_unique_v<Ts...>;
 
 		template<typename T>
-		static constexpr bool        contains  = contains_v<T, Ts...>;
+		static constexpr bool        contains   = contains_v<T, Ts...>;
 
 		template<typename... Args>
-		static constexpr bool        same      = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
-
+		static constexpr bool        same       = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+		
 		template<typename... Args>
 		static constexpr bool convertible()
 		{
