@@ -122,15 +122,13 @@ namespace f_traits
 	{
 		using return_t = RT;
 
-		static constexpr int  n_args    = t_list::type_list<Args...>::n_types;
-		static constexpr bool no_args   = t_list::type_list<Args...>::empty;
+		static constexpr int  n_args           = t_list::type_list<Args...>::n_types;
+		static constexpr bool no_args          = t_list::type_list<Args...>::empty;
 
 		template<typename T>
-		static constexpr bool has_arg   = t_list::contains_v<T, Args...>;
-
+		static constexpr bool has_arg          = t_list::contains_v<T, Args...>;
 		template<typename... Ts>
-		static constexpr bool same_args = t_list::type_list<Args...>::template same<Ts...>;
-
+		static constexpr bool same_args        = t_list::type_list<Args...>::template same<Ts...>;
 		template<typename... Ts>
 		static constexpr bool convertable_args = t_list::type_list<Args...>::template convertible<Ts...>();
 	};
