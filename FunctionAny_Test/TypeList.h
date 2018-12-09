@@ -31,6 +31,28 @@ namespace t_list
 	template <typename... Ts>
 	constexpr bool is_unique_v = is_unique<Ts...>::value;
 
+	template <template <typename> class Predicate, typename... Ts>
+	struct type_list_filter;
+	template <template <typename> class Predicate>
+	struct type_list_filter<Predicate>
+	{
+		using type = type_list<>;
+	};
+	template <template <typename> class Predicate, typename T>
+	struct type_list_filter<Predicate, T>
+	{
+		using type = std::conditional_t<Predicate<T>::value, type_list<T>, type_list<>>;
+	};
+	template <template <typename> class Predicate, typename T, typename... Ts>
+	struct type_list_filter<Predicate, T, Ts...>
+	{
+		using type = typename std::conditional_t<Predicate<T>::value, type_list<T>, type_list<>>::template append<
+			         typename type_list_filter<Predicate, Ts...>::type>;
+	};
+
+	template <template <typename> class Predicate, typename... Ts>
+	using type_list_filter_t = typename type_list_filter<Predicate, Ts...>::type;
+
 	template <typename TNew, typename Ts, bool is_duplicate = type_list_contains_v<TNew, Ts>>
 	struct add_unique;
 	template <typename TNew, typename... Ts>
@@ -92,7 +114,7 @@ namespace t_list
 		using type = typename extract<idx, Ts...>::type;
 	};
 
-	template <std::size_t idx, class TypeList>
+	template <class TypeList, std::size_t idx>
 	using type_list_extract_t = typename type_list_extract<idx, TypeList>::type;
 
 	// cartesian_product - Cross Product of two type_lists
@@ -136,40 +158,36 @@ namespace t_list
 	template<class Outer, template<typename...> class Inner>
 	using apply_inner_t = typename apply_inner<Outer, Inner>::type;
 
-	template <bool...> struct bool_pack;
-	template <bool... v> using all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
-	template <bool... v> constexpr bool all_true_v = all_true<v...>::value;
+	template<typename T>
+	using                 is_storable   = std::disjunction<std::is_arithmetic<T>, std::conjunction<std::is_compound<T>, std::negation<std::is_function<T>>>>;
+	template<typename T>
+	constexpr bool        is_storable_v = is_storable<T>::value;
 
-	template <typename... Ts> struct smallest_type;
-	template <typename T>
-	struct smallest_type<T>{ using type = T; };
-	template <typename T, typename U, typename... Ts>
-	struct smallest_type<T, U, Ts...>
+	template<bool Test, typename T, T v1, T v2>
+	struct conditional_val
 	{
-		using type = typename smallest_type<typename std::conditional<(sizeof(U) > sizeof(T)), T, U>::type, Ts...>::type;
+		static constexpr T value = v2;
 	};
-	template <typename... Ts>
-	using smallest_type_t = typename smallest_type<Ts...>::type;
+	template<typename T, T v1, T v2>
+	struct conditional_val<true, T, v1, v2>
+	{
+		static constexpr T value = v1;
+	};
 
-	template <typename... Ts> struct largest_type;
-	template <typename T>
-	struct largest_type<T> { using type = T; };
-	template <typename T, typename U, typename... Ts>
-	struct largest_type<T, U, Ts...>
-	{
-		using type = typename largest_type<typename std::conditional<
-			(sizeof(U) <= sizeof(T)), T, U>::type, Ts...>::type;
-	};
-	template <typename... Ts>
-	using largest_type_t = typename largest_type<Ts...>::type;
+	template<bool Test, typename T, T v1, T v2>
+	static constexpr T    conditional_v      = conditional_val<Test, T, v1, v2>::value;
+	template<bool Test, bool v1>
+	static constexpr bool conditional_bool_v = conditional_val<Test, bool, v1, false>::value;
 
 	template <typename... Ts> struct type_list
 	{
-		using unique = type_list_unique<Ts...>;
+		using unique            = type_list_unique<Ts...>;
 		template <typename... Args>
 		using append            = type_list<Ts..., Args...>;
 		template <typename... Args>
 		using append_unique     = type_list_unique<Ts..., Args...>;
+		template <template <typename> class Predicate>
+		using filter            = type_list_filter_t<Predicate, Ts...>;
 
 		template <class TypeList>
 		using cartesian_product = cartesian_product_t<type_list<Ts...>, TypeList>;
@@ -178,28 +196,24 @@ namespace t_list
 		template<template<class...> class Inner>
 		using apply             = apply_inner_t<type_list<Ts...>, Inner>;
 		template <std::size_t idx>
-		using extract           = type_list_extract_t<idx, type_list<Ts...>>;
+		using extract           = type_list_extract_t<type_list<Ts...>, idx>;
 
-		//using min_t             = smallest_type_t<Ts...>;
-		//using max_t             = largest_type_t<Ts...>;
-
-		//static constexpr std::size_t sizeof_min = sizeof(min_t);
-		//static constexpr std::size_t sizeof_max = sizeof(max_t);
-		static constexpr std::size_t n_types    = sizeof... (Ts);
-		static constexpr bool        empty      = n_types == 0;
-		static constexpr bool        is_unique  = is_unique_v<Ts...>;
+		static constexpr std::size_t n_types      = sizeof... (Ts);
+		static constexpr bool        empty        = n_types == 0;
+		static constexpr bool        is_unique    = is_unique_v<Ts...>;
+		static constexpr bool        all_storable = std::conjunction_v<is_storable<Ts>...>;
 
 		template<typename T>
-		static constexpr bool        contains   = contains_v<T, Ts...>;
+		static constexpr bool        contains     = contains_v<T, Ts...>;
 
 		template<typename... Args>
-		static constexpr bool        same       = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
-		
+		static constexpr bool        same         = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+
 		template<typename... Args>
-		static constexpr bool convertible()
+		static constexpr bool        convertible()
 		{
 			if constexpr (sizeof... (Args) == n_types)
-				return all_true_v<std::is_convertible_v<std::decay_t<Ts>, std::decay_t<Args>>...>;
+				return std::conjunction_v<std::is_convertible<std::decay_t<Ts>, std::decay_t<Args>>...>;
 
 			return false;
 		}
