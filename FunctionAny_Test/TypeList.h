@@ -5,19 +5,41 @@ namespace t_list
 {
 	template <typename... Ts> struct type_list;
 
+	// type_list_cat - concatenate multiple type_list's
+	template <class... TLists> struct type_list_cat;
+	template <>
+	struct type_list_cat<>
+	{
+		using type = type_list<>;
+	};
+	template <typename... TL1Args>
+	struct type_list_cat<type_list<TL1Args...>>
+	{
+		using type = type_list<TL1Args...>;
+	};
+	template <typename... TL1Args, typename... TL2Args, class... TLists>
+	struct type_list_cat<type_list<TL1Args...>, type_list<TL2Args...>, TLists...>
+	{
+		using type = typename type_list_cat<type_list<TL1Args..., TL2Args...>, TLists...>::type;
+	};
+	template <class... TLists>
+	using type_list_cat_t = typename type_list_cat<TLists...>::type;
+
+	// type_list_contains_v - true if Ts contains type T
 	template <typename T, typename... Ts>
 	struct contains : std::disjunction<std::is_same<T, Ts>...> {};
 	template <typename T, typename... Ts>
 	constexpr bool contains_v = contains<T, Ts...>::value;
 
+	// type_list_contains_v - true if type_list contains type T
 	template <typename List, typename T> struct type_list_contains;
 	template <typename T, typename... Ts>
 	struct type_list_contains<type_list<Ts...>, T> : std::disjunction<std::is_same<T, Ts>...> {};
 	template <typename List, typename T>
 	constexpr bool type_list_contains_v = type_list_contains<T, List>::value;
 
+	// is_unique - true if type_list contains no duplicates
 	template <typename... Ts> struct is_unique;
-
 	template <> struct is_unique<>
 	{
 		static constexpr bool value = true;
@@ -31,6 +53,7 @@ namespace t_list
 	template <typename... Ts>
 	constexpr bool is_unique_v = is_unique<Ts...>::value;
 
+	// type_list_filter - Filter all elements of of type_list where Predicate returns false
 	template <template <typename> class Predicate, typename... Ts>
 	struct type_list_filter;
 	template <template <typename> class Predicate>
@@ -105,21 +128,18 @@ namespace t_list
 		using type = typename extract_impl<0, idx, Ts...>::type;
 	};
 
-	template <std::size_t idx, class TypeList>
-	struct type_list_extract;
-
+	template <std::size_t idx, class TypeList> struct type_list_extract;
 	template <std::size_t idx, template <class...> class TypeList, typename... Ts>
 	struct type_list_extract<idx, TypeList<Ts...>>
 	{
 		using type = typename extract<idx, Ts...>::type;
 	};
-
 	template <class TypeList, std::size_t idx>
 	using type_list_extract_t = typename type_list_extract<idx, TypeList>::type;
 
 	// cartesian_product - Cross Product of two type_lists
 	//		type = pair<T, U>...;
-	template<typename T1, typename T2> struct pair {};
+	template <typename T1, typename T2> struct pair {};
 	template <typename T, typename U> struct cartesian_product;
 	template <typename... Us>
 	struct cartesian_product<type_list<>, type_list<Us...>>
@@ -137,66 +157,73 @@ namespace t_list
 	using cartesian_product_t = typename cartesian_product<T, U>::type;
 
 	// rebind - Rebinds template arguments from T1 to T2 where T1 and T2 are templates
-	template<class TFrom, template<class...> class TTo> struct rebind;
-	template<template<class...> class TFrom, class... Ts, template<typename...> class TTo>
+	template <class TFrom, template<class...> class TTo> struct rebind;
+	template <template<class...> class TFrom, class... Ts, template<typename...> class TTo>
 	struct rebind<TFrom<Ts...>, TTo>
 	{ 
 		using type = TTo<Ts...>; 
 	};
 
-	template<class T1, template<class...> class T2>
+	template <class T1, template<class...> class T2>
 	using rebind_t = typename rebind<T1, T2>::type;
 
-	// type_list_apply - applies each template argument from outer to inner
-	template<class Outer, template<class...> class Inner> struct apply_inner;
-	template<template<class...> class Outer, template<class...> class Inner, class... Ts>
+	// apply_inner - applies each template argument from outer to inner
+	template <class Outer, template<class...> class Inner> struct apply_inner;
+	template <template<class...> class Outer, template<class...> class Inner, class... Ts>
 	struct apply_inner<Outer<Ts...>, Inner>
 	{
 		using type = Outer<Inner<Ts>...>;
 	};
 
-	template<class Outer, template<typename...> class Inner>
+	template <class Outer, template<typename...> class Inner>
 	using apply_inner_t = typename apply_inner<Outer, Inner>::type;
 
-	template<typename T>
+	template <typename T>
 	using                 is_storable   = std::disjunction<std::is_arithmetic<T>, std::conjunction<std::is_compound<T>, std::negation<std::is_function<T>>>>;
-	template<typename T>
+	template <typename T>
 	constexpr bool        is_storable_v = is_storable<T>::value;
 
-	template<bool Test, typename T, T v1, T v2>
+	// conditional_val - v1 if Test returns true and v2 otherwise
+	template <bool Test, typename T, T v1, T v2>
 	struct conditional_val
 	{
 		static constexpr T value = v2;
 	};
-	template<typename T, T v1, T v2>
+	template <typename T, T v1, T v2>
 	struct conditional_val<true, T, v1, v2>
 	{
 		static constexpr T value = v1;
 	};
 
-	template<bool Test, typename T, T v1, T v2>
+	template <bool Test, typename T, T v1, T v2>
 	static constexpr T    conditional_v      = conditional_val<Test, T, v1, v2>::value;
-	template<bool Test, bool v1>
+	template <bool Test, bool v1>
 	static constexpr bool conditional_bool_v = conditional_val<Test, bool, v1, false>::value;
 
 	template <typename... Ts> struct type_list
 	{
-		using unique            = type_list_unique<Ts...>;
-		template <typename... Args>
-		using append            = type_list<Ts..., Args...>;
-		template <typename... Args>
-		using append_unique     = type_list_unique<Ts..., Args...>;
-		template <template <typename> class Predicate>
-		using filter            = type_list_filter_t<Predicate, Ts...>;
+		template <template<class...> class TTo>
+		using rebind              = rebind_t<type_list<Ts...>, TTo>;
+		template <template<class...> class Inner>
+		using apply               = apply_inner_t<type_list<Ts...>, Inner>;
 
+		using unique              = type_list_unique<Ts...>;
+		template <typename... Args>
+		using append              = type_list<Ts..., Args...>;
+		template <typename... Args>
+		using append_unique       = type_list_unique<Ts..., Args...>;
+		template <class... TLists>
+		using append_lists        = type_list_cat_t<type_list<Ts...>, TLists...>;
+		template <class... TLists>
+		using append_lists_unique = type_list_unique<type_list<Ts...>, TLists...>;
+
+		template <template <typename> class Predicate>
+		using filter              = type_list_filter_t<Predicate, Ts...>;
 		template <class TypeList>
-		using cartesian_product = cartesian_product_t<type_list<Ts...>, TypeList>;
-		template<template<class...> class TTo>
-		using rebind            = rebind_t<type_list<Ts...>, TTo>;
-		template<template<class...> class Inner>
-		using apply             = apply_inner_t<type_list<Ts...>, Inner>;
+		using cartesian_product   = cartesian_product_t<type_list<Ts...>, TypeList>;
+
 		template <std::size_t idx>
-		using extract           = type_list_extract_t<type_list<Ts...>, idx>;
+		using extract             = type_list_extract_t<type_list<Ts...>, idx>;
 
 		static constexpr std::size_t n_types      = sizeof... (Ts);
 		static constexpr bool        empty        = n_types == 0;
@@ -209,7 +236,7 @@ namespace t_list
 		template<typename... Args>
 		static constexpr bool        same         = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
 
-		template<typename... Args>
+		template <typename... Args>
 		static constexpr bool        convertible()
 		{
 			if constexpr (sizeof... (Args) == n_types)
