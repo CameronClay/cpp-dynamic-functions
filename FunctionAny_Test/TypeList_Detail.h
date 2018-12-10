@@ -11,10 +11,10 @@ namespace t_list_detail
 	template <typename... Ts>
 	using type_list = t_list::type_list<Ts...>;
 
-	// type_nonexistant - dummy type representing a nonexistant type
+	// type_nonexistant - Dummy type representing a nonexistant type
 	struct type_nonexistant {};
 
-	// front - access first type in type_list
+	// front - Access first type in type_list
 	template <typename TList> struct front;
 	template <template <typename...> class TList>
 	struct front<TList<>>
@@ -29,7 +29,7 @@ namespace t_list_detail
 	template<typename TList>
 	using front_t = typename front<TList>::type;
 
-	// pop_front - remove first type in type_list
+	// pop_front - Remove first type in type_list
 	template <typename TList> struct pop_front;
 	template <template <typename...> class TList>
 	struct pop_front<TList<>>
@@ -44,7 +44,7 @@ namespace t_list_detail
 	template <typename TList>
 	using pop_front_t = typename pop_front<TList>::type;
 
-	// type_list_cat - concatenate multiple type_list's
+	// type_list_cat - Concatenate multiple type_list's
 	template <class... TLists> struct type_list_cat;
 	template <> struct type_list_cat<>
 	{
@@ -136,11 +136,11 @@ namespace t_list_detail
 	{
 		using type = typename add_unique<THead, typename type_list_unique_helper<TTail...>::type>::type;
 	};
-	// type_list_unique -  Make unique type_list given list of types (also concatenates multiple type_lists)
+	// type_list_unique - Make unique type_list given list of types (also concatenates multiple type_lists)
 	template <typename... Ts>
 	using type_list_unique = typename type_list_unique_helper<Ts...>::type;
 
-	// extract -  Extract type at idx in Ts...
+	// extract - Extract type at idx in Ts...
 	template <std::size_t idx, typename... Ts>
 	class extract
 	{
