@@ -186,7 +186,7 @@ namespace t_list_detail
 	template <template <typename...> class TList1, template <typename...> class TList2, typename T, typename... Ts, typename... Us>
 	struct cartesian_product<TList1<T, Ts...>, TList2<Us...>>
 	{
-		using type = type_list_unique<type_list<pair<T, Us>...>,
+		using type = type_list_cat<type_list<pair<T, Us>...>,
 			typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type>;
 	};
 	template <typename T, typename U>
@@ -203,14 +203,20 @@ namespace t_list_detail
 	using rebind_t = typename rebind<T1, T2>::type;
 
 	// apply_inner - applies each template argument from outer to inner
-	template <class Outer, template<class...> class Inner> struct apply_inner;
-	template <template<class...> class Outer, template<class...> class Inner, class... Ts>
-	struct apply_inner<Outer<Ts...>, Inner>
+	// TsTo applied from left to right
+	template <class TList, template<class...> class... TsTo> struct apply;
+	template <template<class...> class TList, template<class...> class TTo, class... Ts>
+	struct apply<TList<Ts...>, TTo>
 	{
-		using type = Outer<Inner<Ts>...>;
+		using type = TList<TTo<Ts>...>;
 	};
-	template <class Outer, template<typename...> class Inner>
-	using apply_inner_t = typename apply_inner<Outer, Inner>::type;
+	template <template<class...> class TList, template<class...> class TTo, template<class...> class... Rest, class... Ts>
+	struct apply<TList<Ts...>, TTo, Rest...>
+	{
+		using type = typename apply<TList<TTo<Ts>...>, Rest...>::type;
+	};
+	template <class Outer, template<typename...> class... TsTo>
+	using apply_t = typename apply<Outer, TsTo...>::type;
 
 	template <typename T>
 	using                 is_storable = std::disjunction<std::is_arithmetic<T>, std::conjunction<std::is_compound<T>, std::negation<std::is_function<T>>>>;

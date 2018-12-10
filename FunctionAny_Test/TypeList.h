@@ -9,9 +9,9 @@ namespace t_list
 		// Rebind Ts... to another template (TTo<Ts...>)
 		template <template<class...> class TTo>
 		using rebind              = t_list_detail::rebind_t<type_list<Ts...>, TTo>;
-		// Apply Ts... to another template (Inner<Ts>...)
-		template <template<class...> class Inner>
-		using apply               = t_list_detail::apply_inner_t<type_list<Ts...>, Inner>;
+		// Apply Ts... to another template (TTo_First<TTo_Rest<Ts>>...>)
+		template <template<class...> class... TsTo>
+		using apply               = t_list_detail::apply_t<type_list<Ts...>, TsTo...>;
 
 		// Remove duplicates from list
 		using unique              = t_list_detail::type_list_unique<Ts...>;
