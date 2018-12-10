@@ -123,6 +123,7 @@
     <ClInclude Include="FunctionAny.h" />
     <ClInclude Include="FunctionTraits.h" />
     <ClInclude Include="TypeList.h" />
+    <ClInclude Include="TypeList_Detail.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
