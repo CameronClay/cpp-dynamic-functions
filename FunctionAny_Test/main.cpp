@@ -78,11 +78,6 @@ int main()
 
 	A a{ 5, 2.34f };
 
-
-	//using TYPE = void;
-	//constexpr bool is_storab = t_list::is_storable_v<TYPE>;
-	//constexpr int sz = sizeof(TYPE);
-
 	// In most cases the list of the functions used will not be known.
 	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.
 	using L_FUNC_S = tl<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2)>;
