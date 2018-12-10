@@ -15,7 +15,6 @@ namespace t_list
 
 		// Remove duplicates from list
 		using unique              = t_list_detail::type_list_unique<Ts...>;
-		template <typename... Args>
 
 		// Acess first type in list
 		using front               = t_list_detail::front_t<type_list<Ts...>>;
@@ -31,11 +30,11 @@ namespace t_list
 		// Append Args to end of list
 		template <typename... Args>
 		using append              = type_list<Ts..., Args...>;
-		template <typename... Args>
 		// Append Args to end of list and remove all duplicates
+		template <typename... Args>
 		using append_unique       = t_list_detail::type_list_unique<Ts..., Args...>;
-		template <class... TLists>
 		// Append all TLists to current list of types
+		template <class... TLists>
 		using append_lists        = t_list_detail::type_list_cat_t<type_list<Ts...>, TLists...>;
 		// Append all TLists to current list of types and remove all duplicates
 		template <class... TLists>
