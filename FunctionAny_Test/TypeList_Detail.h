@@ -203,23 +203,23 @@ namespace t_list_detail
 	using rebind_t = typename rebind<T1, T2>::type;
 
 	// apply_inner - applies each template argument from outer to inner
-	// TsTo applied from left to right
-	template <class TList, template<class...> class... TsTo> struct apply;
-	template <template<class...> class TList, template<class...> class TTo, class... Ts>
-	struct apply<TList<Ts...>, TTo>
+	// TTo_First/TTo_Rest applied from left to right
+	template <class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest> struct apply;
+	template <template<class...> class TList, template<class...> class TTo_First, class... Ts>
+	struct apply<TList<Ts...>, TTo_First>
 	{
-		using type = TList<TTo<Ts>...>;
+		using type = TList<TTo_First<Ts>...>;
 	};
-	template <template<class...> class TList, template<class...> class TTo, template<class...> class... Rest, class... Ts>
-	struct apply<TList<Ts...>, TTo, Rest...>
+	template <template<class...> class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest, class... Ts>
+	struct apply<TList<Ts...>, TTo_First, TTo_Rest...>
 	{
-		using type = typename apply<TList<TTo<Ts>...>, Rest...>::type;
+		using type = typename apply<TList<TTo_First<Ts>...>, TTo_Rest...>::type;
 	};
-	template <class Outer, template<typename...> class... TsTo>
-	using apply_t = typename apply<Outer, TsTo...>::type;
+	template <class Outer, template<class...> class TTo_First, template<class...> class... TTo_Rest>
+	using apply_t = typename apply<Outer, TTo_First, TTo_Rest...>::type;
 
 	template <typename T>
-	using                 is_storable = std::disjunction<std::is_arithmetic<T>, std::conjunction<std::is_compound<T>, std::negation<std::is_function<T>>>>;
+	using                 is_storable    = std::disjunction<std::is_arithmetic<T>, std::conjunction<std::is_compound<T>, std::negation<std::is_function<T>>>>;
 	template <typename T>
 	constexpr bool        is_storable_v = is_storable<T>::value;
 
@@ -236,7 +236,7 @@ namespace t_list_detail
 	};
 
 	template <bool Test, typename T, T v1, T v2>
-	static constexpr T    conditional_v = conditional_val<Test, T, v1, v2>::value;
+	static constexpr T    conditional_v      = conditional_val<Test, T, v1, v2>::value;
 	template <bool Test, bool v1>
 	static constexpr bool conditional_bool_v = conditional_val<Test, bool, v1, false>::value;
 }

@@ -3,15 +3,17 @@
 
 namespace t_list
 {
+	// type_list - Represents a compile time list of types
+	// All type_list operations that work on the type_list give a new type_list and do not modify the current
 	template <typename... Ts> 
 	struct type_list
 	{
-		// Rebind Ts... to another template (TTo<Ts...>)
+		// Rebind Ts... to another template in the form of TTo<Ts...>
 		template <template<class...> class TTo>
 		using rebind              = t_list_detail::rebind_t<type_list<Ts...>, TTo>;
-		// Apply Ts... to another template (TTo_First<TTo_Rest<Ts>>...>)
-		template <template<class...> class... TsTo>
-		using apply               = t_list_detail::apply_t<type_list<Ts...>, TsTo...>;
+		// Apply Ts... to one or more templates in the form of TTo_First<TTo_Rest<Ts>>...>
+		template <template<class...> class TTo_First, template<class...> class... TTo_Rest>
+		using apply               = t_list_detail::apply_t<type_list<Ts...>, TTo_First, TTo_Rest...>;
 
 		// Remove duplicates from list
 		using unique              = t_list_detail::type_list_unique<Ts...>;
@@ -65,7 +67,7 @@ namespace t_list
 		template<typename T>
 		static constexpr bool        contains     = t_list_detail::contains_v<T, Ts...>;
 
-		// Returns true if all Ts are same as all Args
+		// True if all Ts are same as all Args
 		template<typename... Args>
 		static constexpr bool        same         = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
 
