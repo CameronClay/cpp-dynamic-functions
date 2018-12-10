@@ -121,16 +121,17 @@ namespace f_traits
 	struct sig_helper<RT(Args...)>
 	{
 		using return_t = RT;
+		using args     = t_list::type_list<Args...>;
 
-		static constexpr int  n_args           = t_list::type_list<Args...>::n_types;
-		static constexpr bool no_args          = t_list::type_list<Args...>::empty;
+		static constexpr int  n_args           = args::n_types;
+		static constexpr bool no_args          = args::empty;
 
 		template<typename T>
-		static constexpr bool has_arg          = t_list::contains_v<T, Args...>;
+		static constexpr bool has_arg          = args::template contains<T>;
 		template<typename... Ts>
-		static constexpr bool same_args        = t_list::type_list<Args...>::template same<Ts...>;
+		static constexpr bool same_args        = args::template same<Ts...>;
 		template<typename... Ts>
-		static constexpr bool convertable_args = t_list::type_list<Args...>::template convertible<Ts...>();
+		static constexpr bool convertable_args = args::template convertible<Ts...>();
 	};
 
 	template<typename Sig> using                  sig_rt_t      = typename sig_helper<Sig>::return_t;

@@ -91,7 +91,7 @@ namespace t_list_detail
 	template <typename... Ts>
 	constexpr bool is_unique_v = is_unique<Ts...>::value;
 
-	// type_list_filter - Filter all elements of of type_list where Predicate returns false
+	// type_list_filter - Filter all elements of of type_list where Predicate::value is false
 	template <template <typename> class Predicate, typename... Ts>
 	struct type_list_filter;
 	template <template <typename> class Predicate>

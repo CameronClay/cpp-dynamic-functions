@@ -44,7 +44,7 @@ namespace t_list
 		//Remove all elements from list
 		using clear               = type_list<>;
 		
-		// Remove all elements where Predicate returns false
+		// Remove all elements where Predicate::value is false
 		template <template <typename> class Predicate>
 		using filter              = t_list_detail::type_list_filter_t<Predicate, Ts...>;
 		// Computes cross product with another type_list
