@@ -19,6 +19,8 @@ private:
 	using TO_RETURN_TYPE = std::conditional_t<std::is_lvalue_reference_v<RT>, std::add_pointer_t<std::remove_reference_t<RT>>, std::conditional_t<std::is_void_v<RT>, VOID, RT>>;
 public:
 	using SIGS_UNIQUE    = typename t_list::type_list<Sigs...>::unique;
+	static_assert(SIGS_UNIQUE::template all_match_predicate<f_traits::is_sig>(), "Error: Not all arguments are type-erased function signatures");
+
 	using RTS_UNIQUE     = typename SIGS_UNIQUE::template apply<f_traits::sig_rt_t, TO_RETURN_TYPE>::template append_unique<NO_CALL>;
 	using RT_VARIANT     = typename RTS_UNIQUE ::template rebind<std::variant>;
 

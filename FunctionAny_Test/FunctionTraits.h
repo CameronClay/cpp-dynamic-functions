@@ -116,6 +116,10 @@ namespace f_traits
 #define SIG_S_T(Func) \
 	sig_s_t<decltype(Func)>
 
+	template<typename Sig> struct is_sig : std::false_type {};
+	template<typename RT, typename... Args>
+	struct is_sig<RT(Args...)> : std::true_type {};
+
 	template<typename Sig> struct sig_helper;
 	template<typename RT, typename... Args> 
 	struct sig_helper<RT(Args...)>
