@@ -116,7 +116,7 @@ namespace t_list
 		template <typename TNew, typename Ts, bool is_duplicate = type_list_contains_v<TNew, Ts>>
 		struct add_unique;
 		template <typename TNew, typename... Ts>
-		struct add_unique<TNew, type_list<Ts...>, true> { using type = type_list<Ts...>; };
+		struct add_unique<TNew, type_list<Ts...>, true>  { using type = type_list<Ts...>; };
 		template <typename TNew, typename... Ts >
 		struct add_unique<TNew, type_list<Ts...>, false> { using type = type_list<TNew, Ts...>; };
 
@@ -235,9 +235,15 @@ namespace t_list
 		};
 
 		template <bool Test, typename T, T v1, T v2>
-		static constexpr T    conditional_v      = conditional_val<Test, T, v1, v2>::value;
+		constexpr T    conditional_v      = conditional_val<Test, T, v1, v2>::value;
 		template <bool Test, bool v1>
-		static constexpr bool conditional_bool_v = conditional_val<Test, bool, v1, false>::value;
+		constexpr bool conditional_bool_v = conditional_val<Test, bool, v1, false>::value;
+
+		template <bool...> struct bool_pack;
+		template <bool... v>
+		using          all_true   = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
+		template <bool... v>
+		constexpr bool all_true_v = all_true<v...>::value;
 
 		// largest_type - type = largest type in Ts...
 		template <typename... Ts> struct largest_type;

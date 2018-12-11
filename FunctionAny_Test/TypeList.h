@@ -59,24 +59,27 @@ namespace t_list
 		template <std::size_t idx>
 		using extract              = t_list::detail::type_list_extract_t<type_list<Ts...>, idx>;
 
-		// Number of types in list
-		static constexpr std::size_t n_types      = sizeof... (Ts);
-		// True if list is empty
-		static constexpr bool        empty        = n_types == 0;
-		// True if there are no duplicate types in list
-		static constexpr bool        is_unique    = t_list::detail::is_unique_v<Ts...>;
-		// True if all Ts in list are storable types
-		static constexpr bool        all_storable = std::conjunction_v<t_list::detail::is_storable<Ts>...>;
-			 
 		// Number of occurrences of T in Ts
 		template<typename T>
-		static constexpr std::size_t count        = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
-		// True if Ts contains T
+		static constexpr std::size_t count            = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
+		// True if Ts contains one or more instances of T
 		template<typename T>
-		static constexpr bool        contains     = t_list::detail::contains_v<T, Ts...>;
+		static constexpr bool        contains         = t_list::detail::contains_v<T, Ts...>;
+		// True if Ts contains exactly one instance of T
+		template<typename T>
+		static constexpr bool        contains_unique  = count<T> == 1;
 		// True if all Ts are same as all Args
 		template<typename... Args>
-		static constexpr bool        same         = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+		static constexpr bool        same             = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+
+		// Number of types in list
+		static constexpr std::size_t n_types          = sizeof... (Ts);
+		// True if list is empty
+		static constexpr bool        empty            = n_types == 0;
+		// True if there are no duplicate types in list
+		static constexpr bool        is_unique        = t_list::detail::all_true_v<contains_unique<Ts>...>;
+		// True if all Ts in list are storable types
+		static constexpr bool        all_storable     = std::conjunction_v<t_list::detail::is_storable<Ts>...>;
 
 		// Returns true if all Ts are convertible to Args
 		template <typename... Args>
