@@ -76,8 +76,7 @@ namespace t_list
 		constexpr bool type_list_contains_v = type_list_contains<T, List>::value;
 
 		// type_list_filter - Filter all elements of of type_list where Predicate::value is false
-		template <template <typename> class Predicate, typename... Ts>
-		struct type_list_filter;
+		template <template <typename> class Predicate, typename... Ts> struct type_list_filter;
 		template <template <typename> class Predicate>
 		struct type_list_filter<Predicate>
 		{
@@ -94,16 +93,26 @@ namespace t_list
 			using type = typename std::conditional_t<Predicate<T>::value, type_list<T>, type_list<>>::template append<
 				typename type_list_filter<Predicate, Ts...>::type>;
 		};
-
 		template <template <typename> class Predicate, typename... Ts>
 		using type_list_filter_t = typename type_list_filter<Predicate, Ts...>::type;
 
-		template <typename TNew, typename Ts, bool is_duplicate = type_list_contains_v<TNew, Ts>>
-		struct add_unique;
+		// append_conditional_front - add element to front list if add == true
+		template <typename TNew, typename TList, bool add> struct append_conditional_front;
 		template <typename TNew, typename... Ts>
-		struct add_unique<TNew, type_list<Ts...>, true>  { using type = type_list<Ts...>; };
+		struct append_conditional_front<TNew, type_list<Ts...>, true>  { using type = type_list<Ts...>; };
 		template <typename TNew, typename... Ts >
-		struct add_unique<TNew, type_list<Ts...>, false> { using type = type_list<TNew, Ts...>; };
+		struct append_conditional_front<TNew, type_list<Ts...>, false> { using type = type_list<TNew, Ts...>; };
+		template <typename TNew, typename TList, bool add>
+		using append_conditional_front_t = typename append_conditional_front<TNew, TList, add>::type;
+
+		// append_conditional - add element to end list if add == true
+		template <typename TNew, typename TList, bool add> struct append_conditional;
+		template <typename TNew, typename... Ts>
+		struct append_conditional<TNew, type_list<Ts...>, true>  { using type = type_list<Ts...>; };
+		template <typename TNew, typename... Ts >
+		struct append_conditional<TNew, type_list<Ts...>, false> { using type = type_list<Ts..., TNew>; };
+		template <typename TNew, typename TList, bool add>
+		using append_conditional_t = typename append_conditional<TNew, TList, add>::type;
 
 		template <typename... Ts> struct type_list_unique_helper;
 		template <> struct type_list_unique_helper<>
@@ -118,7 +127,7 @@ namespace t_list
 		template <typename THead, typename... TTail>
 		struct type_list_unique_helper<THead, TTail...>
 		{
-			using type = typename add_unique<THead, typename type_list_unique_helper<TTail...>::type>::type;
+			using type = append_conditional_t<THead, typename type_list_unique_helper<TTail...>::type, contains_v<THead, TTail...>>;
 		};
 		// type_list_unique - Make unique type_list given list of types (also concatenates multiple type_lists)
 		template <typename... Ts>
