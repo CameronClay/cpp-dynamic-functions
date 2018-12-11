@@ -8,6 +8,32 @@ namespace t_list
 	template <typename... Ts> 
 	struct type_list
 	{
+		// Number of occurrences of T in Ts
+		template<typename T>
+		static constexpr std::size_t count                  = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
+		// True if Ts contains one or more instances of T
+		template<typename T>
+		static constexpr bool        contains               = t_list::detail::contains_v<T, Ts...>;
+		// True if Ts contains exactly one instance of T
+		template<typename T>
+		static constexpr bool        contains_unique        = count<T> == 1;
+		// True if all Ts are same as all Args
+		template<typename... Args>
+		static constexpr bool        same                   = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+
+
+		// Number of types in list
+		static constexpr std::size_t n_types                = sizeof... (Ts);
+		// True if list is empty
+		static constexpr bool        empty                  = n_types == 0;
+		// True if there are no duplicate types in list
+		static constexpr bool        is_unique              = t_list::detail::all_true_v<contains_unique<Ts>...>;
+		// True if all Ts in list are storable types
+		static constexpr bool        all_storable           = std::conjunction_v<t_list::detail::is_storable<Ts>...>;
+		// True if all Ts are templates of TemplateOf
+		template <template<class...> class TemplateOf>
+		static constexpr bool        all_template_of_type_v = t_list::detail::is_template_of_type_v<TemplateOf, Ts...>;
+
 		// Rebind Ts... to another template in the form of TTo<Ts...>
 		template <template<class...> class TTo>
 		using rebind              = t_list::detail::rebind_t<type_list<Ts...>, TTo>;
@@ -16,7 +42,7 @@ namespace t_list
 		using apply               = t_list::detail::apply_t<type_list<Ts...>, TTo_First, TTo_Rest...>;
 
 		// Remove duplicates from list
-		using unique              = t_list::detail::type_list_unique<Ts...>;
+		using unique              = std::conditional_t<is_unique, type_list<Ts...>, t_list::detail::type_list_unique<Ts...>>;
 
 		// Acess first type in list
 		using front               = t_list::detail::front_t<type_list<Ts...>>;
@@ -54,32 +80,6 @@ namespace t_list
 		template <std::size_t idx>
 		using extract             = t_list::detail::type_list_extract_t<type_list<Ts...>, idx>;
 
-		// Number of occurrences of T in Ts
-		template<typename T>
-		static constexpr std::size_t count                  = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
-		// True if Ts contains one or more instances of T
-		template<typename T>
-		static constexpr bool        contains               = t_list::detail::contains_v<T, Ts...>;
-		// True if Ts contains exactly one instance of T
-		template<typename T>
-		static constexpr bool        contains_unique        = count<T> == 1;
-		// True if all Ts are same as all Args
-		template<typename... Args>
-		static constexpr bool        same                   = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
-
-
-		// Number of types in list
-		static constexpr std::size_t n_types                = sizeof... (Ts);
-		// True if list is empty
-		static constexpr bool        empty                  = n_types == 0;
-		// True if there are no duplicate types in list
-		static constexpr bool        is_unique              = t_list::detail::all_true_v<contains_unique<Ts>...>;
-		// True if all Ts in list are storable types
-		static constexpr bool        all_storable           = std::conjunction_v<t_list::detail::is_storable<Ts>...>;
-		// True if all Ts are templates of TemplateOf
-		template <template<class...> class TemplateOf>
-		static constexpr bool        all_template_of_type_v = t_list::detail::is_template_of_type_v<TemplateOf, Ts...>;
-		 
 		// True if Predicate::value is true for all Ts in list
 		template <template <typename> class Predicate>
 		static constexpr bool        all_match_predicate()
