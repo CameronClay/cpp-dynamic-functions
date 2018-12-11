@@ -146,14 +146,30 @@ namespace FAny_Utili
 
 	template <typename SigPair>
 	using pair_create_sig_t = typename pair_create_sig<SigPair>::type;
+
+	template <class... Sig_TLists>
+	struct FunctionAny_Sig_Lists_Helper
+	{
+		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, Sig_TLists...>,     "Error: Template arguments do not match <type_list<Sigs...>...>");
+
+		using type = typename t_list::detail::type_list_cat_t<Sig_TLists...>::template rebind<FunctionAny>;
+	};
+
+	template <class RTTList, class ArgTLists>
+	struct FunctionAny_RT_Args_Helper
+	{
+		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, RTTList, ArgTLists>, "Error: Template arguments do not match <type_list<RTs...>, type_list<Args...>>");
+
+		using type = typename RTTList::template cartesian_product<ArgTLists>::template apply<FAny_Utili::pair_create_sig_t>::template rebind<FunctionAny>;
+	};
 }
 
 // FunctionAny alias, taking any signatures contained in Sig_TLists
 // Sig_TLists are type_list<Sigs...>....
-template <class... Sig_Tists>
-using FunctionAny_Sig_Lists = typename t_list::detail::type_list_cat_t<Sig_Tists...>::template rebind<FunctionAny>;
+template <class... Sig_TLists>
+using FunctionAny_Sig_Lists = typename FAny_Utili::FunctionAny_Sig_Lists_Helper<Sig_TLists...>::type;
 
 // FunctionAny alias, taking all signatures in the cartesian product of all RTs in RTTList and all Args in ArgTLists
 // RTList is a type_list<RTs...>, ArgTLists is a type_list<type_list<Args...>....>
 template <class RTTList, class ArgTLists>
-using FunctionAny_RT_Args = typename RTTList::template cartesian_product<ArgTLists>::template apply<FAny_Utili::pair_create_sig_t>::template rebind<FunctionAny>;
+using FunctionAny_RT_Args   = typename FAny_Utili::FunctionAny_RT_Args_Helper<RTTList, ArgTLists>::type;

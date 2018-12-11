@@ -68,13 +68,6 @@ namespace t_list
 		template <typename T, typename... Ts>
 		constexpr bool contains_v = contains<T, Ts...>::value;
 
-		// type_list_contains_v - true if type_list contains type T
-		template <typename List, typename T> struct type_list_contains;
-		template <typename T, typename... Ts>
-		struct type_list_contains<type_list<Ts...>, T> : std::disjunction<std::is_same<T, Ts>...> {};
-		template <typename List, typename T>
-		constexpr bool type_list_contains_v = type_list_contains<T, List>::value;
-
 		// type_list_filter - Filter all elements of of type_list where Predicate::value is false
 		template <template <typename> class Predicate, typename... Ts> struct type_list_filter;
 		template <template <typename> class Predicate>
@@ -179,7 +172,7 @@ namespace t_list
 		template <template <typename...> class TList1, template <typename...> class TList2, typename T, typename... Ts, typename... Us>
 		struct cartesian_product<TList1<T, Ts...>, TList2<Us...>>
 		{
-			using type = type_list_cat<type_list<pair<T, Us>...>,
+			using type = type_list_cat_t<type_list<pair<T, Us>...>,
 				typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type>;
 		};
 		template <typename T, typename U>
@@ -194,6 +187,16 @@ namespace t_list
 		};
 		template <class T1, template<class...> class T2>
 		using rebind_t = typename rebind<T1, T2>::type;
+
+		// is_template_of_type - Checks to see if First, Rest... are all types of the same template
+		template <template<class...> class TemplateOf, class First, class... Rest> 
+		struct is_template_of_type                                                    : std::integral_constant<bool, false> {};
+		template <template<class...> class TemplateOf, template<class...> class First, class... FirstTs>
+		struct is_template_of_type<TemplateOf, First<FirstTs...>>                     : std::integral_constant<bool, std::is_same_v<TemplateOf<FirstTs...>, First<FirstTs...>>> {};
+		template <template<class...> class TemplateOf, template<class...> class First, template<class...> class... Rest, class... FirstTs, class... RestTs>
+		struct is_template_of_type<TemplateOf, First<FirstTs...>, Rest<RestTs...>...> : std::integral_constant<bool, std::conjunction_v<std::is_same<TemplateOf<FirstTs...>, First<FirstTs...>>, std::is_same<TemplateOf<RestTs...>, Rest<RestTs...>>...>> {};
+		template < template<class...> class TemplateOf, class First, class... Rest>
+		constexpr bool is_template_of_type_v = is_template_of_type<TemplateOf, First, Rest...>::value;
 
 		// apply_inner - applies each template argument from outer to inner
 		// TTo_First/TTo_Rest applied from left to right

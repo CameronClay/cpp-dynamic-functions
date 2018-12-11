@@ -44,11 +44,6 @@ namespace t_list
 		//Remove all elements from list
 		using clear               = type_list<>;
 
-		// Smallest type in list
-		using type_min            = t_list::detail::smallest_type_t<Ts...>;
-		// Largest type in list
-		using type_max            = t_list::detail::largest_type_t <Ts...>;
-
 		// Remove all elements where Predicate::value is false
 		template <template <typename> class Predicate>
 		using filter              = t_list::detail::type_list_filter_t<Predicate, Ts...>;
@@ -61,26 +56,29 @@ namespace t_list
 
 		// Number of occurrences of T in Ts
 		template<typename T>
-		static constexpr std::size_t count           = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
+		static constexpr std::size_t count                  = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
 		// True if Ts contains one or more instances of T
 		template<typename T>
-		static constexpr bool        contains        = t_list::detail::contains_v<T, Ts...>;
+		static constexpr bool        contains               = t_list::detail::contains_v<T, Ts...>;
 		// True if Ts contains exactly one instance of T
 		template<typename T>
-		static constexpr bool        contains_unique = count<T> == 1;
+		static constexpr bool        contains_unique        = count<T> == 1;
 		// True if all Ts are same as all Args
 		template<typename... Args>
-		static constexpr bool        same            = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+		static constexpr bool        same                   = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
 
 
 		// Number of types in list
-		static constexpr std::size_t n_types         = sizeof... (Ts);
+		static constexpr std::size_t n_types                = sizeof... (Ts);
 		// True if list is empty
-		static constexpr bool        empty           = n_types == 0;
+		static constexpr bool        empty                  = n_types == 0;
 		// True if there are no duplicate types in list
-		static constexpr bool        is_unique       = t_list::detail::all_true_v<contains_unique<Ts>...>;
+		static constexpr bool        is_unique              = t_list::detail::all_true_v<contains_unique<Ts>...>;
 		// True if all Ts in list are storable types
-		static constexpr bool        all_storable    = std::conjunction_v<t_list::detail::is_storable<Ts>...>;
+		static constexpr bool        all_storable           = std::conjunction_v<t_list::detail::is_storable<Ts>...>;
+		// True if all Ts are templates of TemplateOf
+		template <template<class...> class TemplateOf>
+		static constexpr bool        all_template_of_type_v = t_list::detail::is_template_of_type_v<TemplateOf, Ts...>;
 		 
 		// True if Predicate::value is true for all Ts in list
 		template <template <typename> class Predicate>
@@ -117,13 +115,13 @@ namespace t_list
 		static constexpr std::size_t type_min_size()
 		{
 			static_assert(all_storable, "Error: cannot determine sizeof min_type in type_list if all types are not storable");
-			return sizeof(type_min);
+			return sizeof(t_list::detail::smallest_type_t<Ts...>);
 		}
 		// Returns sizeof largest type in type_list
 		static constexpr std::size_t type_max_size()
 		{
 			static_assert(all_storable, "Error: cannot determine sizeof max_type in type_list if all types are not storable");
-			return sizeof(type_max);
+			return sizeof(t_list::detail::largest_type_t<Ts...>);
 		}
 	};
 }
