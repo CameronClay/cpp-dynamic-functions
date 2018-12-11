@@ -75,21 +75,6 @@ namespace t_list
 		template <typename List, typename T>
 		constexpr bool type_list_contains_v = type_list_contains<T, List>::value;
 
-		// is_unique - true if type_list contains no duplicates
-		template <typename... Ts> struct is_unique;
-		template <> struct is_unique<>
-		{
-			static constexpr bool value = true;
-		};
-		template <typename THead, typename... TTail>
-		struct is_unique<THead, TTail...>
-		{
-			static constexpr bool value = !contains_v<THead, TTail...> && is_unique<TTail...>::value;
-		};
-
-		template <typename... Ts>
-		constexpr bool is_unique_v = is_unique<Ts...>::value;
-
 		// type_list_filter - Filter all elements of of type_list where Predicate::value is false
 		template <template <typename> class Predicate, typename... Ts>
 		struct type_list_filter;
