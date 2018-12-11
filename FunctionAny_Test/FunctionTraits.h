@@ -120,8 +120,8 @@ namespace f_traits
 	template<typename RT, typename... Args> 
 	struct sig_helper<RT(Args...)>
 	{
-		using return_t = RT;
-		using args     = t_list::type_list<Args...>;
+		using return_t                         = RT;
+		using args                             = t_list::type_list<Args...>;
 
 		static constexpr int  n_args           = args::n_types;
 		static constexpr bool no_args          = args::empty;

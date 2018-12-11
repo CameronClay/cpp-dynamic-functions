@@ -137,7 +137,7 @@ namespace FAny_Utili
 {
 	template <typename SigPair> struct pair_create_sig {};
 	template <typename RT, typename... Ts>
-	struct pair_create_sig<t_list_detail::pair<RT, t_list::type_list<Ts...>>>
+	struct pair_create_sig<t_list::detail::pair<RT, t_list::type_list<Ts...>>>
 	{
 		using type = f_traits::sig_create<RT, Ts...>;
 	};
@@ -149,7 +149,7 @@ namespace FAny_Utili
 // FunctionAny alias, taking any signatures contained in Sig_TLists
 // Sig_TLists are type_list<Sigs...>....
 template <class... Sig_Tists>
-using FunctionAny_Sig_Lists = typename t_list_detail::type_list_cat_t<Sig_Tists...>::template rebind<FunctionAny>;
+using FunctionAny_Sig_Lists = typename t_list::detail::type_list_cat_t<Sig_Tists...>::template rebind<FunctionAny>;
 
 // FunctionAny alias, taking all signatures in the cartesian product of all RTs in RTTList and all Args in ArgTLists
 // RTList is a type_list<RTs...>, ArgTLists is a type_list<type_list<Args...>....>
