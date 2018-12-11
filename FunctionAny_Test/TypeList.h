@@ -4,7 +4,7 @@
 namespace t_list
 {
 	// type_list - Represents a compile time list of types
-	// All type_list operations that work on the type_list give a new type_list and do not modify the current
+	// All type_list operations that work on the type_list give a new type_list and do not modify the current instance
 	template <typename... Ts> 
 	struct type_list
 	{
@@ -22,7 +22,7 @@ namespace t_list
 		using front                = t_list::detail::front_t<type_list<Ts...>>;
 		template <typename... Args>
 		// Add Args to front of list
-		using append_front = type_list<Args..., Ts...>;
+		using append_front         = type_list<Args..., Ts...>;
 		// Add Args to front of list and remove all duplicates
 		template <typename... Args>
 		using append_front_unique  = t_list::detail::type_list_unique<Args..., Ts...>;
@@ -51,13 +51,13 @@ namespace t_list
 		
 		// Remove all elements where Predicate::value is false
 		template <template <typename> class Predicate>
-		using filter              = t_list::detail::type_list_filter_t<Predicate, Ts...>;
+		using filter               = t_list::detail::type_list_filter_t<Predicate, Ts...>;
 		// Computes cross product with another type_list
 		template <class TypeList>
-		using cartesian_product   = t_list::detail::cartesian_product_t<type_list<Ts...>, TypeList>;
+		using cartesian_product    = t_list::detail::cartesian_product_t<type_list<Ts...>, TypeList>;
 		// Extract type at idx
 		template <std::size_t idx>
-		using extract             = t_list::detail::type_list_extract_t<type_list<Ts...>, idx>;
+		using extract              = t_list::detail::type_list_extract_t<type_list<Ts...>, idx>;
 
 		// Number of types in list
 		static constexpr std::size_t n_types      = sizeof... (Ts);
@@ -70,7 +70,7 @@ namespace t_list
 			 
 		// Number of occurrences of T in Ts
 		template<typename T>
-		static constexpr std::size_t count = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
+		static constexpr std::size_t count        = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
 		// True if Ts contains T
 		template<typename T>
 		static constexpr bool        contains     = t_list::detail::contains_v<T, Ts...>;
