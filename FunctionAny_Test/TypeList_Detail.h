@@ -260,7 +260,7 @@ namespace t_list
 		template <typename... Ts>
 		using largest_type_t = typename largest_type<Ts...>::type;
 
-		// largest_type - type = smallest type in Ts...
+		// smallest_type - type = smallest type in Ts...
 		template <typename... Ts> struct smallest_type;
 		template <>
 		struct smallest_type<>
