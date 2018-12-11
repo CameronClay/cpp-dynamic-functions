@@ -45,9 +45,9 @@ namespace t_list
 		using clear               = type_list<>;
 
 		// Smallest type in list
-		using smallest_type       = t_list::detail::smallest_type_t<Ts...>;
+		using type_min       = t_list::detail::smallest_type_t<Ts...>;
 		// Largest type in list
-		using largest_type        = t_list::detail::largest_type_t<Ts...>;
+		using type_max        = t_list::detail::largest_type_t<Ts...>;
 		
 		// Remove all elements where Predicate::value is false
 		template <template <typename> class Predicate>
@@ -67,7 +67,7 @@ namespace t_list
 		static constexpr bool        is_unique    = t_list::detail::is_unique_v<Ts...>;
 		// True if all Ts in list are storable types
 		static constexpr bool        all_storable = std::conjunction_v<t_list::detail::is_storable<Ts>...>;
-
+			 
 		// True if Ts contains T
 		template<typename T>
 		static constexpr bool        contains     = t_list::detail::contains_v<T, Ts...>;
@@ -84,6 +84,27 @@ namespace t_list
 				return std::conjunction_v<std::is_convertible<std::decay_t<Ts>, std::decay_t<Args>>...>;
 
 			return false;
+		}
+
+		// Returns total size required to store all the types in the type_list
+		static constexpr std::size_t total_size()
+		{
+			static_assert(all_storable, "Error: cannot determine total size of type_list if all types are not storable");
+			return (sizeof(Ts) + ...);
+		}
+
+		// Returns sizeof smallest type in type_list
+		static constexpr std::size_t type_min_size()
+		{
+			static_assert(all_storable, "Error: cannot determine sizeof min_type in type_list if all types are not storable");
+			return sizeof(type_min);
+		}
+
+		// Returns sizeof largest type in type_list
+		static constexpr std::size_t type_max_size()
+		{
+			static_assert(all_storable, "Error: cannot determine sizeof max_type in type_list if all types are not storable");
+			return sizeof(type_max);
 		}
 	};
 }
