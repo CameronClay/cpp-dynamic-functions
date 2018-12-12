@@ -114,47 +114,39 @@ int main()
 	{
 		using RT    = std::decay_t<decltype(ret)>;
 		using RT_IS = IS_TYPE<RT>;
+		static_assert(FUNC_ANY::RTS_UNIQUE::contains<RT>, "Error: Invalid return type");
 
-		// Not possible for RT not to exist in RTS_UNIQUE but nice to check anyways
-		if constexpr (FUNC_ANY::RTS_UNIQUE::contains<RT>)
-		//if constexpr(FUNC_ANY::RTS_UNIQUE::filter<std::is_arithmetic>::contains<RT>)
+		if constexpr      (RT_IS::value<NO_CALL>)
 		{
-			if constexpr      (RT_IS::value<NO_CALL>)
-			{
-				//std::cout << "Func was not called" << std::endl;
-			}
-			else if constexpr (RT_IS::value<VOID>)
-			{
-				//std::cout << "Func returned with type: void" << std::endl;
-			}
-			else if constexpr (RT_IS::value<int>)
-			{
-				std::cout << "Func returned " << ret << " with type: int" << std::endl;
-			}
-			else if constexpr (RT_IS::value<float>)
-			{
-				std::cout << "Func returned " << ret << " with type: float" << std::endl;
-			}
-			else if constexpr (RT_IS::value<std::string>)
-			{
-				std::cout << "Func returned " << ret << " with type: string" << std::endl;
-			}
-			else if constexpr (RT_IS::value<A>)
-			{
-				std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << std::endl;
-			}
-			else if constexpr (RT_IS::value<A*>)         // Reference converted to pointer type
-			{
-				std::cout << "Func returned " << ret << ", *A = {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
-			}
-			else
-			{
-				std::cout << "Return Type not handled" << std::endl;
-			}
+			//std::cout << "Func was not called" << std::endl;
+		}
+		else if constexpr (RT_IS::value<VOID>)
+		{
+			//std::cout << "Func returned with type: void" << std::endl;
+		}
+		else if constexpr (RT_IS::value<int>)
+		{
+			std::cout << "Func returned " << ret << " with type: int" << std::endl;
+		}
+		else if constexpr (RT_IS::value<float>)
+		{
+			std::cout << "Func returned " << ret << " with type: float" << std::endl;
+		}
+		else if constexpr (RT_IS::value<std::string>)
+		{
+			std::cout << "Func returned " << ret << " with type: string" << std::endl;
+		}
+		else if constexpr (RT_IS::value<A>)
+		{
+			std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << std::endl;
+		}
+		else if constexpr (RT_IS::value<A*>)         // Reference converted to pointer type
+		{
+			std::cout << "Func returned " << ret << ", *A = {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
 		}
 		else
 		{
-			std::cout << "Error: Return Type invalid" << std::endl;
+			std::cout << "Return Type not handled" << std::endl;
 		}
 	};
 

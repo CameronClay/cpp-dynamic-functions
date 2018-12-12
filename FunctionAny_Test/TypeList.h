@@ -20,7 +20,9 @@ namespace t_list
 		// True if all Ts are same as all Args
 		template<typename... Args>
 		static constexpr bool        same                   = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
-
+		// True if all Ts are templates of TemplateOf
+		template <template<class...> class TemplateOf>
+		static constexpr bool        all_template_of_type_v = t_list::detail::is_template_of_type_v<TemplateOf, Ts...>;
 
 		// Number of types in list
 		static constexpr std::size_t n_types                = sizeof... (Ts);
@@ -30,57 +32,57 @@ namespace t_list
 		static constexpr bool        is_unique              = t_list::detail::all_true_v<contains_unique<Ts>...>;
 		// True if all Ts in list are storable types
 		static constexpr bool        all_storable           = std::conjunction_v<t_list::detail::is_storable<Ts>...>;
-		// True if all Ts are templates of TemplateOf
-		template <template<class...> class TemplateOf>
-		static constexpr bool        all_template_of_type_v = t_list::detail::is_template_of_type_v<TemplateOf, Ts...>;
 
 		// Rebind Ts... to another template in the form of TTo<Ts...>
 		template <template<class...> class TTo>
-		using rebind              = t_list::detail::rebind_t<type_list<Ts...>, TTo>;
+		using rebind                          = t_list::detail::rebind_t<type_list<Ts...>, TTo>;
 		// Apply Ts... to one or more templates in the form of TTo_First<TTo_Rest<Ts>>...>
 		template <template<class...> class TTo_First, template<class...> class... TTo_Rest>
-		using apply               = t_list::detail::apply_t<type_list<Ts...>, TTo_First, TTo_Rest...>;
+		using apply                           = t_list::detail::apply_t<type_list<Ts...>, TTo_First, TTo_Rest...>;
 
 		// Remove duplicates from list
-		using unique              = std::conditional_t<is_unique, type_list<Ts...>, t_list::detail::type_list_unique<Ts...>>;
+		using unique                          = std::conditional_t<is_unique, type_list<Ts...>, t_list::detail::type_list_unique<Ts...>>;
 
-		// Acess first type in list
-		using front               = t_list::detail::front_t<type_list<Ts...>>;
-		// Add Args to front of list
-		template <typename... Args>
-		using append_front        = type_list<Args..., Ts...>;
-		// Add Args to front of list and remove all duplicates
-		template <typename... Args>
-		using append_front_unique = t_list::detail::type_list_unique<Args..., Ts...>;
-		// Remove first element in list
-		using pop_front           = t_list::detail::pop_front_t<type_list<Ts...>>;
-
-		// Append Args to end of list
-		template <typename... Args>
-		using append              = type_list<Ts..., Args...>;
-		// Append Args to end of list and remove all duplicates
-		template <typename... Args>
-		using append_unique       = t_list::detail::type_list_unique<Ts..., Args...>;
-		// Append all TLists to current list of types
-		template <class... TLists>
-		using append_lists        = t_list::detail::type_list_cat_t <type_list<Ts...>, TLists...>;
-		// Append all TLists to current list of types and remove all duplicates
-		template <class... TLists>
-		using append_lists_unique = t_list::detail::type_list_unique<type_list<Ts...>, TLists...>;
-		//Remove all elements from list
-		using clear               = type_list<>;
-
-		// Remove all elements where Predicate::value is false
-		template <template <typename> class Predicate>
-		using filter              = t_list::detail::type_list_filter_t<Predicate, Ts...>;
-		// Computes cross product with another type_list
-		template <class TypeList>
-		using cartesian_product   = t_list::detail::cartesian_product_t<type_list<Ts...>, TypeList>;
 		// Extract type at idx
 		template <std::size_t idx>
-		using extract             = t_list::detail::type_list_extract_t<type_list<Ts...>, idx>;
+		using extract                         = t_list::detail::extract_t<idx, Ts...>;
+		// Extract type at idx
+		template <std::size_t idx>
+		using erase                           = t_list::detail::erase_t  <idx, Ts...>;
 
-		// True if Predicate::value is true for all Ts in list
+		// Acess first type in list
+		using front                           = t_list::detail::front_t<type_list<Ts...>>;
+		// Add Args to front of list
+		template <typename... Args>
+		using append_front                    = type_list<Args..., Ts...>;
+		// Append Args to front of list if Predicate<Args>::value == true
+		template <template <typename> class Predicate, typename... Args>
+		using append_conditional_front        = t_list::detail::append_conditional_front_t<Predicate, type_list<Ts...>, Args...>;
+		// Remove first element in list
+		using pop_front                       = t_list::detail::pop_front_t<type_list<Ts...>>;
+
+		// Access last type in list
+		using back                            = t_list::detail::back_t<type_list<Ts...>>;
+		// Append Args to end of list
+		template <typename... Args>
+		using append                          = type_list<Ts..., Args...>;
+		// Append Args to end of list if Predicate<Args>::value == true
+		template <template <typename> class Predicate, typename... Args>
+		using append_conditional              = t_list::detail::append_conditional_t<Predicate, type_list<Ts...>, Args...>;
+		// Append all TLists to current list of types
+		template <class... TLists>
+		using append_lists                    = t_list::detail::type_list_cat_t <type_list<Ts...>, TLists...>;
+		// Remove all elements from list
+		using clear                           = type_list<>;
+
+		// Remove all elements where Predicate<Ts>::value is false
+		template <template <typename> class Predicate>
+		using filter                         = t_list::detail::type_list_filter_t<Predicate, Ts...>;
+		// Computes cross product with another type_list
+		template <class TypeList>
+		using cartesian_product              = t_list::detail::cartesian_product_t<type_list<Ts...>, TypeList>;
+
+		// True if Predicate<Ts>:value is true for all Ts in list
 		template <template <typename> class Predicate>
 		static constexpr bool        all_match_predicate()
 		{
