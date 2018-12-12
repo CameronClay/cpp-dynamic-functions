@@ -99,5 +99,20 @@ public:
 		return [f, tup = std::make_tuple(std::forward<Args>(args)...)]() mutable -> RT { return std::apply(f, tup); };
 	}
 
+	// Used for constructors
+	static Action MakeFunc()
+	{
+		return {};
+	}
+	static Action MakeFunc(const Function<RT>& func)
+	{
+		return func;
+	}
+	static Action MakeFunc(Function<RT>&& func)
+	{
+		return func;
+	}
+
+
 	Action action;
 };

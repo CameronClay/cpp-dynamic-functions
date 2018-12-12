@@ -26,23 +26,98 @@ public:
 
 	FunctionAny() = default;
 
+	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template setop_is_subset<SIGS_UNIQUE>
+	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
+	template<typename... SigsT>
+	FunctionAny(const FunctionAny<SigsT...>& rhs)
+	{
+		*this = rhs;
+	}
+	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template setop_is_subset<SIGS_UNIQUE>
+	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
+	template<typename... SigsT>
+	FunctionAny(FunctionAny<SigsT...>&& rhs)
+	{
+		*this = std::move(rhs);
+	}
+
+	template<typename Sig>
+	FunctionAny(const Function<Sig>& rhs)
+	{
+		*this = rhs;
+	}
 	template<typename Sig>
 	FunctionAny(Function<Sig>&& rhs)
-		:
-		func(std::move(rhs))
 	{
-		static_assert(f_traits::is_sig_v<Sig>,             "Error: Sig is not a type-erased function signature");
-		static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Sig does not match list of known signatures");
+		*this = std::move(rhs);
 	}
 
 	template<typename Sig, typename... Args>
-	explicit FunctionAny(std::in_place_type_t<Sig>, Args&&... args)
+	FunctionAny(std::in_place_type_t<Sig>, Args&&... args)
 		:
 		func(std::in_place_type<Function<Sig>>, std::forward<Args>(args)...)
 	{
 		static_assert(f_traits::is_sig_v<Sig>,             "Error: Sig is not a type-erased function signature");
 		static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Sig does not match list of known signatures");
 	}
+
+	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template setop_is_subset<SIGS_UNIQUE>
+	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
+	template<typename... SigsT>
+	FunctionAny<Sigs...>& operator=(const FunctionAny<SigsT...>& rhs)
+	{
+		auto f = [this](const auto& func)
+		{
+			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+			static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Signature list does not contain Signature of rhs");
+
+			this->func = func;
+		};
+
+		if (*this != rhs)
+			std::visit(f, rhs.func);
+
+		return *this;
+	}
+
+	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template setop_is_subset<SIGS_UNIQUE>
+	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
+	template<typename... SigsT>
+	FunctionAny& operator=(FunctionAny<SigsT...>&& rhs)
+	{
+		auto f = [this](auto&& func)
+		{
+			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;
+			static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Signature list does not contain Signature of rhs");
+
+			this->func = std::move(func);
+		};
+
+		if (*this != rhs)
+			std::visit(f, std::move(rhs.func));
+
+		return *this;
+	}
+
+	template<typename Sig>
+	FunctionAny& operator=(const Function<Sig>& rhs)
+	{
+		static_assert(f_traits::is_sig_v<Sig>,             "Error: Sig is not a type-erased function signature");
+		static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Sig does not match list of known signatures");
+
+		func = rhs.func;
+		return *this;
+	}
+	template<typename Sig>
+	FunctionAny& operator=(Function<Sig>&& rhs)
+	{
+		static_assert(f_traits::is_sig_v<Sig>,             "Error: Sig is not a type-erased function signature");
+		static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Sig does not match list of known signatures");
+
+		func = std::move(rhs.func);
+		return *this;
+	}
+
 
 	// Invokes func IF all Args are convertible to that of the function signature and calls std::visit on the visitor with the return value
 	template<typename Visitor, typename... Args>
@@ -102,6 +177,9 @@ public:
 	}
 
 private:
+	template<typename... SigsT>
+	friend class FunctionAny;
+
 	using FSIGS_UNIQUE = typename SIGS_UNIQUE::template apply<Function>;
 	typename FSIGS_UNIQUE::template rebind<std::variant> func;
 
