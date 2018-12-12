@@ -103,7 +103,7 @@ namespace t_list
 		using setop_symmetric_difference      = t_list::detail::symmetric_difference_t<type_list<Ts...>, TList1, TListRest...>;
 		// setop_union - computes intersection between type_list<Ts...> and 1 or more type_lists
 		template<typename TList>
-		static constexpr bool setop_is_subset = std::is_same_v<type_list<Ts...>, t_list::detail::intersection_t<type_list<Ts...>, TList>>;
+		static constexpr bool setop_is_subset = std::is_same_v<type_list<Ts...>, setop_intersection<TList>>;
 
 		// True if Predicate<Ts>:value is true for all Ts in list
 		template <template <typename> class Predicate>
