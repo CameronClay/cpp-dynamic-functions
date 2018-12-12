@@ -88,6 +88,7 @@ namespace t_list
 		template <class TypeList>
 		using cartesian_product               = t_list::detail::cartesian_product_t<type_list<Ts...>, TypeList>;
 
+		// All set ops are left to right associative
 		// setop_union - computes union between type_list<Ts...> and 1 or more type_lists
 		template<typename TList1, typename... TListRest>
 		using setop_union                     = append_lists                          <type_list<Ts...>, TList1, TListRest...>;		
