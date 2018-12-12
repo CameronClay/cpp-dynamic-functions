@@ -85,22 +85,22 @@ namespace t_list
 		template <template <typename> class Predicate>
 		using filter                          = t_list::detail::type_list_filter_t<Predicate, Ts...>;
 
-		// setop_union - computes union between type_list<Ts...> and TList
+		// Computes union between type_list<Ts...> and TList
 		template<typename TList>
 		using setop_union                     = append_lists                          <type_list<Ts...>, TList>;		
-		// setop_union - computes intersection between type_list<Ts...> and TList
+		// Computes intersection between type_list<Ts...> and TList
 		template<typename TList>
 		using setop_intersection              = t_list::detail::intersection_t        <type_list<Ts...>, TList>;
-		// setop_union - computes difference between type_list<Ts...> and TList
+		// Computes difference between type_list<Ts...> and TList
 		template<typename TList>
 		using setop_difference                = t_list::detail::difference_t          <type_list<Ts...>, TList>;
-		// setop_union - computes symmetric difference between type_list<Ts...> and TList
+		// Computes symmetric difference between type_list<Ts...> and TList
 		template<typename TList>
 		using setop_symmetric_difference      = t_list::detail::symmetric_difference_t<type_list<Ts...>, TList>;
 		// Computes cartesian product between type_list<Ts...> and TList
 		template <typename TList>
 		using setop_cartesian_product         = t_list::detail::cartesian_product_t   <type_list<Ts...>, TList>;
-		// setop_is_subset - true if type_list<Ts...> is a subset of TList
+		// True if type_list<Ts...> is a subset of TList
 		template<typename TList>
 		static constexpr bool setop_is_subset = std::is_same_v<type_list<Ts...>, setop_intersection<TList>>;
 
