@@ -160,7 +160,7 @@ namespace FAny_Utili
 	{
 		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, RTTList, ArgTLists>, "Error: Template arguments do not match <type_list<RTs...>, type_list<Args...>>");
 
-		using type = typename RTTList::template cartesian_product<ArgTLists>::template apply<FAny_Utili::pair_create_sig_t>::template rebind<FunctionAny>;
+		using type = typename RTTList::template setop_cartesian_product<ArgTLists>::template apply<FAny_Utili::pair_create_sig_t>::template rebind<FunctionAny>;
 	};
 }
 

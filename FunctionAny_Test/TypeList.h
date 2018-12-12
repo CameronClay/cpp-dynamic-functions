@@ -84,24 +84,24 @@ namespace t_list
 		// Remove all elements where Predicate<Ts>::value is false
 		template <template <typename> class Predicate>
 		using filter                          = t_list::detail::type_list_filter_t<Predicate, Ts...>;
-		// Computes cross product with another type_list
-		template <class TypeList>
-		using cartesian_product               = t_list::detail::cartesian_product_t<type_list<Ts...>, TypeList>;
 
 		// All set ops are right to left associative (only matters for difference)
-		// setop_union - computes union between type_list<Ts...> and 1 or more type_lists
-		template<typename TList1, typename... TListRest>
-		using setop_union                     = append_lists                          <type_list<Ts...>, TList1, TListRest...>;		
-		// setop_union - computes intersection between type_list<Ts...> and 1 or more type_lists
-		template<typename TList1, typename... TListRest>
-		using setop_intersection              = t_list::detail::intersection_t        <type_list<Ts...>, TList1, TListRest...>;
-		// setop_union - computes difference between type_list<Ts...> and 1 or more type_lists
-		template<typename TList1, typename... TListRest>
-		using setop_difference                = t_list::detail::difference_t          <type_list<Ts...>, TList1, TListRest...>;
-		// setop_union - computes symmetric difference between type_list<Ts...> and 1 or more type_lists
-		template<typename TList1, typename... TListRest>
-		using setop_symmetric_difference      = t_list::detail::symmetric_difference_t<type_list<Ts...>, TList1, TListRest...>;
-		// setop_union - computes intersection between type_list<Ts...> and 1 or more type_lists
+		// setop_union - computes union between type_list<Ts...> and TList
+		template<typename TList>
+		using setop_union                     = append_lists                          <type_list<Ts...>, TList>;		
+		// setop_union - computes intersection between type_list<Ts...> and TList
+		template<typename TList>
+		using setop_intersection              = t_list::detail::intersection_t        <type_list<Ts...>, TList>;
+		// setop_union - computes difference between type_list<Ts...> and TList
+		template<typename TList>
+		using setop_difference                = t_list::detail::difference_t          <type_list<Ts...>, TList>;
+		// setop_union - computes symmetric difference between type_list<Ts...> and TList
+		template<typename TList>
+		using setop_symmetric_difference      = t_list::detail::symmetric_difference_t<type_list<Ts...>, TList>;
+		// Computes cartesian product between type_list<Ts...> and TList
+		template <class TList>
+		using setop_cartesian_product         = t_list::detail::cartesian_product_t<type_list<Ts...>, TList>;
+		// setop_is_subset - true if type_list<Ts...> is a subset of TList
 		template<typename TList>
 		static constexpr bool setop_is_subset = std::is_same_v<type_list<Ts...>, setop_intersection<TList>>;
 

@@ -44,7 +44,6 @@ namespace t_list
 		template<typename T1>
 		using is_not_a_predicate = typename is_not_a<T1>::helper;
 
-
 		template<typename> struct reverse_base_case;
 		template <template<typename...> class TList, typename... TArgs>
 		struct reverse_base_case<TList<TArgs...>>
@@ -61,14 +60,12 @@ namespace t_list
 		{
 			using type = TList<Ts...>;
 		};
-
 		template<template<typename...> class T, typename x, typename... xs,
 			typename... done>
 			struct reverse<T<x, xs...>, T<done...>>
 		{
 			using type = typename reverse<T<xs...>, T<x, done...>>::type;
 		};
-
 		template<typename TList>
 		using reverse_t = typename reverse<TList>::type;
 
@@ -243,19 +240,19 @@ namespace t_list
 		using append_conditional_binary_op_t = typename append_conditional_binary_op<Predicate, TNew, TListAddTo, TList>::type;
 
 		// binary_op - Adds all types in TList1 to a new type_list if Predicate<T, TList2>::value == true
-		template <template <typename, typename> class Predicate, typename TList1, typename TList2, typename... TListtRest> struct binary_op;
-		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, typename... TListRest, typename First, typename... TL2Args>
-		struct binary_op<Predicate, TList1<First>, TList2<TL2Args...>, TListRest...>
+		template <template <typename, typename> class Predicate, typename TList1, typename TList2> struct binary_op;
+		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, typename First, typename... TL2Args>
+		struct binary_op<Predicate, TList1<First>, TList2<TL2Args...>>
 		{
 			using type = append_conditional_binary_op_t<Predicate, First, type_list<>, TList2<TL2Args...>>;
 		};
-		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, typename... TListRest, typename First, typename... Rest, typename... TL2Args>
-		struct binary_op<Predicate, TList1<First, Rest...>, TList2<TL2Args...>, TListRest...>
+		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, typename First, typename... Rest, typename... TL2Args>
+		struct binary_op<Predicate, TList1<First, Rest...>, TList2<TL2Args...>>
 		{
-			using type = append_conditional_binary_op_t<Predicate, First, typename binary_op<Predicate, TList1<Rest...>, TList2<TL2Args...>, TListRest...>::type, TList2<TL2Args...>>;
+			using type = append_conditional_binary_op_t<Predicate, First, typename binary_op<Predicate, TList1<Rest...>, TList2<TL2Args...>>::type, TList2<TL2Args...>>;
 		};
-		template <template <typename, typename> class Predicate, typename TList1, typename TList2, typename... TListtRest>
-		using binary_op_t = typename binary_op<Predicate, TList1, TList2, TListtRest...>::type;
+		template <template <typename, typename> class Predicate, typename TList1, typename TList2>
+		using binary_op_t = typename binary_op<Predicate, TList1, TList2>::type;
 
 		template<typename T, typename TList> struct predicate_intersection;
 		template<typename T, template <typename...> class TList, typename... Ts>
@@ -271,25 +268,16 @@ namespace t_list
 		};
 
 		// intersection_t - type_list containing all types in both TList1 and TList2
-		template<typename TList1, typename TList2, typename... TListRest>
-		using intersection_t = binary_op_t<predicate_intersection, TList1, TList2, TListRest...>;
+		template<typename TList1, typename TList2>
+		using intersection_t         = binary_op_t<predicate_intersection, TList1, TList2>;
 
-		// predicate_difference - type_list containing all types in both TList1 that are not in TList2
-		template<typename TList1, typename TList2, typename... TListRest>
-		using difference_t   = binary_op_t<predicate_difference, TList1, TList2, TListRest...>;
+		// predicate_difference_t - type_list containing all types in both TList1 that are not in TList2
+		template<typename TList1, typename TList2>
+		using difference_t           = binary_op_t<predicate_difference, TList1, TList2>;
 
-		// symmetric_difference - type_list containing all types in both TList1 and TList2 but not in the intersection
+		// symmetric_difference_t - type_list containing all types in both TList1 and TList2 but not in the intersection
 		template<typename TList1, typename TList2, typename... TListRest>
-		class symmetric_difference
-		{
-			using list               = type_list<TList1, TList2, TListRest...>;
-			using difference         = typename list         ::template rebind<difference_t>;
-			using reverse_difference = typename list::reverse::template rebind<difference_t>;
-		public:
-			using type               = typename difference   ::template setop_union<reverse_difference>;
-		};
-		template<typename TList1, typename TList2, typename... TListRest>
-		using symmetric_difference_t = typename symmetric_difference<TList1, TList2, TListRest...>::type;
+		using symmetric_difference_t = typename difference_t<TList1, TList2>::template setop_union<difference_t<TList2, TList1>>;
 
 		template <typename... Ts> struct type_list_unique_helper;
 		template <> struct type_list_unique_helper<>
@@ -384,7 +372,7 @@ namespace t_list
 
 		// cartesian_product - Cross Product of two type_lists
 		//		type = pair<T, U>...;
-		template <typename T, typename U> struct cartesian_product;
+		template <typename TList1, typename TList2> struct cartesian_product;
 		template <template <typename...> class TList1, template <typename...> class TList2, typename... Us>
 		struct cartesian_product<TList1<>, TList2<Us...>>
 		{
@@ -396,8 +384,8 @@ namespace t_list
 			using type = type_list_cat_t<type_list<pair<T, Us>...>,
 				typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type>;
 		};
-		template <typename T, typename U>
-		using cartesian_product_t = typename cartesian_product<T, U>::type;
+		template <typename TList1, typename TList2>
+		using cartesian_product_t = typename cartesian_product<TList1, TList2>::type;
 
 		// rebind - Rebinds template arguments from T1 to T2 where T1 and T2 are templates
 		template <class TFrom, template<class...> class TTo> struct rebind;
@@ -411,9 +399,9 @@ namespace t_list
 
 		// is_template_of_type - Checks to see if First, Rest... are all types of the same template
 		template <template<class...> class TemplateOf, class First, class... Rest>
-		struct is_template_of_type : std::integral_constant<bool, false> {};
+		struct is_template_of_type                                                    : std::integral_constant<bool, false> {};
 		template <template<class...> class TemplateOf, template<class...> class First, class... FirstTs>
-		struct is_template_of_type<TemplateOf, First<FirstTs...>> : std::integral_constant<bool, std::is_same_v<TemplateOf<FirstTs...>, First<FirstTs...>>> {};
+		struct is_template_of_type<TemplateOf, First<FirstTs...>>                     : std::integral_constant<bool, std::is_same_v<TemplateOf<FirstTs...>, First<FirstTs...>>> {};
 		template <template<class...> class TemplateOf, template<class...> class First, template<class...> class... Rest, class... FirstTs, class... RestTs>
 		struct is_template_of_type<TemplateOf, First<FirstTs...>, Rest<RestTs...>...> : std::integral_constant<bool, std::conjunction_v<std::is_same<TemplateOf<FirstTs...>, First<FirstTs...>>, std::is_same<TemplateOf<RestTs...>, Rest<RestTs...>>...>> {};
 		template < template<class...> class TemplateOf, class First, class... Rest>
@@ -436,7 +424,7 @@ namespace t_list
 		using apply_t = typename apply<Outer, TTo_First, TTo_Rest...>::type;
 
 		template <typename T>
-		using                 is_storable = std::disjunction<std::is_arithmetic<T>, std::conjunction<std::is_compound<T>, std::negation<std::is_function<T>>>>;
+		using                 is_storable   = std::disjunction<std::is_arithmetic<T>, std::conjunction<std::is_compound<T>, std::negation<std::is_function<T>>>>;
 		template <typename T>
 		constexpr bool        is_storable_v = is_storable<T>::value;
 
@@ -453,13 +441,13 @@ namespace t_list
 		};
 
 		template <bool Test, typename T, T v1, T v2>
-		constexpr T    conditional_v = conditional_val<Test, T, v1, v2>::value;
+		constexpr T    conditional_v      = conditional_val<Test, T, v1, v2>::value;
 		template <bool Test, bool v1>
 		constexpr bool conditional_bool_v = conditional_val<Test, bool, v1, false>::value;
 
 		template <bool...> struct bool_pack;
 		template <bool... v>
-		using          all_true = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
+		using          all_true   = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
 		template <bool... v>
 		constexpr bool all_true_v = all_true<v...>::value;
 
