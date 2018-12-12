@@ -192,7 +192,7 @@ namespace t_list
 		using append_conditional_t = typename append_conditional<Predicate, TList, Ts...>::type;
 
 		// type_list_cat_conditional - Concatenate multiple type_list's each type is added if Predicate<T>::value == true
-		template <template <typename> class Predicate, class... TLists> struct type_list_cat_conditional;
+		template <template <typename> class Predicate, typename... TLists> struct type_list_cat_conditional;
 		template <template <typename> class Predicate>
 		struct type_list_cat_conditional<Predicate>
 		{
@@ -208,7 +208,7 @@ namespace t_list
 		{
 			using type = typename type_list_cat_conditional<Predicate, append_conditional_t<Predicate, type_list<TL1Args...>, TL2Args...>, TLists...>::type;
 		};
-		template <template <typename> class Predicate, class... TLists>
+		template <template <typename> class Predicate, typename... TLists>
 		using type_list_cat_conditional_t = typename type_list_cat_conditional<Predicate, TLists...>::type;
 
 		// append_conditional_front - Appends Ts... to front TList if Predicate<T>::value is true

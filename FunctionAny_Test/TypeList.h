@@ -73,7 +73,7 @@ namespace t_list
 		using append_conditional               = t_list::detail::append_conditional_t<Predicate, type_list<Ts...>, Args...>;
 
 		// Append all TLists to current list of types
-		template <class... TLists>
+		template <typename... TLists>
 		using append_lists                     = t_list::detail::type_list_cat_t <type_list<Ts...>, TLists...>;
 		// Append all types in TLists to current list of types if Predicate<T>::value == true
 		template <template <typename> class Predicate, class... TLists>
@@ -99,7 +99,7 @@ namespace t_list
 		template<typename TList>
 		using setop_symmetric_difference      = t_list::detail::symmetric_difference_t<type_list<Ts...>, TList>;
 		// Computes cartesian product between type_list<Ts...> and TList
-		template <class TList>
+		template <typename TList>
 		using setop_cartesian_product         = t_list::detail::cartesian_product_t<type_list<Ts...>, TList>;
 		// setop_is_subset - true if type_list<Ts...> is a subset of TList
 		template<typename TList>
@@ -111,7 +111,7 @@ namespace t_list
 		{
 			return std::conjunction_v<Predicate<Ts>...>;
 		}
-		// True if Predicate<Ts, Args>::value... is true
+		// True if Predicate<Ts, Args>::value... for all Ts and Args is true
 		template <template <typename, typename> class Predicate, typename... Args>
 		static constexpr bool        all_match_predicate()
 		{
