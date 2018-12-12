@@ -119,6 +119,8 @@ namespace f_traits
 	template<typename Sig> struct is_sig : std::false_type {};
 	template<typename RT, typename... Args>
 	struct is_sig<RT(Args...)> : std::true_type {};
+	template<typename Sig>
+	constexpr bool is_sig_v = is_sig<Sig>::value;
 
 	template<typename Sig> struct sig_helper;
 	template<typename RT, typename... Args> 

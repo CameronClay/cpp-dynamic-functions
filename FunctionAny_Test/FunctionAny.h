@@ -30,13 +30,19 @@ public:
 	FunctionAny(Function<Sig>&& rhs)
 		:
 		func(std::move(rhs))
-	{}
+	{
+		static_assert(f_traits::is_sig_v<Sig>,             "Error: Sig is not a type-erased function signature");
+		static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Sig does not match list of known signatures");
+	}
 
 	template<typename Sig, typename... Args>
 	explicit FunctionAny(std::in_place_type_t<Sig>, Args&&... args)
 		:
 		func(std::in_place_type<Function<Sig>>, std::forward<Args>(args)...)
-	{}
+	{
+		static_assert(f_traits::is_sig_v<Sig>,             "Error: Sig is not a type-erased function signature");
+		static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Sig does not match list of known signatures");
+	}
 
 	// Invokes func IF all Args are convertible to that of the function signature and calls std::visit on the visitor with the return value
 	template<typename Visitor, typename... Args>
