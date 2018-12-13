@@ -99,30 +99,30 @@ namespace t_list
 
 		// Remove all elements where Predicate<Ts>::value is false
 		template <template <typename> class Predicate>
-		using filter                          = t_list::detail::filter_t       <Predicate, Ts...>;
+		using filter                           = t_list::detail::filter_t       <Predicate, Ts...>;
 		// New typeList containing all Ts where Predicate<T, TList>::value is true
 		template <template <typename, typename> class Predicate, typename TList>
-		using filter_binary                   = t_list::detail::filter_binary_t<Predicate, type, TList>;
+		using filter_binary                    = t_list::detail::filter_binary_t<Predicate, type, TList>;
 
 		// All set operations result in a unique type_list
 		// Computes union between type_list<Ts...> and TList
 		template<typename TList>
-		using setop_union                     = t_list::detail::union_t               <type, TList>;
+		using setop_union                      = t_list::detail::union_t               <type, TList>;
 		// Computes intersection between type_list<Ts...> and TList
 		template<typename TList>
-		using setop_intersection              = t_list::detail::intersection_t        <type, TList>;
+		using setop_intersection               = t_list::detail::intersection_t        <type, TList>;
 		// Computes difference between type_list<Ts...> and TList
 		template<typename TList>
-		using setop_difference                = t_list::detail::difference_t          <type, TList>;
+		using setop_difference                 = t_list::detail::difference_t          <type, TList>;
 		// Computes symmetric difference between type_list<Ts...> and TList
 		template<typename TList>
-		using setop_symmetric_difference      = t_list::detail::symmetric_difference_t<type, TList>;
+		using setop_symmetric_difference       = t_list::detail::symmetric_difference_t<type, TList>;
 		// Computes cartesian product between type_list<Ts...> and TList
 		template <typename TList>
-		using setop_cartesian_product         = t_list::detail::cartesian_product_t   <type, TList>;
+		using setop_cartesian_product          = t_list::detail::cartesian_product_t   <type, TList>;
 		// True if type_list<Ts...> is a subset of TList
 		template<typename TList>
-		static constexpr bool setop_is_subset = std::is_same_v<type, setop_intersection<TList>>;
+		static constexpr bool setop_is_subset  = std::is_same_v<type, setop_intersection<TList>>;
 
 		// True if Predicate<Ts>:value is true for all Ts in list
 		template <template <typename> class Predicate>
