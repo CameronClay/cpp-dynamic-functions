@@ -1,4 +1,5 @@
 #pragma once
+#include "TypeList_Detail.h"
 
 namespace t_list
 {
@@ -22,6 +23,7 @@ namespace t_list
 		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, class... TList1Ts, class... TList2Ts>
 		struct filter_binary<Predicate, TList1<TList1Ts...>, TList2<TList2Ts...>>
 		{
+			static_assert(is_template_of_type_v<type_list, TList1<TList1Ts...>, TList2<TList2Ts...>>, "Error: filter_binary expected TList1 and TList to to be of type t_list::type_list<Ts...>");
 			using type = type_list<>;
 		};
 		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, typename T, class... TList2Ts>
@@ -79,6 +81,7 @@ namespace t_list
 		template <template <typename...> class TList1, template <typename...> class TList2, typename T, typename... Ts, typename... Us>
 		struct cartesian_product<TList1<T, Ts...>, TList2<Us...>>
 		{
+			static_assert(is_template_of_type_v<type_list, TList1<T, Ts...>, TList2<Us...>>, "Error: cartesian_product expected TList1 and TList to to be of type t_list::type_list<Ts...>");
 			using type = typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type::template append<pair<T, Us>...>;
 		};
 		template <typename TList1, typename TList2>

@@ -387,5 +387,24 @@ namespace t_list
 		};
 		template <typename... Ts>
 		using smallest_type_t = typename smallest_type<Ts...>::type;
+
+		template <typename TList1, typename TList2>
+		struct is_convertible_list;
+		template <typename TList1, template<typename...> class TList2, typename... Ts>
+		struct is_convertible_list<TList1, TList2<Ts...>>
+		{
+			static constexpr bool value = TList1::template is_convertible<Ts...>();
+		};
+		template <typename TList1, typename TList2>
+		constexpr bool is_convertible_list_v =is_convertible_list<TList1, TList2>::value;
+
+		template <typename TList1, typename TList2>
+		struct is_equivalent
+		{
+			static_assert(is_template_of_type_v<type_list, TList1, TList2>, "Error: is_equivalent expected TList1 and TList2 to be of type t_list::type_list<Ts...>");
+			static constexpr bool value = conditional_bool_v<(TList1::n_types == TList2::n_types), TList1::template is_subset<TList2>>;
+		};
+		template <typename TList1, typename TList2>
+		constexpr bool is_equivalent_v = is_equivalent<TList1, TList2>::value;
 	}
 }

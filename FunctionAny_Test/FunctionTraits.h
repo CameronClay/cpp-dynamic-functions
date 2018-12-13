@@ -135,9 +135,9 @@ namespace f_traits
 		template<typename T>
 		static constexpr bool has_arg          = args::template contains<T>;
 		template<typename... Ts>
-		static constexpr bool same_args        = args::template same<Ts...>;
+		static constexpr bool same_args        = args::template is_same<Ts...>;
 		template<typename... Ts>
-		static constexpr bool convertable_args = args::template convertible<Ts...>();
+		static constexpr bool convertable_args = args::template is_convertible<Ts...>();
 	};
 
 	template<typename Sig> using                  sig_rt_t      = typename sig_helper<Sig>::return_t;
