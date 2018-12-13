@@ -153,7 +153,7 @@ namespace t_list
 		}
 		// Returns true if all Ts in TList convertible to Ts
 		template <typename TList>
-		static constexpr bool        is_convertible_list ()
+		static constexpr bool        is_convertible_list()
 		{
 			return detail::is_convertible_list_v<type, TList>;
 		}
