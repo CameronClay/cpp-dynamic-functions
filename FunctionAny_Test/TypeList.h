@@ -1,5 +1,7 @@
 #pragma once
 #include "TypeList_Detail.h"
+#include "TypeList_Detail_SetOps.h"
+#include "TypeList_Detail_IndexOps.h"
 
 namespace t_list
 {
@@ -8,6 +10,9 @@ namespace t_list
 	template <typename... Ts> 
 	struct type_list
 	{
+		// Alias for type of current type_list
+		using type                                          = type_list<Ts...>;
+
 		// Number of occurrences of T in Ts
 		template<typename T>
 		static constexpr std::size_t count                  = (static_cast<std::size_t>(std::is_same_v<T, Ts>) + ...);
@@ -19,7 +24,7 @@ namespace t_list
 		static constexpr bool        contains_unique        = count<T> == 1;
 		// True if all Ts are same as all Args
 		template<typename... Args>
-		static constexpr bool        same                   = std::is_same_v<type_list<Args...>, type_list<Ts...>>;
+		static constexpr bool        same                   = std::is_same_v<type, type_list<Args...>>;
 		// True if all Ts are templates of TemplateOf
 		template <template<class...> class TemplateOf>
 		static constexpr bool        all_template_of_type_v = t_list::detail::is_template_of_type_v<TemplateOf, Ts...>;
@@ -35,74 +40,89 @@ namespace t_list
 
 		// Rebind Ts... to another template in the form of TTo<Ts...>
 		template <template<class...> class TTo>
-		using rebind                           = t_list::detail::rebind_t<type_list<Ts...>, TTo>;
+		using rebind                           = t_list::detail::rebind_t<type, TTo>;
 		// Apply Ts... to one or more templates in the form of TTo_First<TTo_Rest<Ts>>...>
 		template <template<class...> class TTo_First, template<class...> class... TTo_Rest>
-		using apply                            = t_list::detail::apply_t<type_list<Ts...>, TTo_First, TTo_Rest...>;
+		using apply                            = t_list::detail::apply_unary_t  <type, TTo_First, TTo_Rest...>;
+		// Apply Ts... and Ts... from TList to one or more templates in the form of TTo_First<TTo_Rest<Ts>>...>
+		template <class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest>
+		using apply_binary                     = t_list::detail::apply_binary_t <type, TList, TTo_First, TTo_Rest...>;
 
+		// Remove all elements from list
+		using clear                            = type_list<>;
 		// Reverse all Ts in list
-		using reverse                          = t_list::detail::reverse_t<type_list<Ts...>>;
-		// Remove duplicates from list
-		using unique                           = std::conditional_t<is_unique, type_list<Ts...>, t_list::detail::type_list_unique<Ts...>>;
+		using reverse                          = t_list::detail::reverse_t<type>;
+		// Remove duplicates from list, list ends in a reverse state
+		using unique                           = std::conditional_t<is_unique, type, t_list::detail::type_list_unique<Ts...>>;
 
 		// Extract type at idx
-		template <std::size_t idx>
-		using extract                          = t_list::detail::extract_t<idx, Ts...>;
-		// Extract type at idx
-		template <std::size_t idx>
-		using erase                            = t_list::detail::erase_t  <idx, Ts...>;
+		template <std::size_t I>
+		using extract                          = t_list::detail::extract_t<I, Ts...>;
+		// Erase type at idx
+		template <std::size_t I>
+		using erase                            = t_list::detail::erase_t  <I, Ts...>;
 
 		// Acess first type in list
-		using front                            = t_list::detail::front_t    <type_list<Ts...>>;
+		using front                            = t_list::detail::front_t<type>;
 		// Add Args to front of list
 		template <typename... Args>
 		using append_front                     = type_list<Args..., Ts...>;
+		// Append T to front of list if T does not exist in Ts...
+		template <typename T>
+		using append_front_unique              = std::conditional_t<contains<T>, type, type_list<T, Ts...>>;
 		// Append Args to front of list if Predicate<Args>::value == true
 		template <template <typename> class Predicate, typename... Args>
-		using append_conditional_front         = t_list::detail::append_conditional_front_t<Predicate, type_list<Ts...>, Args...>;
+		using append_conditional_front         = t_list::detail::append_conditional_front_t<Predicate, type, Args...>;
 		// Remove first element in list
-		using pop_front                        = t_list::detail::pop_front_t<type_list<Ts...>>;
+		using pop_front                        = t_list::detail::pop_front_t<type>;
 
 		// Access last type in list
-		using back                             = t_list::detail::back_t     <type_list<Ts...>>;
+		using back                             = t_list::detail::back_t     <type>;
 		// Append Args to end of list
 		template <typename... Args>
 		using append                           = type_list<Ts..., Args...>;
+		// Append T to end of list if T does not exist in Ts...
+		template <typename T>
+		using append_unique                    = std::conditional_t<contains<T>, type, type_list<Ts..., T>>;
 		// Append Args to end of list if Predicate<Args>::value == true
 		template <template <typename> class Predicate, typename... Args>
-		using append_conditional               = t_list::detail::append_conditional_t<Predicate, type_list<Ts...>, Args...>;
+		using append_conditional               = t_list::detail::append_conditional_t<Predicate, type, Args...>;
+		// Remove last element in list
+		using pop_back                         = t_list::detail::pop_back_t<type>;
 
 		// Append all TLists to current list of types
 		template <typename... TLists>
-		using append_lists                     = t_list::detail::type_list_cat_t <type_list<Ts...>, TLists...>;
-		// Append all types in TLists to current list of types if Predicate<T>::value == true
+		using append_lists                     = t_list::detail::type_list_cat_t <type, TLists...>;
+		// Append all types in TLists to current list of types if Predicate<T>::value == true, list ends in a reversed state
 		template <template <typename> class Predicate, class... TLists>
-		using append_lists_conditional         = t_list::detail::type_list_cat_conditional_t<Predicate, type_list<Ts...>, TLists...>;
-		// Remove all elements from list
-		using clear                            = type_list<>;
+		using append_lists_conditional         = t_list::detail::type_list_cat_conditional_t<Predicate, type, TLists...>;
 
 		// Remove all elements where Predicate<Ts>::value is false
 		template <template <typename> class Predicate>
-		using filter                          = t_list::detail::type_list_filter_t<Predicate, Ts...>;
+		using filter                          = t_list::detail::filter_t       <Predicate, Ts...>;
+		// New typeList containing all Ts where Predicate<T, TList>::value is true
+		template <template <typename, typename> class Predicate, typename TList>
+		using filter_binary                   = t_list::detail::filter_binary_t<Predicate, type, TList>;
 
+		// All set operations result in a unique type_list
 		// Computes union between type_list<Ts...> and TList
 		template<typename TList>
-		using setop_union                     = append_lists                          <type_list<Ts...>, TList>;		
+		using setop_union                     = t_list::detail::union_t               <type, TList>;
 		// Computes intersection between type_list<Ts...> and TList
 		template<typename TList>
-		using setop_intersection              = t_list::detail::intersection_t        <type_list<Ts...>, TList>;
+		using setop_intersection              = t_list::detail::intersection_t        <type, TList>;
 		// Computes difference between type_list<Ts...> and TList
 		template<typename TList>
-		using setop_difference                = t_list::detail::difference_t          <type_list<Ts...>, TList>;
+		using setop_difference                = t_list::detail::difference_t          <type, TList>;
 		// Computes symmetric difference between type_list<Ts...> and TList
 		template<typename TList>
-		using setop_symmetric_difference      = t_list::detail::symmetric_difference_t<type_list<Ts...>, TList>;
+		using setop_symmetric_difference      = t_list::detail::symmetric_difference_t<type, TList>;
 		// Computes cartesian product between type_list<Ts...> and TList
 		template <typename TList>
-		using setop_cartesian_product         = t_list::detail::cartesian_product_t   <type_list<Ts...>, TList>;
+		using setop_cartesian_product         = t_list::detail::cartesian_product_t   <type, TList>;
 		// True if type_list<Ts...> is a subset of TList
 		template<typename TList>
-		static constexpr bool setop_is_subset = std::is_same_v<type_list<Ts...>, setop_intersection<TList>>;
+		static constexpr bool setop_is_subset = std::is_same_v<type, setop_intersection<TList>>;
 
 		// True if Predicate<Ts>:value is true for all Ts in list
 		template <template <typename> class Predicate>

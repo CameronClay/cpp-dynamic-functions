@@ -10,12 +10,6 @@ namespace t_list
 		template <typename... Ts>
 		using type_list = t_list::type_list<Ts...>;
 
-		template <typename T1, typename T2> struct pair
-		{
-			using first = T1;
-			using second = T2;
-		};
-
 		// type_nonexistant - Dummy type representing a nonexistant type
 		struct type_nonexistant {};
 
@@ -92,28 +86,31 @@ namespace t_list
 		template <typename T, typename... Ts>
 		struct contains : std::disjunction<std::is_same<T, Ts>...> {};
 		template <typename T, typename... Ts>
-		constexpr bool contains_v = contains<T, Ts...>::value;
+		constexpr bool contains_v      = contains<T, Ts...>::value;
+		template <typename T, typename... Ts>
+		constexpr bool contains_not_v = !contains_v<T, Ts...>;
 
 		// type_list_filter - Filter all elements of of type_list where Predicate::value is false
-		template <template <typename> class Predicate, typename... Ts> struct type_list_filter;
+		template <template <typename> class Predicate, typename... Ts> struct filter;
 		template <template <typename> class Predicate>
-		struct type_list_filter<Predicate>
+		struct filter<Predicate>
 		{
 			using type = type_list<>;
 		};
 		template <template <typename> class Predicate, typename T>
-		struct type_list_filter<Predicate, T>
+		struct filter<Predicate, T>
 		{
 			using type = std::conditional_t<Predicate<T>::value, type_list<T>, type_list<>>;
 		};
 		template <template <typename> class Predicate, typename T, typename... Ts>
-		struct type_list_filter<Predicate, T, Ts...>
+		class filter<Predicate, T, Ts...>
 		{
-			using type = typename std::conditional_t<Predicate<T>::value, type_list<T>, type_list<>>::template append<
-				typename type_list_filter<Predicate, Ts...>::type>;
+			using helper_t = typename filter<Predicate, Ts...>::type;
+		public:
+			using type     = std::conditional_t<Predicate<T>::value, typename helper_t::template append_front<T>, helper_t>;
 		};
 		template <template <typename> class Predicate, typename... Ts>
-		using type_list_filter_t = typename type_list_filter<Predicate, Ts...>::type;
+		using filter_t = typename filter<Predicate, Ts...>::type;
 
 		// front - Access first type in type_list
 		template <typename TList> struct front;
@@ -165,28 +162,49 @@ namespace t_list
 		template<typename TList>
 		using back_t = typename back<TList>::type;
 
+		// pop_back - Remove last type in type_list
+		template <typename TList, typename TListAddTo = type_list<>> struct pop_back;
+		template <template <typename...> class TList>
+		struct pop_back<TList<>>
+		{
+			using type = type_list<>;
+		};
+		template <template <typename...> class TList, template <typename...> class TListAddTo, typename T, typename... TListAddToTs>
+		struct pop_back<TList<T>, TListAddTo<TListAddToTs...>>
+		{
+			using type = type_list<TListAddToTs...>;
+		};
+		template <template <typename...> class TList, template <typename...> class TListAddTo, typename T, typename... TLTs, typename... TListAddToTs>
+		struct pop_back<TList<T, TLTs...>, TListAddTo<TListAddToTs...>>
+		{
+			using type = typename pop_back<TList<TLTs...>, TListAddTo<TListAddToTs..., T>>::type;
+		};
+
+		template<typename TList>
+		using pop_back_t = typename pop_back<TList>::type;
+
 		// append_conditional_v - add element to end of list if add == true
 		template <typename TNew, typename TList, bool add> struct append_conditional_v;
 		template <typename TNew, typename... Ts>
-		struct append_conditional_v<TNew, type_list<Ts...>, true> { using type = type_list<Ts...>; };
+		struct append_conditional_v<TNew, type_list<Ts...>, true>  { using type = type_list<Ts..., TNew>; };
 		template <typename TNew, typename... Ts >
-		struct append_conditional_v<TNew, type_list<Ts...>, false> { using type = type_list<Ts..., TNew>; };
+		struct append_conditional_v<TNew, type_list<Ts...>, false> { using type = type_list<Ts...>; };
 		template <typename TNew, typename TList, bool add>
 		using append_conditional_v_t = typename append_conditional_v<TNew, TList, add>::type;
 
 		// append_conditional - Appends Ts... to TList if Predicate<T>::value is true
 		template <template <typename> class Predicate, typename TList, typename... Ts> struct append_conditional;
-		template <template <typename> class Predicate, template <typename...> class TList>
-		struct append_conditional<Predicate, TList<>>
+		template <template <typename> class Predicate, typename... TLArgs>
+		struct append_conditional<Predicate, type_list<TLArgs...>>
 		{
-			using type = TList<>;
+			using type = type_list<>;
 		};
-		template <template <typename> class Predicate, template <typename...> class TList, typename First, typename... Rest, typename... TLArgs>
-		struct append_conditional<Predicate, TList<TLArgs...>, First, Rest...>
+		template <template <typename> class Predicate, typename First, typename... Rest, typename... TLArgs>
+		class append_conditional<Predicate, type_list<TLArgs...>, First, Rest...>
 		{
-			using type = std::conditional_t<Predicate<First>::value,
-				typename append_conditional<Predicate, typename TList<TLArgs...>::template append<First>, Rest...>::type,
-				typename append_conditional<Predicate, TList, Rest...>::type>;
+			using helper_t = typename append_conditional<Predicate, type_list<TLArgs...>, Rest...>::type;
+		public:
+			using type     = std::conditional_t<Predicate<First>::value, typename helper_t::template append<First>, helper_t>;
 		};
 		template <template <typename> class Predicate, typename TList, typename... Ts>
 		using append_conditional_t = typename append_conditional<Predicate, TList, Ts...>::type;
@@ -213,71 +231,20 @@ namespace t_list
 
 		// append_conditional_front - Appends Ts... to front TList if Predicate<T>::value is true
 		template <template <typename> class Predicate, typename TList, typename... Ts> struct append_conditional_front;
-		template <template <typename> class Predicate, template <typename...> class TList>
-		struct append_conditional_front<Predicate, TList<>>
+		template <template <typename> class Predicate, typename... TLArgs>
+		struct append_conditional_front<Predicate, type_list<TLArgs...>>
 		{
-			using type = TList<>;
+			using type = type_list<TLArgs...>;
 		};
-		template <template <typename> class Predicate, template <typename...> class TList, typename First, typename... Rest, typename... TLArgs>
-		struct append_conditional_front<Predicate, TList<TLArgs...>, First, Rest...>
+		template <template <typename> class Predicate, typename First, typename... Rest, typename... TLArgs>
+		struct append_conditional_front<Predicate, type_list<TLArgs...>, First, Rest...>
 		{
-			using type = std::conditional_t<Predicate<First>::value,
-				typename append_conditional_front<Predicate, typename TList<TLArgs...>::template append_front<First>, Rest...>::type,
-				typename append_conditional_front<Predicate, TList, Rest...>::type>;
+			using helper_t = typename append_conditional_front<Predicate, type_list<TLArgs...>, Rest...>::type;
+		public:
+			using type     = std::conditional_t<Predicate<First>::value, typename helper_t::template append_front<First>, helper_t>;
 		};
 		template <template <typename> class Predicate, typename TList, typename... Ts>
 		using append_conditional_front_t = typename append_conditional_front<Predicate, TList, Ts...>::type;
-
-
-		// append_conditional_binary_op - Appends TNew to TListAddTo if Predicate<TNew, TList>::value is true
-		template <template <typename, typename> class Predicate, typename TNew, typename TListAddTo, typename TList> struct append_conditional_binary_op;
-		template <template <typename, typename> class Predicate, typename TNew, template <typename...> class TListAddTo, template <typename...> class TList, typename... TListAddToTs, typename... TListTs>
-		struct append_conditional_binary_op<Predicate, TNew, TListAddTo<TListAddToTs...>, TList<TListTs...>>
-		{
-			using type = std::conditional_t<Predicate<TNew, TList<TListTs...>>::value, TListAddTo<TNew, TListAddToTs...>, TListAddTo<TListAddToTs...>>;
-		};
-		template <template <typename, typename> class Predicate, typename TNew, typename TListAddTo, typename TList>
-		using append_conditional_binary_op_t = typename append_conditional_binary_op<Predicate, TNew, TListAddTo, TList>::type;
-
-		// binary_op - Adds all types in TList1 to a new type_list if Predicate<T, TList2>::value == true
-		template <template <typename, typename> class Predicate, typename TList1, typename TList2> struct binary_op;
-		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, typename First, typename... TL2Args>
-		struct binary_op<Predicate, TList1<First>, TList2<TL2Args...>>
-		{
-			using type = append_conditional_binary_op_t<Predicate, First, type_list<>, TList2<TL2Args...>>;
-		};
-		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, typename First, typename... Rest, typename... TL2Args>
-		struct binary_op<Predicate, TList1<First, Rest...>, TList2<TL2Args...>>
-		{
-			using type = append_conditional_binary_op_t<Predicate, First, typename binary_op<Predicate, TList1<Rest...>, TList2<TL2Args...>>::type, TList2<TL2Args...>>;
-		};
-		template <template <typename, typename> class Predicate, typename TList1, typename TList2>
-		using binary_op_t = typename binary_op<Predicate, TList1, TList2>::type;
-
-		template<typename T, typename TList> struct predicate_intersection;
-		template<typename T, template <typename...> class TList, typename... Ts>
-		struct predicate_intersection<T, TList<Ts...>>
-		{
-			static constexpr bool value = contains_v<T, Ts...>;
-		};
-		template<typename T, typename TList> struct predicate_difference;
-		template<typename T, template <typename...> class TList, typename... Ts>
-		struct predicate_difference<T, TList<Ts...>>
-		{
-			static constexpr bool value = !contains_v<T, Ts...>;
-		};
-
-		// intersection_t - type_list containing all types in both TList1 and TList2
-		template<typename TList1, typename TList2>
-		using intersection_t         = binary_op_t<predicate_intersection, TList1, TList2>;
-
-		// predicate_difference_t - type_list containing all types in both TList1 that are not in TList2
-		template<typename TList1, typename TList2>
-		using difference_t           = binary_op_t<predicate_difference, TList1, TList2>;
-
-		// symmetric_difference_t - type_list containing all types in both TList1 and TList2 but not in the intersection
-		template<typename TList1, typename TList2, typename... TListRest>
-		using symmetric_difference_t = typename difference_t<TList1, TList2>::template setop_union<difference_t<TList2, TList1>>;
 
 		template <typename... Ts> struct type_list_unique_helper;
 		template <> struct type_list_unique_helper<>
@@ -292,100 +259,11 @@ namespace t_list
 		template <typename THead, typename... TTail>
 		struct type_list_unique_helper<THead, TTail...>
 		{
-			using type = append_conditional_v_t<THead, typename type_list_unique_helper<TTail...>::type, contains_v<THead, TTail...>>;
+			using type = append_conditional_v_t<THead, typename type_list_unique_helper<TTail...>::type, contains_not_v<THead, TTail...>>;
 		};
 		// type_list_unique - Make unique type_list given list of types (also concatenates multiple type_lists)
 		template <typename... Ts>
 		using type_list_unique = typename type_list_unique_helper<Ts...>::type;
-
-		// extract - Extract type at idx in Ts...
-		template <std::size_t idx, typename... Ts>
-		class extract
-		{
-			static_assert(idx < sizeof...(Ts), "idx out of bounds");
-
-			template <std::size_t i, std::size_t n, typename... TTail>
-			struct extract_impl;
-
-			template <std::size_t i, std::size_t n, typename T, typename... TTail>
-			struct extract_impl<i, n, T, TTail...>
-			{
-				using type = typename extract_impl<i + 1, n, TTail...>::type;
-			};
-
-			template <std::size_t n, typename T, typename... TTail>
-			struct extract_impl<n, n, T, TTail...>
-			{
-				using type = T;
-			};
-
-		public:
-			using type = typename extract_impl<0, idx, Ts...>::type;
-		};
-		template <std::size_t idx, typename... Ts>
-		using extract_t = typename extract<idx, Ts...>::type;
-
-		template <std::size_t idx, class TypeList> struct type_list_extract;
-		template <std::size_t idx, template <class...> class TypeList, typename... Ts>
-		struct type_list_extract<idx, TypeList<Ts...>>
-		{
-			using type = extract_t<idx, Ts...>;
-		};
-		template <class TypeList, std::size_t idx>
-		using type_list_extract_t = typename type_list_extract<idx, TypeList>::type;
-
-		// erase - Erase type at idx in Ts...
-		template <std::size_t idx, typename... Ts>
-		class erase
-		{
-			static_assert(idx < sizeof...(Ts), "idx out of bounds");
-
-			template <std::size_t i, std::size_t n, typename... TTail>
-			struct erase_impl;
-
-			template <std::size_t i, std::size_t n, typename T, typename... TTail>
-			struct erase_impl<i, n, T, TTail...>
-			{
-				using type = type_list_cat_t<type_list<T>, typename erase_impl<i + 1, n, TTail...>::type>;
-			};
-
-			template <std::size_t n, typename T, typename... TTail>
-			struct erase_impl<n, n, T, TTail...>
-			{
-				using type = type_list<TTail...>;
-			};
-
-		public:
-			using type = typename erase_impl<0, idx, Ts...>::type;
-		};
-		template <std::size_t idx, typename... Ts>
-		using erase_t = typename erase<idx, Ts...>::type;
-
-		template <std::size_t idx, class TypeList> struct type_list_erase;
-		template <std::size_t idx, template <class...> class TypeList, typename... Ts>
-		struct type_list_erase<idx, TypeList<Ts...>>
-		{
-			using type = erase_t<idx, Ts...>;
-		};
-		template <class TypeList, std::size_t idx>
-		using type_list_erase_t = typename type_list_erase<idx, TypeList>::type;
-
-		// cartesian_product - Cross Product of two type_lists
-		//		type = pair<T, U>...;
-		template <typename TList1, typename TList2> struct cartesian_product;
-		template <template <typename...> class TList1, template <typename...> class TList2, typename... Us>
-		struct cartesian_product<TList1<>, TList2<Us...>>
-		{
-			using type = type_list<>;
-		};
-		template <template <typename...> class TList1, template <typename...> class TList2, typename T, typename... Ts, typename... Us>
-		struct cartesian_product<TList1<T, Ts...>, TList2<Us...>>
-		{
-			using type = type_list_cat_t<type_list<pair<T, Us>...>,
-				typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type>;
-		};
-		template <typename TList1, typename TList2>
-		using cartesian_product_t = typename cartesian_product<TList1, TList2>::type;
 
 		// rebind - Rebinds template arguments from T1 to T2 where T1 and T2 are templates
 		template <class TFrom, template<class...> class TTo> struct rebind;
@@ -407,21 +285,38 @@ namespace t_list
 		template < template<class...> class TemplateOf, class First, class... Rest>
 		constexpr bool is_template_of_type_v = is_template_of_type<TemplateOf, First, Rest...>::value;
 
-		// apply_inner - applies each template argument from outer to inner
-		// TTo_First/TTo_Rest applied from left to right
-		template <class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest> struct apply;
+		// apply_unary - applies each template argument from outer to inner (takes 1 type_list as parameterse)
+		// TTo_First/TTo_Rest applied from left to right 
+		template <class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest> struct apply_unary;
 		template <template<class...> class TList, template<class...> class TTo_First, class... Ts>
-		struct apply<TList<Ts...>, TTo_First>
+		struct apply_unary<TList<Ts...>, TTo_First>
 		{
 			using type = TList<TTo_First<Ts>...>;
 		};
 		template <template<class...> class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest, class... Ts>
-		struct apply<TList<Ts...>, TTo_First, TTo_Rest...>
+		struct apply_unary<TList<Ts...>, TTo_First, TTo_Rest...>
 		{
-			using type = typename apply<TList<TTo_First<Ts>...>, TTo_Rest...>::type;
+			using type = typename apply_unary<TList<TTo_First<Ts>...>, TTo_Rest...>::type;
 		};
-		template <class Outer, template<class...> class TTo_First, template<class...> class... TTo_Rest>
-		using apply_t = typename apply<Outer, TTo_First, TTo_Rest...>::type;
+		template <class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest>
+		using apply_unary_t = typename apply_unary<TList, TTo_First, TTo_Rest...>::type;
+
+		// apply_binary - applies each template argument from outer to inner (takes 2 type_list's as parameterse)
+		// TTo_First/TTo_Rest applied from left to right
+		template <class TList1, class TList2, template<class...> class TTo_First, template<class...> class... TTo_Rest> struct apply_binary;
+		template <template<class...> class TList1, template<class...> class TList2, template<class...> class TTo_First, class... TL1Ts, class... TL2Ts>
+		struct apply_binary<TList1<TL1Ts...>, TList2<TL2Ts...>, TTo_First>
+		{
+			static_assert(sizeof...(TL1Ts) == sizeof...(TL2Ts), "Error: apply_binary expected matched list sizes");
+			using type = type_list<TTo_First<TL1Ts, TL2Ts>...>;
+		};
+		template <template<class...> class TList1, template<class...> class TList2, template<class...> class TTo_First, template<class...> class... TTo_Rest, class... TL1Ts, class... TL2Ts>
+		struct apply_binary<TList1<TL1Ts...>, TList2<TL2Ts...>, TTo_First, TTo_Rest...>
+		{
+			using type = typename apply_binary<type_list<TTo_First<TL1Ts, TL2Ts>...>, TTo_Rest...>::type;
+		};
+		template <class TList1, class TList2, template<class...> class TTo_First, template<class...> class... TTo_Rest>
+		using apply_binary_t = typename apply_binary<TList1, TList2, TTo_First, TTo_Rest...>::type;
 
 		template <typename T>
 		using                 is_storable   = std::disjunction<std::is_arithmetic<T>, std::conjunction<std::is_compound<T>, std::negation<std::is_function<T>>>>;

@@ -124,6 +124,8 @@
     <ClInclude Include="FunctionTraits.h" />
     <ClInclude Include="TypeList.h" />
     <ClInclude Include="TypeList_Detail.h" />
+    <ClInclude Include="TypeList_Detail_IndexOps.h" />
+    <ClInclude Include="TypeList_Detail_SetOps.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

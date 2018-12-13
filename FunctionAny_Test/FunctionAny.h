@@ -21,7 +21,7 @@ public:
 	using SIGS_UNIQUE    = typename t_list::type_list<Sigs...>::unique;
 	static_assert(SIGS_UNIQUE::template all_match_predicate<f_traits::is_sig>(), "Error: Not all template arguments are type-erased function signatures");
 
-	using RTS_UNIQUE     = typename SIGS_UNIQUE::template apply<f_traits::sig_rt_t, TO_RETURN_TYPE>::template append<NO_CALL>::unique;
+	using RTS_UNIQUE     = typename SIGS_UNIQUE::template apply <f_traits::sig_rt_t, TO_RETURN_TYPE>::template append<NO_CALL>::unique;
 	using RT_VARIANT     = typename RTS_UNIQUE ::template rebind<std::variant>;
 
 	FunctionAny() = default;
