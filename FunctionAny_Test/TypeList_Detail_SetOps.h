@@ -79,8 +79,7 @@ namespace t_list
 		template <template <typename...> class TList1, template <typename...> class TList2, typename T, typename... Ts, typename... Us>
 		struct cartesian_product<TList1<T, Ts...>, TList2<Us...>>
 		{
-			using type = type_list_cat_t<type_list<pair<T, Us>...>,
-				typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type>;
+			using type = typename cartesian_product<type_list<Ts...>, type_list<Us...>>::type::template append<pair<T, Us>...>;
 		};
 		template <typename TList1, typename TList2>
 		using cartesian_product_t = typename cartesian_product<TList1, TList2>::type;
