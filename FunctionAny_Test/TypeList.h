@@ -29,8 +29,6 @@ namespace t_list
 		// True if all Ts are templates of TemplateOf
 		template <template<class...> class TemplateOf>
 		static constexpr bool        all_template_of_type_v = detail::is_template_of_type_v<TemplateOf, Ts...>;
-		// True if all Ts are templates of type_list
-		static constexpr bool        all_types_type_list    = detail::is_template_of_type_type_v<type, Ts...>;
 
 		// Number of types in list
 		static constexpr std::size_t n_types                = sizeof... (Ts);
@@ -40,6 +38,8 @@ namespace t_list
 		static constexpr bool        is_unique              = detail::all_true_v<contains_unique<Ts>...>;
 		// True if all Ts in list are storable types
 		static constexpr bool        all_storable           = std::conjunction_v<detail::is_storable<Ts>...>;
+		// True if all Ts are templates of type_list
+		static constexpr bool        all_types_type_list    = detail::is_template_of_type_type_v<type, Ts...>;
 
 		// Rebind Ts... to another template in the form of TTo<Ts...>
 		template <template<class...> class TTo>
