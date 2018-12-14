@@ -11,13 +11,8 @@ class Function<RT(Args...)>
 {
 public:
 	template<typename Func>
-	Function(Func func, typename std::enable_if_t<!f_traits::is_function_ptr_v<Func>>* = nullptr)
+	Function(Func func)
 		: action(func)
-	{}
-
-	template<typename Func>
-	Function(Func func, typename std::enable_if_t<f_traits::is_function_ptr_v<Func>>* = nullptr)
-		: action([func](Args&&... args)->RT {return (*func)(std::forward<Args>(args)...); })
 	{}
 
 	template<typename Func, typename O>
