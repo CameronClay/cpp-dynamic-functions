@@ -26,14 +26,14 @@ public:
 
 	FunctionAny() = default;
 
-	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template setop_is_subset<SIGS_UNIQUE>
+	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template is_subset<SIGS_UNIQUE>
 	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
 	template<typename... SigsT>
 	FunctionAny(const FunctionAny<SigsT...>& rhs)
 	{
 		*this = rhs;
 	}
-	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template setop_is_subset<SIGS_UNIQUE>
+	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template is_subset<SIGS_UNIQUE>
 	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
 	template<typename... SigsT>
 	FunctionAny(FunctionAny<SigsT...>&& rhs)
@@ -61,7 +61,7 @@ public:
 		static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Sig does not match list of known signatures");
 	}
 
-	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template setop_is_subset<SIGS_UNIQUE>
+	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template is_subset<SIGS_UNIQUE>
 	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
 	template<typename... SigsT>
 	FunctionAny<Sigs...>& operator=(const FunctionAny<SigsT...>& rhs)
@@ -80,7 +80,7 @@ public:
 		return *this;
 	}
 
-	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template setop_is_subset<SIGS_UNIQUE>
+	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template is_subset<SIGS_UNIQUE>
 	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
 	template<typename... SigsT>
 	FunctionAny& operator=(FunctionAny<SigsT...>&& rhs)
@@ -234,7 +234,8 @@ namespace FAny_Utili
 	template <class... Sig_TLists>
 	struct FunctionAny_Sig_Lists_Helper
 	{
-		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, Sig_TLists...>,     "Error: Template arguments do not match <type_list<Sigs...>...>");
+		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, Sig_TLists...>,     
+			"Error: Template arguments do not match <type_list<Sigs...>...>");
 
 		using type = typename t_list::detail::type_list_cat_t<Sig_TLists...>::template rebind<FunctionAny>;
 	};
@@ -242,7 +243,8 @@ namespace FAny_Utili
 	template <class RTTList, class ArgTLists>
 	struct FunctionAny_RT_Args_Helper
 	{
-		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, RTTList, ArgTLists>, "Error: Template arguments do not match <type_list<RTs...>, type_list<Args...>>");
+		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, RTTList, ArgTLists>, 
+			"Error: Template arguments do not match <type_list<RTs...>, type_list<Args...>>");
 
 		using type = typename RTTList::template setop_cartesian_product<ArgTLists>::template apply<FAny_Utili::pair_create_sig_t>::template rebind<FunctionAny>;
 	};

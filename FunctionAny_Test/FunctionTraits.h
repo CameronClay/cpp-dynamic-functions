@@ -140,6 +140,9 @@ namespace f_traits
 		static constexpr bool convertable_args = args::template is_convertible<Ts...>();
 	};
 
+	template<typename T>
+	struct is_not_function : std::integral_constant<bool, !std::is_function_v<T>> {};
+
 	template<typename Sig> using                  sig_rt_t      = typename sig_helper<Sig>::return_t;
 	template<typename Sig> constexpr std::size_t  sig_n_args_v  = sig_helper<Sig>::n_args;
 	template<typename Sig> constexpr bool         sig_no_args_v = sig_helper<Sig>::no_args;
