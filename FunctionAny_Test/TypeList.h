@@ -127,10 +127,10 @@ namespace t_list
 		// True if type_list<Ts...> is a subset of TList
 		template<typename TList>
 		static constexpr bool is_subset                 = (n_types == setop_intersection<TList>::n_types);
-		// True if type_list<Ts...> is a subset of TList
+		// True if type_list<Ts...> is equivalent (order does not matter) to TList. TList must be of type type_list<Ts...>
 		template<typename TList>
 		static constexpr bool is_equivalent_set         = detail::is_equivalent_v<type, TList>;
-		// True if type_list<Ts...> is a subset of TList
+		// True if type_list<Ts...> is equivalent (order matters) to TList. TList must be of type type_list<Ts...>
 		template<typename TList>
 		static constexpr bool is_equivalent_ordered_set = std::is_same_v<type, TList>;
 
@@ -155,6 +155,7 @@ namespace t_list
 		{
 			return detail::all_match_predicate_list_v<Predicate, type, TList>;
 		}
+
 		// Returns true if all Ts are convertible to Args
 		template <typename... Args>
 		static constexpr bool        is_convertible()
