@@ -13,6 +13,8 @@ namespace t_list
 	{
 		// Alias for type of current type_list
 		using type                                          = type_list<Ts...>;
+		// Applies Ts to std::tuple
+		using tuple                                         = std::tuple<Ts...>;
 
 		// Number of occurrences of T in Ts
 		template<typename T>

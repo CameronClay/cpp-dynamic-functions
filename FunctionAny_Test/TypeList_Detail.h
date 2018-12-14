@@ -253,8 +253,6 @@ namespace t_list
 		template <class TypeTemplateOf, class... Ts>
 		constexpr bool is_template_of_type_type_v = is_template_of_type_type<TypeTemplateOf, Ts...>::value;
 
-
-
 		// apply_unary - applies each template argument from outer to inner (takes 1 type_list as parameterse)
 		// TTo_First/TTo_Rest applied from left to right 
 		template <class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest> struct apply_unary;
@@ -409,7 +407,6 @@ namespace t_list
 		};
 		template <typename TList1, typename TList2>
 		constexpr bool is_not_type_list_overload_v = is_not_type_list_overload<TList1, TList2>::value;
-
 
 		template <typename TList1, typename TList2>
 		struct is_equivalent
