@@ -65,7 +65,7 @@ public:
 	// Always works if FunctionAny<SigsT>::SIGS_UNIQUE::template is_subset<SIGS_UNIQUE>
 	// ... otherwise sometimes works(if currently stored function signature exists in SIGS_UNIQUE)
 	template<typename... SigsT>
-	FunctionAny<Sigs...>& operator=(const FunctionAny<SigsT...>& rhs)
+	FunctionAny& operator=(const FunctionAny<SigsT...>& rhs)
 	{
 		auto f = [this](const auto& func)
 		{

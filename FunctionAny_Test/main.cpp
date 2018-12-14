@@ -96,8 +96,6 @@ int main()
 	using ARG_LISTS   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
 	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
 
-	//FUNC_ANY::ARGS_UNIQUE::template contains <t_list::type_list<float, float, float>>
-
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY>   funcList;
 	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "boo hoo");
