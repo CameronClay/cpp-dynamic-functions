@@ -155,6 +155,7 @@ public:
 	// Returns VOID for void, and NO_CALL if the function expected arguments
 	auto operator()() const -> RT_VARIANT
 	{
+		static_assert(ARGS_UNIQUE::template contains_convertible<>(), "Error: Function is NEVER invokable with no arguments");
 		auto call = [](const auto& func) -> decltype(auto)
 		{
 			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;

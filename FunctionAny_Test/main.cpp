@@ -161,7 +161,7 @@ int main()
 		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
 		it.Invoke(rt_visitor, std::ref(a));
-		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // throws error because this argument list is not convertable to any in FUNC_ANY
+		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // error because this argument list is not convertable to any in FUNC_ANY
 	}
 
 	std::cout << std::endl << "---Moved all functions from funcList1 to funcList2---" << std::endl << std::endl;
@@ -181,7 +181,7 @@ int main()
 		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
 		it.Invoke(rt_visitor, std::ref(a));
-		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // throws error because this argument list is not convertable to any in FUNC_ANY_2
+		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // error because this argument list is not convertable to any in FUNC_ANY_2
 	}
 
 	std::string s;
