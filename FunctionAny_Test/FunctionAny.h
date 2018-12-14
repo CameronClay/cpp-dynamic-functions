@@ -22,6 +22,7 @@ public:
 	static_assert(SIGS_UNIQUE::template all_match_predicate<f_traits::is_sig>(), "Error: Not all template arguments are type-erased function signatures");
 
 	using RTS_UNIQUE     = typename SIGS_UNIQUE::template apply <f_traits::sig_rt_t, TO_RETURN_TYPE>::template append<NO_CALL>::unique;
+	using ARGS_UNIQUE    = typename SIGS_UNIQUE::template apply <f_traits::sig_args_t>::unique;
 	using RT_VARIANT     = typename RTS_UNIQUE ::template rebind<std::variant>;
 
 	FunctionAny() = default;
@@ -132,6 +133,7 @@ public:
 	template<typename... Args>
 	auto operator()(Args&&... args) const -> RT_VARIANT
 	{
+		static_assert(ARGS_UNIQUE::template contains_convertible<Args...>(), "Error: Function is NEVER invokable with this set of arguments");
 		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
 		{
 			return InvokeFunction(func, std::forward<decltype(args)>(args)...);

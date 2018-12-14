@@ -92,9 +92,11 @@ int main()
 	using FUNC_ANY   = FunctionAny_Sig_Lists<L_FUNC_S, L_FUNC_F>;
 
 	// Declare FunctionAny taking any combination of the following RTs and Arg lists
-	using RT_List     = tl<void, std::string, int, float, A, A&>;
-	using Arg_Lists   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
-	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_List, Arg_Lists>;
+	using RT_LIST     = tl<void, std::string, int, float, A, A&>;
+	using ARG_LISTS   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
+	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
+
+	//FUNC_ANY::ARGS_UNIQUE::template contains <t_list::type_list<float, float, float>>
 
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY>   funcList;
@@ -159,6 +161,7 @@ int main()
 		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
 		it.Invoke(rt_visitor, std::ref(a));
+		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // throws error because this argument list is not convertable to any in FUNC_ANY
 	}
 
 	std::cout << std::endl << "---Moved all functions from funcList1 to funcList2---" << std::endl << std::endl;
@@ -178,6 +181,7 @@ int main()
 		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
 		it.Invoke(rt_visitor, std::ref(a));
+		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // throws error because this argument list is not convertable to any in FUNC_ANY_2
 	}
 
 	std::string s;

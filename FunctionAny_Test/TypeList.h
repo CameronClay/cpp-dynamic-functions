@@ -29,6 +29,8 @@ namespace t_list
 		// True if all Ts are templates of TemplateOf
 		template <template<class...> class TemplateOf>
 		static constexpr bool        all_template_of_type_v = detail::is_template_of_type_v<TemplateOf, Ts...>;
+		// True if all Ts are templates of type_list
+		static constexpr bool        all_types_type_list    = detail::is_template_of_type_type_v<type, Ts...>;
 
 		// Number of types in list
 		static constexpr std::size_t n_types                = sizeof... (Ts);
@@ -142,7 +144,7 @@ namespace t_list
 		}
 		// True if Predicate<Ts, Args>::value... for all Ts and Args is true
 		template <template <typename, typename> class Predicate, typename... Args>
-		static constexpr std::enable_if_t<detail::is_not_type_list_overload_v<type, type_list<Args...>>, bool> all_match_predicate()
+		static constexpr bool all_match_predicate()
 		{
 			if constexpr (sizeof... (Args) == n_types)
 				return std::conjunction_v<Predicate<Ts, Args>...>;
@@ -151,14 +153,14 @@ namespace t_list
 		}
 		// True if Predicate<Ts, Args>::value... for all Ts and all Ts in Tlist is true
 		template <template <typename, typename> class Predicate, typename TList>
-		static constexpr std::enable_if_t<detail::is_template_of_type_v<type_list, TList>, bool>               all_match_predicate()
+		static constexpr bool all_match_predicate_list()
 		{
 			return detail::all_match_predicate_list_v<Predicate, type, TList>;
 		}
 
 		// Returns true if all Ts are convertible to Args
 		template <typename... Args>
-		static constexpr bool        is_convertible()
+		static constexpr bool is_convertible()
 		{
 			if constexpr (sizeof... (Args) == n_types)
 				return std::conjunction_v<std::is_convertible<std::decay_t<Ts>, std::decay_t<Args>>...>;
@@ -167,10 +169,26 @@ namespace t_list
 		}
 		// Returns true if all Ts in TList convertible to Ts
 		template <typename TList>
-		static constexpr bool        is_convertible_list()
+		static constexpr bool is_convertible_list()
 		{
 			return detail::is_convertible_list_v<type, TList>;
 		}
+
+		// Returns true if all Ts in TList convertible to Ts
+		template <typename... Args>
+		static constexpr bool contains_convertible()
+		{
+			static_assert(all_types_type_list, "Error: contains_convertible requires all types to be of type type_list");
+			return detail::contains_convertible_list_v<type, type_list<Args...>>;
+		}
+		// Returns true if all Ts in TList convertible to Ts
+		template <typename TList>
+		static constexpr bool contains_convertible_list()
+		{
+			static_assert(all_types_type_list, "Error: contains_convertible_list requires all types to be of type type_list");
+			return detail::contains_convertible_list_v<type, TList>;
+		}
+
 
 		// Returns total size required to store all the types in the type_list
 		static constexpr std::size_t total_size()
