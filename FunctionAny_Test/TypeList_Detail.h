@@ -86,7 +86,7 @@ namespace t_list
 		template <typename T, typename... Ts>
 		struct contains : std::disjunction<std::is_same<T, Ts>...> {};
 		template <typename T, typename... Ts>
-		constexpr bool contains_v = contains<T, Ts...>::value;
+		constexpr bool contains_v      = contains<T, Ts...>::value;
 		template <typename T, typename... Ts>
 		constexpr bool contains_not_v = !contains_v<T, Ts...>;
 

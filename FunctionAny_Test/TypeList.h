@@ -12,9 +12,11 @@ namespace t_list
 	struct type_list
 	{
 		// Alias for type of current type_list
-		using type                                          = type_list<Ts...>;
+		using type                                          = type_list;
 		// Applies Ts to std::tuple
 		using tuple                                         = std::tuple<Ts...>;
+		// Represents type that does not exist
+		using non_existant                                  = detail::type_nonexistant;
 
 		// Number of occurrences of T in Ts
 		template<typename T>
@@ -81,7 +83,7 @@ namespace t_list
 		template <template <typename> class Predicate, class... TLists>
 		using append_lists_conditional                  = typename append_lists<TLists...>::template filter<Predicate>;
 
-		// Acess first type in list
+		// Acess first type in list (non_existant if empty)
 		using front                                     = detail::front_t    <type>;
 		// Remove first element in list
 		using pop_front                                 = detail::pop_front_t<type>;
@@ -96,7 +98,7 @@ namespace t_list
 		template <template <typename> class Predicate, typename... Args>
 		using append_conditional_front                  = detail::type_list_cat_t<typename type_list<Args...>::template filter<Predicate>, type>;
 
-		// Access last type in list
+		// Access last type in list  (non_existant if empty)
 		using back                                      = detail::back_t    <type>;
 		// Remove last element in list
 		using pop_back                                  = detail::pop_back_t<type>;
