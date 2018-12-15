@@ -7,7 +7,7 @@ namespace t_list
 {
 	// type_list - Represents a compile time list of types
 	// All type_list operations that work on the type_list give a new type_list and do not modify the current instance
-	// All type_list operations (excluding reverse) preserve the order of types in the list
+	// All type_list operations (excluding reverse/filter_binary/setop's) preserve the order of types in the list
 	template <typename... Ts> 
 	struct type_list
 	{
@@ -42,8 +42,6 @@ namespace t_list
 		static constexpr bool        is_unique              = detail::all_true_v<contains_unique<Ts>...>;
 		// True if all Ts in list are storable types
 		static constexpr bool        all_storable           = std::conjunction_v<detail::is_storable<Ts>...>;
-		// True if all Ts are templates of type_list
-		static constexpr bool        all_types_type_list    = detail::is_template_of_type_type_v<type, Ts...>;
 
 		// Rebind Ts... to another template in the form of TTo<Ts...>
 		template <template<class...> class TTo>
@@ -94,9 +92,18 @@ namespace t_list
 		// Append T to front of list if T does not exist in Ts...
 		template <typename T>
 		using append_front_unique                       = std::conditional_t<contains<T>, type, type_list<T, Ts...>>;
+		// Append T to end of list if Predicate::Value and T does not exist in Ts...
+		template <template <typename> class Predicate, typename T>
+		using append_front_unique_conditional           = std::conditional_t<Predicate<T>::value, append_front_unique<T>, type>;
+		// Append T to end of list if Predicate::Value and T does not exist in Ts...
+		template <template <typename, typename> class Predicate, typename T, typename Second>
+		using append_front_unique_conditional_binary    = std::conditional_t<Predicate<T, Second>::value, append_front_unique<T>, type>;
 		// Append Args to front of list if Predicate<Args>::value == true
 		template <template <typename> class Predicate, typename... Args>
 		using append_conditional_front                  = detail::type_list_cat_t<typename type_list<Args...>::template filter<Predicate>, type>;
+		// Append Args to front of list if Predicate<Args, TList>::value == true
+		template <template <typename, typename> class Predicate, typename TList, typename... Args>
+		using append_conditional_front_binary          = detail::type_list_cat_t<typename type_list<Args...>::template filter<Predicate, TList>, type>;
 
 		// Access last type in list  (non_existant if empty)
 		using back                                      = detail::back_t    <type>;
@@ -109,9 +116,18 @@ namespace t_list
 		// Append T to end of list if T does not exist in Ts...
 		template <typename T>
 		using append_unique                             = std::conditional_t<contains<T>, type, type_list<Ts..., T>>;
+		// Append T to end of list if Predicate::Value and T does not exist in Ts...
+		template <template <typename> class Predicate, typename T>
+		using append_unique_conditional                 = std::conditional_t<Predicate<T>::value, append_unique<T>, type>;
+		// Append T to end of list if Predicate::Value and T does not exist in Ts...
+		template <template <typename, typename> class Predicate, typename T, typename Second>
+		using append_unique_conditional_binary         = std::conditional_t<Predicate<T, Second>::value, append_unique<T>, type>;
 		// Append Args to end of list if Predicate<Args>::value == true
 		template <template <typename> class Predicate, typename... Args>
 		using append_conditional                        = detail::type_list_cat_t<type, typename type_list<Args...>::template filter<Predicate>>;
+		// Append Args to end of list if Predicate<Args, TList>::value == true
+		template <template <typename, typename> class Predicate, typename TList, typename... Args>
+		using append_conditional_binary                = detail::type_list_cat_t<type, typename type_list<Args...>::template filter<Predicate, TList>>;
 
 		// All set operations result in a unique type_list
 		// Computes union between type_list<Ts...> and TList
@@ -128,7 +144,7 @@ namespace t_list
 		using setop_symmetric_difference                = detail::symmetric_difference_t<type, TList>;
 		// Computes cartesian product between type_list<Ts...> and TList
 		template <typename TList>
-		using setop_cartesian_product                   = detail::cartesian_product_t   <type, TList>;
+		using setop_cartesian_product                   = detail::cartesian_product_t   <unique, typename TList::unique>;
 
 		// True if type_list<Ts...> is a subset of TList
 		template<typename TList>
@@ -139,6 +155,12 @@ namespace t_list
 		// True if type_list<Ts...> is equivalent (order matters) to TList. TList must be of type type_list<Ts...>
 		template<typename TList>
 		static constexpr bool is_equivalent_ordered_set = std::is_same_v<type, TList>;
+
+		// Returns true if all Ts are templates of type_list
+		static constexpr bool        all_types_type_list()
+		{
+			return detail::is_template_of_type_type_v<type, Ts...>;
+		}
 
 		// True if Predicate<Ts>:value is true for all Ts in list
 		template <template <typename> class Predicate>
@@ -182,14 +204,14 @@ namespace t_list
 		template <typename... Args>
 		static constexpr bool contains_convertible()
 		{
-			static_assert(all_types_type_list, "Error: contains_convertible requires all types to be of type type_list");
+			static_assert(all_types_type_list(), "Error: contains_convertible requires all types to be of type type_list");
 			return detail::contains_convertible_list_v<type, type_list<Args...>>;
 		}
 		// Returns true if all Ts in TList convertible to Ts
 		template <typename TList>
 		static constexpr bool contains_convertible_list()
 		{
-			static_assert(all_types_type_list, "Error: contains_convertible_list requires all types to be of type type_list");
+			static_assert(all_types_type_list(), "Error: contains_convertible_list requires all types to be of type type_list");
 			return detail::contains_convertible_list_v<type, TList>;
 		}
 

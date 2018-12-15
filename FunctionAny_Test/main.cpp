@@ -1,6 +1,8 @@
 #include "FunctionAny.h"
+#include "FunctionTraits.h"
+#include "TypeList.h"
 #include <iostream>
-//#include <vector>
+#include <vector>
 #include <string>
 
 struct A
@@ -85,6 +87,10 @@ int main()
 
 	A a{ 5, 2.34f };
 
+	//using TL_1 = tl<int, bool, char, float, const char, void(), void*, int, float, char, char*, int*, double, int, char, wchar_t>;
+	//using TL_2 = tl<int, char, float, int, double, int*, const char, void*, int, float, void(), char, char*, std::string>;
+	//using TL_3 = tl<std::vector<float>, char, float, double, void*, int, float, char, char*, int*, const char*, int()>;
+
 	// In most cases the list of the functions used will not be known.
 	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.
 	using L_FUNC_S   = tl<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2)>;
@@ -95,6 +101,26 @@ int main()
 	using RT_LIST     = tl<void, std::string, int, float, A, A&>;
 	using ARG_LISTS   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
 	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
+
+	//TL_1::filter<std::is_arithmetic>::n_types;
+	//RT_LIST::reverse::n_types;
+	//RT_LIST::filter_binary<std::is_same, tl<void, int>>::n_types;
+	//TL_1::back it;
+	//TL_1::pop_back::n_types;
+	//TL_1::setop_intersection<TL_2>::n_types;
+	//TL_2::setop_intersection<TL_1>::n_types;
+	//ARG_LISTS::all_types_type_list;
+	//TL_1::all_types_type_list;
+
+	//TL_1::unique::n_types;
+
+	//TL_1::reverse::n_types
+	//ARG_LISTS::setop_cartesian_product<RT_LIST>::n_types;
+
+	//if constexpr (val > 1)
+	//{
+	//	std::cout << "";
+	//}
 
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY>   funcList;
@@ -171,7 +197,7 @@ int main()
 	funcList.clear();
 
 	std::cout << "---Try_Invoke all functions in funcList2---" << std::endl;
-	// Try to invoke each function in funcList with a set of parameters
+	//Try to invoke each function in funcList with a set of parameters
 	for (auto& it : funcList2)
 	{
 		it.Invoke(rt_visitor);
