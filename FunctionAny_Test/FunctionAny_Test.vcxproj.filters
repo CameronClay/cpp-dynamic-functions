@@ -16,17 +16,11 @@
     <Filter Include="Header Files\TypeList">
       <UniqueIdentifier>{a1c33a41-1620-44af-939b-728d2f7a29d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Function">
+      <UniqueIdentifier>{0089ded6-5f6f-4715-b548-13cf1da65d15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Function.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FunctionAny.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FunctionTraits.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TypeList_Detail_SetOps.h">
       <Filter>Header Files\TypeList</Filter>
     </ClInclude>
@@ -38,6 +32,15 @@
     </ClInclude>
     <ClInclude Include="TypeList.h">
       <Filter>Header Files\TypeList</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionTraits.h">
+      <Filter>Header Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="Function.h">
+      <Filter>Header Files\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionAny.h">
+      <Filter>Header Files\Function</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
