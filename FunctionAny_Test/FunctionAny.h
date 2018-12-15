@@ -19,6 +19,7 @@ private:
 	using TO_RETURN_TYPE = std::conditional_t<std::is_lvalue_reference_v<RT>, std::add_pointer_t<std::remove_reference_t<RT>>, std::conditional_t<std::is_void_v<RT>, VOID, RT>>;
 public:
 	using SIGS_UNIQUE    = typename t_list::type_list<Sigs...>::unique;
+	static_assert(!SIGS_UNIQUE::empty,                                           "Error: Cannot create FunctionAny with zero signatures");
 	static_assert(SIGS_UNIQUE::template all_match_predicate<f_traits::is_sig>(), "Error: Not all template arguments are type-erased function signatures");
 
 	using RTS_UNIQUE     = typename SIGS_UNIQUE::template apply <f_traits::sig_rt_t, TO_RETURN_TYPE>::template append<NO_CALL>::unique;
@@ -192,13 +193,19 @@ private:
 	static decltype(auto) InvokeFunction(const Function<Sig>& func, Args&&... args)
 	{
 		using RT = f_traits::sig_rt_t<Sig>;
-		if constexpr (!std::is_same_v<RT, void>)
+		if constexpr (!std::is_const_v<RT> && !std::is_same_v<RT, void>)
 		{
 			decltype(auto) ret = func(std::forward<Args>(args)...);
 			if constexpr (!std::is_lvalue_reference_v<RT>)
-				return RT_VARIANT(ret);
+			{
+				using RT_NEW = RT;
+				return RT_VARIANT(std::in_place_type<RT_NEW>, ret);
+			}
 			else
-				return RT_VARIANT(&ret);
+			{
+				using RT_NEW = std::add_pointer_t<std::remove_reference_t<RT>>;
+				return RT_VARIANT(std::in_place_type<RT_NEW>, &ret);
+			}
 		}
 		else
 		{

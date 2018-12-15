@@ -120,7 +120,7 @@ int main()
 	{
 		using RT    = std::decay_t<decltype(ret)>;
 		using RT_IS = IS_TYPE<RT>;
-		static_assert(FUNC_ANY::RTS_UNIQUE::contains<RT>, "Error: Invalid return type");
+		static_assert(FUNC_ANY_2::RTS_UNIQUE::contains<RT>, "Error: Invalid return type");
 
 		if constexpr      (RT_IS::value<NO_CALL>)
 		{
