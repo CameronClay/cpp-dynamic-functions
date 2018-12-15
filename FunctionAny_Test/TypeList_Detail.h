@@ -642,7 +642,7 @@ namespace t_list
 		struct is_template_of_type<TemplateOf, First<FirstTs...>, Second<SecondTs...>, Rest...>
 		{
 			static constexpr bool value = 
-				std::is_same_v<TemplateOf<FirstTs...>, First<FirstTs...>> && 
+				std::is_same_v<TemplateOf<FirstTs...>,  First<FirstTs...>>   && 
 				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
 				is_template_of_type<TemplateOf, Rest...>::value;
 		};
@@ -653,9 +653,9 @@ namespace t_list
 		struct is_template_of_type<TemplateOf, First<FirstTs...>, Second<SecondTs...>, Third<ThirdTs...>, Rest...>
 		{
 			static constexpr bool value = 
-				std::is_same_v<TemplateOf<FirstTs...>, First<FirstTs...>> && 
+				std::is_same_v<TemplateOf<FirstTs...>,  First<FirstTs...>>   && 
 				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
-				std::is_same_v<TemplateOf<ThirdTs...>, Third<ThirdTs...>> &&
+				std::is_same_v<TemplateOf<ThirdTs...>,  Third<ThirdTs...>>   &&
 				is_template_of_type<TemplateOf, Rest...>::value;
 		};
 		template <template<class...> class TemplateOf,
@@ -665,9 +665,9 @@ namespace t_list
 		struct is_template_of_type<TemplateOf, First<FirstTs...>, Second<SecondTs...>, Third<ThirdTs...>, Fourth<FourthTs...>, Rest...>
 		{
 			static constexpr bool value =
-				std::is_same_v<TemplateOf<FirstTs...>, First<FirstTs...>> &&
+				std::is_same_v<TemplateOf<FirstTs...>,  First<FirstTs...>>   &&
 				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
-				std::is_same_v<TemplateOf<ThirdTs...>, Third<ThirdTs...>> &&
+				std::is_same_v<TemplateOf<ThirdTs...>,  Third<ThirdTs...>>   &&
 				std::is_same_v<TemplateOf<FourthTs...>, Fourth<FourthTs...>> &&
 				is_template_of_type<TemplateOf, Rest...>::value;
 		};
@@ -680,11 +680,11 @@ namespace t_list
 			Rest...>
 		{
 			static constexpr bool value =
-				std::is_same_v<TemplateOf<FirstTs...>, First<FirstTs...>> &&
+				std::is_same_v<TemplateOf<FirstTs...>,  First<FirstTs...>>   &&
 				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
-				std::is_same_v<TemplateOf<ThirdTs...>, Third<ThirdTs...>> &&
+				std::is_same_v<TemplateOf<ThirdTs...>,  Third<ThirdTs...>>   &&
 				std::is_same_v<TemplateOf<FourthTs...>, Fourth<FourthTs...>> &&
-				std::is_same_v<TemplateOf<FifthTs...>, Fifth<FifthTs...>> &&
+				std::is_same_v<TemplateOf<FifthTs...>,  Fifth<FifthTs...>>   &&
 				is_template_of_type<TemplateOf, Rest...>::value;
 		};
 		template <template<class...> class TemplateOf,
@@ -699,16 +699,16 @@ namespace t_list
 			Rest...>
 		{
 			static constexpr bool value =
-				std::is_same_v<TemplateOf<FirstTs...>, First<FirstTs...>> &&
-				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
-				std::is_same_v<TemplateOf<ThirdTs...>, Third<ThirdTs...>> &&
-				std::is_same_v<TemplateOf<FourthTs...>, Fourth<FourthTs...>> &&
-				std::is_same_v<TemplateOf<FifthTs...>, Fifth<FifthTs...>> &&
-				std::is_same_v<TemplateOf<SixthTs...>, Sixth<SixthTs...>> &&
+				std::is_same_v<TemplateOf<FirstTs...>,   First<FirstTs...>>     &&
+				std::is_same_v<TemplateOf<SecondTs...>,  Second<SecondTs...>>   &&
+				std::is_same_v<TemplateOf<ThirdTs...>,   Third<ThirdTs...>>     &&
+				std::is_same_v<TemplateOf<FourthTs...>,  Fourth<FourthTs...>>   &&
+				std::is_same_v<TemplateOf<FifthTs...>,   Fifth<FifthTs...>>     &&
+				std::is_same_v<TemplateOf<SixthTs...>,   Sixth<SixthTs...>>     &&
 				std::is_same_v<TemplateOf<SeventhTs...>, Seventh<SeventhTs...>> &&
-				std::is_same_v<TemplateOf<EighthTs...>, Eighth<EighthTs...>> &&
-				std::is_same_v<TemplateOf<NinethTs...>, Nineth<NinethTs...>> &&
-				std::is_same_v<TemplateOf<TenthTs...>, Tenth<TenthTs...>> &&
+				std::is_same_v<TemplateOf<EighthTs...>,  Eighth<EighthTs...>>   &&
+				std::is_same_v<TemplateOf<NinethTs...>,  Nineth<NinethTs...>>   &&
+				std::is_same_v<TemplateOf<TenthTs...>,   Tenth<TenthTs...>>     &&
 				is_template_of_type<TemplateOf, Rest...>::value;
 		};
 
