@@ -103,12 +103,6 @@ int main()
 	using ARG_LISTS   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
 	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
 
-	using TL_1 = tl<void, void*, void**, void***, int, float, double, char, wchar_t, const char, const char*, const wchar_t
-		, int*, float*, double* , int(), float(), void(int), std::string, std::vector<int>, A, A&, A*, A***, bool, bool, A>;
-	using UNIQUE_TL_1 = TL_1::unique;
-
-	//UNIQUE_TL_1::setop_cartesian_product<UNIQUE_TL_1>::n_types;
-
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY>   funcList;
 	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "boo hoo");

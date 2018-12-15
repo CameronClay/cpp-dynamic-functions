@@ -137,7 +137,7 @@ namespace t_list
 							 TList6<TL6Args...>, TList7<TL7Args...>, TList8<TL8Args...>, TList9<TL9Args...>, TList10<TL10Args...>,
 							 TLists...>
 		{
-			using type = typename type_list_cat<type_list<TL1Args..., TL2Args..., TL3Args..., TL4Args..., TL5Args..., 
+			using type = typename type_list_cat<type_list<TL1Args..., TL2Args..., TL3Args..., TL4Args..., TL5Args...  , 
 														  TL6Args..., TL7Args..., TL8Args..., TL9Args..., TL10Args...>,
 														  TLists...>::type;
 		};
@@ -346,7 +346,7 @@ namespace t_list
 			      typename First, typename Second,  typename Third,  typename Fourth, typename Fifth,
 			      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth>
 		struct back<TList<First, Second, Third, Fourth, Fifth,
-						      Sixth, Seventh, Eighth, Nineth, Tenth>>
+						  Sixth, Seventh, Eighth, Nineth, Tenth>>
 		{
 			using type = Tenth;
 		};
@@ -355,8 +355,8 @@ namespace t_list
 			      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
 			      typename... Ts>
 		struct back<TList<First, Second, Third, Fourth, Fifth,
-							  Sixth, Seventh, Eighth, Nineth, Tenth,
-							  Ts...>>
+						  Sixth, Seventh, Eighth, Nineth, Tenth,
+					      Ts...>>
 		{
 			using type = typename back<TList<Ts...>>::type;
 		};
@@ -441,7 +441,8 @@ namespace t_list
 			      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
 			      typename... TListAddToTs>
 		struct pop_back<TList<First, Second, Third, Fourth, Fifth,
-								  Sixth, Seventh, Eighth, Nineth, Tenth>, TListAddTo<TListAddToTs...>>
+							  Sixth, Seventh, Eighth, Nineth, Tenth>, 
+			            TListAddTo<TListAddToTs...>>
 		{
 			using type = type_list<TListAddToTs..., First, Second, Third, Fourth, Fifth, Sixth, Seventh, Eighth, Nineth>;
 		};
@@ -450,15 +451,16 @@ namespace t_list
 			      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
 			      typename... TLTs, typename... TListAddToTs>
 		struct pop_back<TList<First, Second, Third, Fourth, Fifth,
-			Sixth, Seventh, Eighth, Nineth, Tenth, TLTs...>, TListAddTo<TListAddToTs...>>
+			                  Sixth, Seventh, Eighth, Nineth, Tenth, TLTs...>, 
+			            TListAddTo<TListAddToTs...>>
 		{
 			using type = typename pop_back<TList<TLTs...>, TListAddTo<TListAddToTs..., First, Second, Third, Fourth, Fifth, Sixth, Seventh, Eighth, Nineth, Tenth>>::type;
 		};
 		template<typename TList>
 		using pop_back_t = typename pop_back<TList>::type;
 
-		template<typename TList, typename... Ts>
-		struct append_unique;
+		// append_unique - Appends 0 or more types to type_list if it does not already exist in the list
+		template<typename TList, typename... Ts> struct append_unique;
 		template<template <typename...> class TList, typename... TLTs>
 		struct append_unique<TList<TLTs...>>
 		{
@@ -482,9 +484,7 @@ namespace t_list
 				std::conditional_t<!contains_first, type_list<TLTs..., First>, type_list<TLTs..., Second>>>>;
 		public:
 			using type = typename append_unique<type_helper, Ts...>::type;
-
 		};
-		// Appends 0 or more types to type_list if it does not already exist in the list
 		template<typename TList, typename... Ts>
 		using append_unique_t = typename append_unique<TList, Ts...>::type;
 
