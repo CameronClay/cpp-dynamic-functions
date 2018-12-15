@@ -160,6 +160,10 @@ int main()
 	// Try to invoke each function in funcList with a set of parameters
 	for (auto& it : funcList)
 	{
+		if (it.HoldsSig<void()>())
+		{
+			std::cout << "void()" << std::endl;
+		}
 		it.Invoke(rt_visitor);
 		it.Invoke(rt_visitor, 0);
 		it.Invoke(rt_visitor, a, 5.0, 6);

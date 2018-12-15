@@ -120,6 +120,12 @@ public:
 		return *this;
 	}
 
+	template<typename Sig>
+	constexpr bool HoldsSig()
+	{
+		static_assert(f_traits::is_sig_v<Sig>,             "Error: Sig is not a type-erased function signature");
+		return std::holds_alternative<Function<Sig>>(func);
+	}
 
 	// Invokes func IF all Args are convertible to that of the function signature and calls std::visit on the visitor with the return value
 	template<typename Visitor, typename... Args>
