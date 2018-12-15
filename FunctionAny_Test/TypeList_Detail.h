@@ -459,17 +459,32 @@ namespace t_list
 
 		template<typename TList, typename... Ts>
 		struct append_unique;
-		template<template <typename...> class TList, typename... Ts>
-		struct append_unique<TList<Ts...>>
+		template<template <typename...> class TList, typename... TLTs>
+		struct append_unique<TList<TLTs...>>
 		{
-			using type = type_list<Ts...>;
+			using type = TList<TLTs...>;
 		};
-		template<template <typename...> class TList, typename T, typename... Ts>
-		struct append_unique<TList<Ts...>, T>
+		template<template <typename...> class TList, typename First, typename... Ts, typename... TLTs>
+		class append_unique<TList<TLTs...>, First, Ts...>
 		{
-			using type = std::conditional_t<contains_v<T, Ts...>, type_list<Ts...>, type_list<Ts..., T>>;
+			using type_helper = std::conditional_t<contains_v<First, TLTs...>, type_list<TLTs...>, type_list<TLTs..., First>>;
+		public:
+			using type = typename append_unique<type_helper, Ts...>::type;
 		};
-		// Appends 0 or 1 types to type_list if it does not already exist in the list
+		template<template <typename...> class TList, typename First, typename Second, typename... Ts, typename... TLTs>
+		class append_unique<TList<TLTs...>, First, Second, Ts...>
+		{
+			static constexpr bool contains_first  = contains_v<First, TLTs...>;
+			static constexpr bool contains_second = contains_v<Second, First, TLTs...>;
+
+			using type_helper = std::conditional_t<(contains_first && contains_second), type_list<TLTs...>,
+				std::conditional_t<!(contains_first || contains_second), type_list<TLTs..., First, Second>,
+				std::conditional_t<!contains_first, type_list<TLTs..., First>, type_list<TLTs..., Second>>>>;
+		public:
+			using type = typename append_unique<type_helper, Ts...>::type;
+
+		};
+		// Appends 0 or more types to type_list if it does not already exist in the list
 		template<typename TList, typename... Ts>
 		using append_unique_t = typename append_unique<TList, Ts...>::type;
 
@@ -518,8 +533,12 @@ namespace t_list
 				type_list<TListAddToTs..., First>,
 				type_list<TListAddToTs...>>;
 
-			using type_helper = append_unique_t<
-				append_unique_t<One, Second>, Third>;
+			using type_helper = append_unique_t
+				<
+				One,
+				Second, 
+				Third
+				>;
 		public:
 			using type = typename type_list_unique<TList<TLTs...>, type_helper>::type;
 		};
@@ -533,8 +552,13 @@ namespace t_list
 				type_list<TListAddToTs..., First>,
 				type_list<TListAddToTs...>>;
 
-			using type_helper = append_unique_t<append_unique_t<
-				append_unique_t<One, Second>, Third>, Fourth>;
+			using type_helper = append_unique_t
+				<
+				One,
+				Second,
+				Third,
+				Fourth
+			>;
 		public:
 			using type = typename type_list_unique<TList<TLTs...>, type_helper>::type;
 		};
@@ -548,8 +572,14 @@ namespace t_list
 				type_list<TListAddToTs..., First>,
 				type_list<TListAddToTs...>>;
 
-			using type_helper = append_unique_t<append_unique_t<append_unique_t<
-				append_unique_t<One, Second>, Third>, Fourth>, Fifth>;
+			using type_helper = append_unique_t
+				<
+				One,
+				Second,
+				Third,
+				Fourth,
+				Fifth
+				>;
 		public:
 			using type = typename type_list_unique<TList<TLTs...>, type_helper>::type;
 		};
@@ -565,11 +595,19 @@ namespace t_list
 				type_list<TListAddToTs..., First>,
 				type_list<TListAddToTs...>>;
 
-			using type_helper = append_unique_t<append_unique_t<
-				append_unique_t<append_unique_t<append_unique_t<
-				append_unique_t<append_unique_t<append_unique_t<
-				append_unique_t<One, Second>, Third>, Fourth>, Fifth>, 
-				Sixth>, Seventh>, Eighth>, Nineth>, Tenth>;
+			using type_helper = append_unique_t
+				<
+				One,
+				Second,
+				Third,
+				Fourth,
+				Fifth,
+				Sixth,
+				Seventh,
+				Eighth,
+				Nineth,
+				Tenth
+				>;
 		public:
 			using type = typename type_list_unique<TList<TLTs...>, type_helper>::type;
 		};
