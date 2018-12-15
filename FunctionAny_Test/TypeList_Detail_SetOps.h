@@ -39,81 +39,81 @@ namespace t_list
 		public:
 			using type     = typename helper_t::template append_front_unique_conditional_binary<Predicate, First, list_2>;
 		};
-		//template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2,
-		//	typename First, typename Second,
-		//	class... TList1Ts, class... TList2Ts>
-		//	struct filter_binary<Predicate, TList1<First, Second, TList1Ts...>, TList2<TList2Ts...>>
-		//{
-		//	using list_2   = TList2<TList2Ts...>;
-		//	using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
-		//public:
-		//	using type = typename helper_t::
-		//		template append_front_unique_conditional_binary<Predicate, Second, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, First, list_2>;
-		//};
-		//template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2,
-		//	typename First, typename Second, typename Third,
-		//	class... TList1Ts, class... TList2Ts>
-		//	struct filter_binary<Predicate, TList1<First, Second, Third, TList1Ts...>, TList2<TList2Ts...>>
-		//{
-		//	using list_2   = TList2<TList2Ts...>;
-		//	using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
-		//public:
-		//	using type = typename helper_t::
-		//		template append_front_unique_conditional_binary<Predicate, Third, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Second, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, First, list_2>;
-		//};
-		//template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2,
-		//	typename First, typename Second, typename Third, typename Fourth,
-		//	class... TList1Ts, class... TList2Ts>
-		//	struct filter_binary<Predicate, TList1<First, Second, Third, Fourth, TList1Ts...>, TList2<TList2Ts...>>
-		//{
-		//	using list_2   = TList2<TList2Ts...>;
-		//	using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
-		//public:
-		//	using type = typename helper_t::
-		//		template append_front_unique_conditional_binary<Predicate, Fourth, list_2>::				
-		//		template append_front_unique_conditional_binary<Predicate, Third, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Second, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, First, list_2>;
-		//};
-		//template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2,
-		//	typename First, typename Second, typename Third, typename Fourth, typename Fifth,
-		//	class... TList1Ts, class... TList2Ts>
-		//	struct filter_binary<Predicate, TList1<First, Second, Third, Fourth, Fifth, TList1Ts...>, TList2<TList2Ts...>>
-		//{
-		//	using list_2   = TList2<TList2Ts...>;
-		//	using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
-		//public:
-		//	using type = typename helper_t::
-		//		template append_front_unique_conditional_binary<Predicate, Fifth, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Fourth, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Third, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Second, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, First, list_2>;
-		//};
-		//template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, 
-		//	      typename First, typename Second, typename Third, typename Fourth, typename Fifth,
-		//	      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
-		//	      class... TList1Ts, class... TList2Ts>
-		//class filter_binary<Predicate, TList1<First, Second, Third, Fourth, Fifth, Sixth, Seventh, Eighth, Nineth, Tenth, TList1Ts...>, TList2<TList2Ts...>>
-		//{
-		//	using list_2   = TList2<TList2Ts...>;
-		//	using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
-		//public:
-		//	using type = typename helper_t::
-		//		template append_front_unique_conditional_binary<Predicate, Tenth, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Nineth, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Eighth, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Seventh, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Sixth, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Fifth, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Fourth, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Third, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, Second, list_2>::
-		//		template append_front_unique_conditional_binary<Predicate, First, list_2>;
-		//};
+		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2,
+			typename First, typename Second,
+			class... TList1Ts, class... TList2Ts>
+		class filter_binary<Predicate, TList1<First, Second, TList1Ts...>, TList2<TList2Ts...>>
+		{
+			using list_2   = TList2<TList2Ts...>;
+			using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
+		public:
+			using type = typename helper_t::
+				template append_front_unique_conditional_binary<Predicate, Second, list_2>::
+				template append_front_unique_conditional_binary<Predicate, First, list_2>;
+		};
+		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2,
+			typename First, typename Second, typename Third,
+			class... TList1Ts, class... TList2Ts>
+		class filter_binary<Predicate, TList1<First, Second, Third, TList1Ts...>, TList2<TList2Ts...>>
+		{
+			using list_2   = TList2<TList2Ts...>;
+			using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
+		public:
+			using type = typename helper_t::
+				template append_front_unique_conditional_binary<Predicate, Third, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Second, list_2>::
+				template append_front_unique_conditional_binary<Predicate, First, list_2>;
+		};
+		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2,
+			typename First, typename Second, typename Third, typename Fourth,
+			class... TList1Ts, class... TList2Ts>
+		class filter_binary<Predicate, TList1<First, Second, Third, Fourth, TList1Ts...>, TList2<TList2Ts...>>
+		{
+			using list_2   = TList2<TList2Ts...>;
+			using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
+		public:
+			using type = typename helper_t::
+				template append_front_unique_conditional_binary<Predicate, Fourth, list_2>::				
+				template append_front_unique_conditional_binary<Predicate, Third, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Second, list_2>::
+				template append_front_unique_conditional_binary<Predicate, First, list_2>;
+		};
+		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2,
+			typename First, typename Second, typename Third, typename Fourth, typename Fifth,
+			class... TList1Ts, class... TList2Ts>
+		class filter_binary<Predicate, TList1<First, Second, Third, Fourth, Fifth, TList1Ts...>, TList2<TList2Ts...>>
+		{
+			using list_2   = TList2<TList2Ts...>;
+			using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
+		public:
+			using type = typename helper_t::
+				template append_front_unique_conditional_binary<Predicate, Fifth, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Fourth, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Third, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Second, list_2>::
+				template append_front_unique_conditional_binary<Predicate, First, list_2>;
+		};
+		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, 
+			      typename First, typename Second, typename Third, typename Fourth, typename Fifth,
+			      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
+			      class... TList1Ts, class... TList2Ts>
+		class filter_binary<Predicate, TList1<First, Second, Third, Fourth, Fifth, Sixth, Seventh, Eighth, Nineth, Tenth, TList1Ts...>, TList2<TList2Ts...>>
+		{
+			using list_2   = TList2<TList2Ts...>;
+			using helper_t = typename filter_binary<Predicate, TList1<TList1Ts...>, list_2>::type;
+		public:
+			using type = typename helper_t::
+				template append_front_unique_conditional_binary<Predicate, Tenth, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Nineth, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Eighth, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Seventh, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Sixth, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Fifth, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Fourth, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Third, list_2>::
+				template append_front_unique_conditional_binary<Predicate, Second, list_2>::
+				template append_front_unique_conditional_binary<Predicate, First, list_2>;
+		};
 		template <template <typename, typename> class Predicate, typename TList1, typename TList2>
 		using filter_binary_t = typename filter_binary<Predicate, TList1, TList2>::type;
 
@@ -145,7 +145,6 @@ namespace t_list
 		// symmetric_difference_t - type_list containing all types in both TList1 and TList2 but not in the intersection
 		template<typename TList1, typename TList2, typename... TListRest>
 		using symmetric_difference_t = typename difference_t<TList1, TList2>::template setop_union<difference_t<TList2, TList1>>;
-
 
 		// cartesian_product - Cross Product of two type_lists
 		//		type = pair<T, U>...;
@@ -209,7 +208,7 @@ namespace t_list
 			TList2<Us...>>
 		{
 			using type = append_t<typename cartesian_product<TList1<Ts...>, TList2<Us...>>::type,
-				pair<First, Us>..., pair<Second, Us>..., pair<Third, Us>..., pair<Fourth, Us>..., pair<Fifth, Us>...,
+				pair<First, Us>..., pair<Second, Us>...,  pair<Third, Us>...,  pair<Fourth, Us>..., pair<Fifth, Us>...,
 				pair<Sixth, Us>..., pair<Seventh, Us>..., pair<Eighth, Us>..., pair<Nineth, Us>..., pair<Tenth, Us>...>;
 		};
 		template <typename TList1, typename TList2>

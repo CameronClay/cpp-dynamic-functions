@@ -102,26 +102,6 @@ int main()
 	using ARG_LISTS   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
 	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
 
-	//TL_1::filter<std::is_arithmetic>::n_types;
-	//RT_LIST::reverse::n_types;
-	//RT_LIST::filter_binary<std::is_same, tl<void, int>>::n_types;
-	//TL_1::back it;
-	//TL_1::pop_back::n_types;
-	//TL_1::setop_intersection<TL_2>::n_types;
-	//TL_2::setop_intersection<TL_1>::n_types;
-	//ARG_LISTS::all_types_type_list;
-	//TL_1::all_types_type_list;
-
-	//TL_1::unique::n_types;
-
-	//TL_1::reverse::n_types
-	//ARG_LISTS::setop_cartesian_product<RT_LIST>::n_types;
-
-	//if constexpr (val > 1)
-	//{
-	//	std::cout << "";
-	//}
-
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY>   funcList;
 	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "boo hoo");
