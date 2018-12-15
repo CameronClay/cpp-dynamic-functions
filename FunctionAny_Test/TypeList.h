@@ -103,7 +103,7 @@ namespace t_list
 		using append_conditional_front                  = detail::type_list_cat_t<typename type_list<Args...>::template filter<Predicate>, type>;
 		// Append Args to front of list if Predicate<Args, TList>::value == true
 		template <template <typename, typename> class Predicate, typename TList, typename... Args>
-		using append_conditional_front_binary          = detail::type_list_cat_t<typename type_list<Args...>::template filter<Predicate, TList>, type>;
+		using append_conditional_front_binary           = detail::type_list_cat_t<typename type_list<Args...>::template filter<Predicate, TList>, type>;
 
 		// Access last type in list  (non_existant if empty)
 		using back                                      = detail::back_t    <type>;
