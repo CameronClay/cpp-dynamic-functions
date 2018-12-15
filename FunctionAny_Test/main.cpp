@@ -97,7 +97,7 @@ int main()
 	using L_FUNC_F   = tl<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef), SIG_F_T(functor)>;
 	using FUNC_ANY   = FunctionAny_Sig_Lists<L_FUNC_S, L_FUNC_F>;
 
-	// Declare FunctionAny taking any combination of the following RTs and Arg lists
+	// Declare FunctionAny taking any combination of the following RTs and Arg lists (warning this is slow to compile!)
 	using RT_LIST     = tl<void, std::string, int, float, A, A&>;
 	using ARG_LISTS   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
 	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
@@ -160,16 +160,12 @@ int main()
 	// Try to invoke each function in funcList with a set of parameters
 	for (auto& it : funcList)
 	{
-		if (it.HoldsSig<void()>())
-		{
-			std::cout << "void()" << std::endl;
-		}
 		it.Invoke(rt_visitor);
 		it.Invoke(rt_visitor, 0);
 		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
 		it.Invoke(rt_visitor, std::ref(a));
-		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // error because this argument list is not convertable to any in FUNC_ANY
+		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // Error because this argument list is not convertable to any in FUNC_ANY
 	}
 
 	std::cout << std::endl << "---Moved all functions from funcList1 to funcList2---" << std::endl << std::endl;
@@ -181,7 +177,7 @@ int main()
 	funcList.clear();
 
 	std::cout << "---Try_Invoke all functions in funcList2---" << std::endl;
-	//Try to invoke each function in funcList with a set of parameters
+	// Try to invoke each function in funcList with a set of parameters
 	for (auto& it : funcList2)
 	{
 		it.Invoke(rt_visitor);
@@ -189,7 +185,7 @@ int main()
 		it.Invoke(rt_visitor, a, 5.0, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
 		it.Invoke(rt_visitor, std::ref(a));
-		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // error because this argument list is not convertable to any in FUNC_ANY_2
+		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // Error because this argument list is not convertable to any in FUNC_ANY_2
 	}
 
 	std::string s;
