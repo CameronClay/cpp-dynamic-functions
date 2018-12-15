@@ -61,6 +61,10 @@ namespace t_list
 		template <bool... v>
 		constexpr bool all_true_v = all_true<v...>::value;
 
+		// bool pack - used like std::conjunction except works on bools instead of predicates
+		template <bool... v>
+		constexpr bool one_true_v = (v || ...);
+
 		// is_template_of_type - Checks to see if First, Rest... are all types of the same template
 		template <template<class...> class TemplateOf, class... Ts>
 		struct is_template_of_type

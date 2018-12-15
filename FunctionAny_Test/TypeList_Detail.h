@@ -144,11 +144,9 @@ namespace t_list
 		template <class... TLists>
 		using type_list_cat_t = typename type_list_cat<TLists...>::type;
 
-		// type_list_contains_v - true if Ts contains type T
+		// contains_v - true if Ts contains type T
 		template <typename T, typename... Ts>
-		struct contains : std::disjunction<std::is_same<T, Ts>...> {};
-		template <typename T, typename... Ts>
-		constexpr bool contains_v      = contains<T, Ts...>::value;
+		constexpr bool contains_v      = one_true_v<std::is_same_v<T, Ts>...>;
 		template <typename T, typename... Ts>
 		constexpr bool contains_not_v = !contains_v<T, Ts...>;
 

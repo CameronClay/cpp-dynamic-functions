@@ -41,7 +41,7 @@ namespace t_list
 		// True if there are no duplicate types in list
 		static constexpr bool        is_unique              = detail::all_true_v<contains_unique<Ts>...>;
 		// True if all Ts in list are storable types
-		static constexpr bool        all_storable           = std::conjunction_v<detail::is_storable<Ts>...>;
+		static constexpr bool        all_storable           = detail::all_true_v<detail::is_storable_v<Ts>...>;
 
 		// Rebind Ts... to another template in the form of TTo<Ts...>
 		template <template<class...> class TTo>
