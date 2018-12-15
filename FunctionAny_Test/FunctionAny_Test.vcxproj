@@ -126,6 +126,7 @@
     <ClInclude Include="TypeList_Detail.h" />
     <ClInclude Include="TypeList_Detail_IndexOps.h" />
     <ClInclude Include="TypeList_Detail_SetOps.h" />
+    <ClInclude Include="TypeList_Helpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

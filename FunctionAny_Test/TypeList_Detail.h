@@ -1,5 +1,7 @@
 #pragma once
 #include <algorithm>
+#include <type_traits>
+#include "TypeList_Helpers.h"
 
 namespace t_list
 {
@@ -10,41 +12,6 @@ namespace t_list
 		template <typename... Ts>
 		using type_list = t_list::type_list<Ts...>;
 
-		// type_nonexistant - Dummy type representing a nonexistant type
-		struct type_nonexistant {};
-
-		// Helper predicates
-		template<typename T1>
-		struct is_a
-		{
-			template<typename T2>
-			struct helper
-			{
-				static constexpr bool value = std::is_same_v<T1, T2>;
-			};
-		};
-		template<typename T1>
-		using is_a_predicate = typename is_a<T1>::helper;
-
-		template<typename T1>
-		struct is_not_a
-		{
-			template<typename T2>
-			struct helper
-			{
-				static constexpr bool value = !std::is_same_v<T1, T2>;
-			};
-		};
-		template<typename T1>
-		using is_not_a_predicate = typename is_not_a<T1>::helper;
-
-		template<typename> struct reverse_base_case;
-		template <template<typename...> class TList, typename... TArgs>
-		struct reverse_base_case<TList<TArgs...>>
-		{
-			using type = TList<>;
-		};
-
 		template<typename TList, typename... Ts> struct append;
 		template<template <typename...> class TList, typename... Ts, typename... TListTs>
 		struct append<TList<TListTs...>, Ts...>
@@ -54,11 +21,15 @@ namespace t_list
 		template<typename TList, typename... Ts>
 		using append_t = typename append<TList, Ts...>::type;
 
+		template<typename> struct reverse_base_case;
+		template <template<typename...> class TList, typename... TArgs>
+		struct reverse_base_case<TList<TArgs...>>
+		{
+			using type = TList<>;
+		};
 
-		template<typename TList, // Input
-			typename = type_list<>> // Reversed output
-			struct reverse;
-
+		template<typename TList, typename = type_list<>> 
+		struct reverse;
 		template<template <typename...> class TList, typename... Ts>
 		struct reverse<typename reverse_base_case<TList<Ts...>>::type, TList<Ts...>>
 		{
@@ -105,7 +76,7 @@ namespace t_list
 				TList<Fifth, Fourth, Third, Second, First, done...>>::type;
 		};
 		template<template<typename...> class TList,
-			     typename First, typename Second, typename Third, typename Fourth, typename Fifth,
+			     typename First, typename Second,  typename Third,  typename Fourth, typename Fifth,
 			     typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
 			     typename... xs, typename... done>
 		struct reverse<TList<First, Second, Third, Fourth, Fifth,
@@ -209,7 +180,7 @@ namespace t_list
 			using helper_t = typename filter<Predicate, Ts...>::type;
 		public:
 			using type = typename helper_t::
-				template append_conditional_front<Predicate, Second>::
+				template append_conditional_front<Predicate, Second> ::
 				template append_conditional_front<Predicate, First>;
 		};
 		template <template <typename> class Predicate,
@@ -220,8 +191,8 @@ namespace t_list
 			using helper_t = typename filter<Predicate, Ts...>::type;
 		public:
 			using type = typename helper_t::
-				template append_conditional_front<Predicate, Third>::
-				template append_conditional_front<Predicate, Second>::
+				template append_conditional_front<Predicate, Third>  ::
+				template append_conditional_front<Predicate, Second> ::
 				template append_conditional_front<Predicate, First>;
 		};
 		template <template <typename> class Predicate,
@@ -232,9 +203,9 @@ namespace t_list
 			using helper_t = typename filter<Predicate, Ts...>::type;
 		public:
 			using type = typename helper_t::
-				template append_conditional_front<Predicate, Fourth>::
-				template append_conditional_front<Predicate, Third>::
-				template append_conditional_front<Predicate, Second>::
+				template append_conditional_front<Predicate, Fourth> ::
+				template append_conditional_front<Predicate, Third>  ::
+				template append_conditional_front<Predicate, Second> ::
 				template append_conditional_front<Predicate, First>;
 		};
 		template <template <typename> class Predicate,
@@ -245,10 +216,10 @@ namespace t_list
 			using helper_t = typename filter<Predicate, Ts...>::type;
 		public:
 			using type = typename helper_t::
-				template append_conditional_front<Predicate, Fifth>::				
-				template append_conditional_front<Predicate, Fourth>::
-				template append_conditional_front<Predicate, Third>::
-				template append_conditional_front<Predicate, Second>::
+				template append_conditional_front<Predicate, Fifth>  ::				
+				template append_conditional_front<Predicate, Fourth> ::
+				template append_conditional_front<Predicate, Third>  ::
+				template append_conditional_front<Predicate, Second> ::
 				template append_conditional_front<Predicate, First>;
 		};
 		template <template <typename> class Predicate,
@@ -260,15 +231,15 @@ namespace t_list
 			using helper_t = typename filter<Predicate, Ts...>::type;
 		public:
 			using type = typename helper_t::
-				template append_conditional_front<Predicate, Tenth>::
-				template append_conditional_front<Predicate, Nineth>::
-				template append_conditional_front<Predicate, Eighth>::
-				template append_conditional_front<Predicate, Seventh>::
-				template append_conditional_front<Predicate, Sixth>::
-				template append_conditional_front<Predicate, Fifth>::
-				template append_conditional_front<Predicate, Fourth>::
-				template append_conditional_front<Predicate, Third>::
-				template append_conditional_front<Predicate, Second>::
+				template append_conditional_front<Predicate, Tenth>   ::
+				template append_conditional_front<Predicate, Nineth>  ::
+				template append_conditional_front<Predicate, Eighth>  ::
+				template append_conditional_front<Predicate, Seventh> ::
+				template append_conditional_front<Predicate, Sixth>   ::
+				template append_conditional_front<Predicate, Fifth>   ::
+				template append_conditional_front<Predicate, Fourth>  ::
+				template append_conditional_front<Predicate, Third>   ::
+				template append_conditional_front<Predicate, Second>  ::
 				template append_conditional_front<Predicate, First>;
 		};
 		template <template <typename> class Predicate, typename... Ts>
@@ -374,7 +345,7 @@ namespace t_list
 			using type = typename back<TList<Ts...>>::type;
 		};
 		template <template <typename...> class TList,
-			      typename First, typename Second, typename Third, typename Fourth, typename Fifth,
+			      typename First, typename Second,  typename Third,  typename Fourth, typename Fifth,
 			      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth>
 		struct back<TList<First, Second, Third, Fourth, Fifth,
 						      Sixth, Seventh, Eighth, Nineth, Tenth>>
@@ -382,7 +353,7 @@ namespace t_list
 			using type = Tenth;
 		};
 		template <template <typename...> class TList,
-			      typename First, typename Second, typename Third, typename Fourth, typename Fifth,
+			      typename First, typename Second,  typename Third,  typename Fourth, typename Fifth,
 			      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
 			      typename... Ts>
 		struct back<TList<First, Second, Third, Fourth, Fifth,
@@ -477,7 +448,7 @@ namespace t_list
 			using type = type_list<TListAddToTs..., First, Second, Third, Fourth, Fifth, Sixth, Seventh, Eighth, Nineth>;
 		};
 		template <template <typename...> class TList, template <typename...> class TListAddTo,
-			      typename First, typename Second, typename Third, typename Fourth, typename Fifth,
+			      typename First, typename Second,  typename Third,  typename Fourth, typename Fifth,
 			      typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
 			      typename... TLTs, typename... TListAddToTs>
 		struct pop_back<TList<First, Second, Third, Fourth, Fifth,
@@ -585,7 +556,7 @@ namespace t_list
 			using type = typename type_list_unique<TList<TLTs...>, type_helper>::type;
 		};
 		template <template <typename...> class TList, template <typename...> class TListAddTo,
-				  typename First, typename Second, typename Third, typename Fourth, typename Fifth, 
+				  typename First, typename Second,  typename Third,  typename Fourth, typename Fifth, 
 				  typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
 				  typename... TLTs, typename... TListAddToTs>
 		class type_list_unique<TList<First, Second, Third, Fourth, Fifth, 
@@ -616,112 +587,6 @@ namespace t_list
 		};
 		template <class T1, template<class...> class T2>
 		using rebind_t = typename rebind<T1, T2>::type;
-
-		// is_template_of_type - Checks to see if First, Rest... are all types of the same template
-		template <template<class...> class TemplateOf, class... Ts>
-		struct is_template_of_type
-		{
-			static constexpr bool value = false;
-		};
-		template <template<class...> class TemplateOf>
-		struct is_template_of_type<TemplateOf>
-		{
-			static constexpr bool value = true;
-		};
-		template <template<class...> class TemplateOf, template<class...> class First, class... Rest, class... FirstTs>
-		struct is_template_of_type<TemplateOf, First<FirstTs...>, Rest...>
-		{
-			static constexpr bool value = std::is_same_v<
-				TemplateOf<FirstTs...>, First<FirstTs...>> && 
-				is_template_of_type<TemplateOf, Rest...>::value;
-		};
-		template <template<class...> class TemplateOf, 
-			      template<class...> class First, template<class...> class Second, 
-			      class... Rest, 
-			      class... FirstTs, class... SecondTs>
-		struct is_template_of_type<TemplateOf, First<FirstTs...>, Second<SecondTs...>, Rest...>
-		{
-			static constexpr bool value = 
-				std::is_same_v<TemplateOf<FirstTs...>,  First<FirstTs...>>   && 
-				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
-				is_template_of_type<TemplateOf, Rest...>::value;
-		};
-		template <template<class...> class TemplateOf,
-			      template<class...> class First, template<class...> class Second, template<class...> class Third,
-			      class... Rest,
-			      class... FirstTs, class... SecondTs, class... ThirdTs>
-		struct is_template_of_type<TemplateOf, First<FirstTs...>, Second<SecondTs...>, Third<ThirdTs...>, Rest...>
-		{
-			static constexpr bool value = 
-				std::is_same_v<TemplateOf<FirstTs...>,  First<FirstTs...>>   && 
-				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
-				std::is_same_v<TemplateOf<ThirdTs...>,  Third<ThirdTs...>>   &&
-				is_template_of_type<TemplateOf, Rest...>::value;
-		};
-		template <template<class...> class TemplateOf,
-			      template<class...> class First, template<class...> class Second, template<class...> class Third, template<class...> class Fourth,
-			      class... Rest,
-			      class... FirstTs, class... SecondTs, class... ThirdTs, class... FourthTs>
-		struct is_template_of_type<TemplateOf, First<FirstTs...>, Second<SecondTs...>, Third<ThirdTs...>, Fourth<FourthTs...>, Rest...>
-		{
-			static constexpr bool value =
-				std::is_same_v<TemplateOf<FirstTs...>,  First<FirstTs...>>   &&
-				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
-				std::is_same_v<TemplateOf<ThirdTs...>,  Third<ThirdTs...>>   &&
-				std::is_same_v<TemplateOf<FourthTs...>, Fourth<FourthTs...>> &&
-				is_template_of_type<TemplateOf, Rest...>::value;
-		};
-		template <template<class...> class TemplateOf,
-			      template<class...> class First, template<class...> class Second, template<class...> class Third, template<class...> class Fourth, template<class...> class Fifth,
-			      class... Rest,
-			      class... FirstTs, class... SecondTs, class... ThirdTs, class... FourthTs, class... FifthTs>
-		struct is_template_of_type<TemplateOf, 
-			First<FirstTs...>, Second<SecondTs...>, Third<ThirdTs...>, Fourth<FourthTs...>, Fifth<FifthTs...>, 
-			Rest...>
-		{
-			static constexpr bool value =
-				std::is_same_v<TemplateOf<FirstTs...>,  First<FirstTs...>>   &&
-				std::is_same_v<TemplateOf<SecondTs...>, Second<SecondTs...>> &&
-				std::is_same_v<TemplateOf<ThirdTs...>,  Third<ThirdTs...>>   &&
-				std::is_same_v<TemplateOf<FourthTs...>, Fourth<FourthTs...>> &&
-				std::is_same_v<TemplateOf<FifthTs...>,  Fifth<FifthTs...>>   &&
-				is_template_of_type<TemplateOf, Rest...>::value;
-		};
-		template <template<class...> class TemplateOf,
-			      template<class...> class First, template<class...> class Second, template<class...> class Third, template<class...> class Fourth, template<class...> class Fifth,
-			      template<class...> class Sixth, template<class...> class Seventh, template<class...> class Eighth, template<class...> class Nineth, template<class...> class Tenth,
-			      class... Rest,
-			      class... FirstTs, class... SecondTs, class... ThirdTs, class... FourthTs, class... FifthTs,
-			      class... SixthTs, class... SeventhTs, class... EighthTs, class... NinethTs, class... TenthTs>
-		struct is_template_of_type<TemplateOf, 
-			First<FirstTs...>, Second<SecondTs...>, Third<ThirdTs...>, Fourth<FourthTs...>, Fifth<FifthTs...>, 
-			Sixth<SixthTs...>, Seventh<SeventhTs...>, Eighth<EighthTs...>, Nineth<NinethTs...>, Tenth<TenthTs...>,
-			Rest...>
-		{
-			static constexpr bool value =
-				std::is_same_v<TemplateOf<FirstTs...>,   First<FirstTs...>>     &&
-				std::is_same_v<TemplateOf<SecondTs...>,  Second<SecondTs...>>   &&
-				std::is_same_v<TemplateOf<ThirdTs...>,   Third<ThirdTs...>>     &&
-				std::is_same_v<TemplateOf<FourthTs...>,  Fourth<FourthTs...>>   &&
-				std::is_same_v<TemplateOf<FifthTs...>,   Fifth<FifthTs...>>     &&
-				std::is_same_v<TemplateOf<SixthTs...>,   Sixth<SixthTs...>>     &&
-				std::is_same_v<TemplateOf<SeventhTs...>, Seventh<SeventhTs...>> &&
-				std::is_same_v<TemplateOf<EighthTs...>,  Eighth<EighthTs...>>   &&
-				std::is_same_v<TemplateOf<NinethTs...>,  Nineth<NinethTs...>>   &&
-				std::is_same_v<TemplateOf<TenthTs...>,   Tenth<TenthTs...>>     &&
-				is_template_of_type<TemplateOf, Rest...>::value;
-		};
-
-		template < template<class...> class TemplateOf, class... Ts>
-		constexpr bool is_template_of_type_v = is_template_of_type<TemplateOf, Ts...>::value;
-
-		// is_template_of_type - Checks to see if First, Rest... are all types of the same template
-		template <class TypeTemplateOf, class... Ts>
-		struct is_template_of_type_type;
-		template <template<class...> class TemplateOf, class... TemplateOfTs, class... Ts>
-		struct is_template_of_type_type<TemplateOf<TemplateOfTs...>, Ts...> : is_template_of_type<TemplateOf, Ts...> {};
-		template <class TypeTemplateOf, class... Ts>
-		constexpr bool is_template_of_type_type_v = is_template_of_type_type<TypeTemplateOf, Ts...>::value;
 
 		// apply_unary - applies each template argument from outer to inner (takes 1 type_list as parameterse)
 		// TTo_First/TTo_Rest applied from left to right 
@@ -812,36 +677,10 @@ namespace t_list
 		template <typename T>
 		constexpr bool        is_storable_v = is_storable<T>::value;
 
-		// conditional_val - v1 if Test returns true and v2 otherwise
-		template <bool Test, typename T, T v1, T v2>
-		struct conditional_val
-		{
-			static constexpr T value = v2;
-		};
-		template <typename T, T v1, T v2>
-		struct conditional_val<true, T, v1, v2>
-		{
-			static constexpr T value = v1;
-		};
-
-		template <bool Test, typename T, T v1, T v2>
-		constexpr T    conditional_v             = conditional_val<Test, T, v1, v2>::value;
-		template <bool Test, bool v1>
-		constexpr bool conditional_bool_v        = conditional_val<Test, bool, v1, false>::value;
-		template <bool Test, bool v1, bool v2>
-		constexpr bool conditional_bool_binary_v = conditional_val<Test, bool, v1, v2>::value;
-
-		template <bool...> struct bool_pack;
-		template <bool... v>
-		using          all_true   = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
-		template <bool... v>
-		constexpr bool all_true_v = all_true<v...>::value;
-
 		// smallest_type - smallest type in Ts...
 		// largest_type  - largest  type in Ts...
 		template <typename... Ts> struct type_helper;
-		template <>
-		struct type_helper<>
+		template <> struct type_helper<>
 		{
 			using smallest_type = void;
 			using largest_type  = void;
@@ -856,8 +695,7 @@ namespace t_list
 		struct type_helper<T, U, Ts...>
 		{
 			using smallest_type = typename type_helper<std::conditional_t<
-				(sizeof(U) > sizeof(T)), T, U>, Ts...> ::smallest_type;
-
+				(sizeof(U) > sizeof(T)),  T, U>, Ts...>::smallest_type;
 			using largest_type = typename type_helper<std::conditional_t<
 				(sizeof(U) <= sizeof(T)), T, U>, Ts...>::largest_type;
 		};
@@ -865,162 +703,5 @@ namespace t_list
 		using smallest_type_t = typename type_helper<Ts...>::smallest_type;
 		template <typename... Ts>
 		using largest_type_t  = typename type_helper<Ts...>::largest_type;
-
-		// Helper structs for use in type_list
-		template <template<typename, typename> class Predicate, typename TList1, typename TList2>
-		struct all_match_predicate_list;
-		template <template<typename, typename> class Predicate, typename TList1, template<typename...> class TList2, typename... Ts>
-		struct all_match_predicate_list<Predicate, TList1, TList2<Ts...>>
-		{
-			static constexpr bool value = TList1::template all_match_predicate<Ts...>();
-		};
-		template <template<typename, typename> class Predicate, typename TList1, typename TList2>
-		constexpr bool all_match_predicate_list_v = all_match_predicate_list<Predicate, TList1, TList2>::value;
-
-		template <typename TList1, typename TList2>
-		struct is_convertible_list;
-		template <typename TList1, template<typename...> class TList2, typename... Ts>
-		struct is_convertible_list<TList1, TList2<Ts...>>
-		{
-			static_assert(is_template_of_type_v<type_list, TList1>, "Error: is_not_type_list_overload expected TList1 to be of type t_list::type_list<Ts...>");
-			static constexpr bool value = TList1::template is_convertible<Ts...>();
-		};
-		template <typename TList1, typename TList2>
-		constexpr bool is_convertible_list_v = is_convertible_list<TList1, TList2>::value;
-
-		template <typename TList1, typename TList2>
-		struct contains_convertible_list;
-		template <template<typename...> class TList1, typename TList2>
-		struct contains_convertible_list<TList1<>, TList2>
-		{
-			static constexpr bool value = false;
-		};
-		template <template<typename...> class TList1, typename TList2, typename First>
-		struct contains_convertible_list<TList1<First>, TList2>
-		{
-			static_assert(is_template_of_type_v<type_list, TList2, First>, "Error: contains_convertible_list expected TList2 and First to be of type t_list::type_list<Ts...>");
-			static constexpr bool value = TList2::template is_convertible_list<First>();
-		};
-		template <template<typename...> class TList1, typename TList2, typename First, typename... Ts>
-		struct contains_convertible_list<TList1<First, Ts...>, TList2>
-		{
-			static_assert(is_template_of_type_v<type_list, TList2, First>, "Error: contains_convertible_list expected TList2 and First... to be of type t_list::type_list<Ts...>");
-			static constexpr bool value = conditional_bool_binary_v<TList2::template is_convertible_list<First>(), true, contains_convertible_list<TList1<Ts...>, TList2>::value>;
-		};
-		template <template<typename...> class TList1, typename TList2, 
-			typename First, typename Second, 
-			typename... Ts>
-		struct contains_convertible_list<TList1<First, Second, Ts...>, TList2>
-		{
-			static_assert(is_template_of_type_v<type_list, TList2, First, Second>, "Error: contains_convertible_list expected TList2 and First... to be of type t_list::type_list<Ts...>");
-
-			static constexpr bool value = conditional_bool_binary_v<
-				(
-					TList2::template is_convertible_list<First> () || 
-					TList2::template is_convertible_list<Second>()
-				), true, 
-				typename contains_convertible_list<TList1<Ts...>, TList2>::value>;
-		};
-		template <template<typename...> class TList1, typename TList2,
-			typename First, typename Second, typename Third,
-			typename... Ts>
-		struct contains_convertible_list<TList1<First, Second, Third, Ts...>, TList2>
-		{
-			static_assert(is_template_of_type_v<type_list, TList2, First, Second, Third>, "Error: contains_convertible_list expected TList2 and First... to be of type t_list::type_list<Ts...>");
-
-			static constexpr bool value = conditional_bool_binary_v<
-				(
-					TList2::template is_convertible_list<First> () ||
-					TList2::template is_convertible_list<Second>() ||
-					TList2::template is_convertible_list<Third> ()
-				), true, 
-				contains_convertible_list<TList1<Ts...>, TList2>::value>;
-		};
-		template <template<typename...> class TList1, typename TList2,
-			typename First, typename Second, typename Third, typename Fourth,
-			typename... Ts>
-		struct contains_convertible_list<TList1<First, Second, Third, Fourth, Ts...>, TList2>
-		{
-			static_assert(is_template_of_type_v<type_list, TList2, First, Second, Third, Fourth>, "Error: contains_convertible_list expected TList2 and First... to be of type t_list::type_list<Ts...>");
-
-			static constexpr bool value = conditional_bool_binary_v<
-				(
-					TList2::template is_convertible_list<First> () ||
-					TList2::template is_convertible_list<Second>() ||
-					TList2::template is_convertible_list<Third> () ||
-					TList2::template is_convertible_list<Fourth>()
-				), true, 
-				contains_convertible_list<TList1<Ts...>, TList2>::value>;
-		};
-		template <template<typename...> class TList1, typename TList2,
-			typename First, typename Second, typename Third, typename Fourth, typename Fifth,
-			typename... Ts>
-		struct contains_convertible_list<TList1<First, Second, Third, Fourth, Fifth, Ts...>, TList2>
-		{
-			static_assert(is_template_of_type_v<type_list, TList2, First, Second, Third, Fourth, Fifth>, "Error: contains_convertible_list expected TList2 and First... to be of type t_list::type_list<Ts...>");
-
-			static constexpr bool value = conditional_bool_binary_v<
-				(
-					TList2::template is_convertible_list<First> () ||
-					TList2::template is_convertible_list<Second>() ||
-					TList2::template is_convertible_list<Third> () ||
-					TList2::template is_convertible_list<Fourth>() ||
-					TList2::template is_convertible_list<Fifth> ()
-				), true, 
-				contains_convertible_list<TList1<Ts...>, TList2>::value>;
-		};
-		template <template<typename...> class TList1, typename TList2,
-			typename First, typename Second, typename Third, typename Fourth, typename Fifth,
-			typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
-			typename... Ts>
-		struct contains_convertible_list<TList1<
-			First, Second, Third, Fourth, Fifth, 
-			Sixth, Seventh, Eighth, Nineth, Tenth, 
-			Ts...>, TList2>
-		{
-			static_assert(is_template_of_type_v<type_list, TList2, 
-				First, Second, Third, Fourth, Fifth,
-				Sixth, Seventh, Eighth, Nineth, Tenth>, 
-				"Error: contains_convertible_list expected TList2 and First... to be of type t_list::type_list<Ts...>");
-
-			static constexpr bool value = conditional_bool_binary_v<
-				(
-					TList2::template is_convertible_list<First>  () ||
-					TList2::template is_convertible_list<Second> () ||
-					TList2::template is_convertible_list<Third>  () ||
-					TList2::template is_convertible_list<Fourth> () ||
-					TList2::template is_convertible_list<Fifth>  () ||
-					TList2::template is_convertible_list<Sixth>  () ||
-					TList2::template is_convertible_list<Seventh>() ||
-					TList2::template is_convertible_list<Eighth> () ||
-					TList2::template is_convertible_list<Nineth> () ||
-					TList2::template is_convertible_list<Tenth>  ()
-				), true, 
-				contains_convertible_list<TList1<Ts...>, TList2>::value>;
-		};
-		template <typename TList1, typename TList2>
-		constexpr bool contains_convertible_list_v = contains_convertible_list<TList1, TList2>::value;
-
-		template <typename TList1, typename TList2>
-		struct is_not_type_list_overload;
-		template <typename TList1, template<typename...> class TList2, typename... Ts>
-		class is_not_type_list_overload<TList1, TList2<Ts...>>
-		{
-			static_assert(is_template_of_type_v<type_list, TList1>, "Error: is_not_type_list_overload expected TList1 to be of type t_list::type_list<Ts...>");
-			static constexpr bool n_types = sizeof...(Ts);
-		public:
-			static constexpr bool value = conditional_v<(n_types != 1), bool, true, !detail::is_template_of_type_v<type_list, typename TList1::front>>;
-		};
-		template <typename TList1, typename TList2>
-		constexpr bool is_not_type_list_overload_v = is_not_type_list_overload<TList1, TList2>::value;
-
-		template <typename TList1, typename TList2>
-		struct is_equivalent
-		{
-			static_assert(is_template_of_type_v<type_list, TList1, TList2>, "Error: is_equivalent expected TList1 and TList2 to be of type t_list::type_list<Ts...>");
-			static constexpr bool value = conditional_bool_v<(TList1::n_types == TList2::n_types), TList1::template is_subset<TList2>>;
-		};
-		template <typename TList1, typename TList2>
-		constexpr bool is_equivalent_v = is_equivalent<TList1, TList2>::value;
 	}
 }

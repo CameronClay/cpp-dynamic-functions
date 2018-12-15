@@ -42,6 +42,9 @@
     <ClInclude Include="FunctionAny.h">
       <Filter>Header Files\Function</Filter>
     </ClInclude>
+    <ClInclude Include="TypeList_Helpers.h">
+      <Filter>Header Files\TypeList</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
