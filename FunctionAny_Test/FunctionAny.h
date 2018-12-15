@@ -23,7 +23,7 @@ public:
 	static_assert(SIGS_UNIQUE::template all_match_predicate<f_traits::is_sig>(), "Error: Not all template arguments are type-erased function signatures");
 
 	using RTS_UNIQUE     = typename SIGS_UNIQUE::template apply <f_traits::sig_rt_t, TO_RETURN_TYPE>::template append<NO_CALL>::unique;
-	using ARGS_UNIQUE    = typename SIGS_UNIQUE::template apply <f_traits::sig_args_t>::unique;
+	using ARGS_UNIQUE    = typename SIGS_UNIQUE::template apply <f_traits::sig_args_t>                                        ::unique;
 	using RT_VARIANT     = typename RTS_UNIQUE ::template rebind<std::variant>;
 
 	FunctionAny() = default;
@@ -193,7 +193,7 @@ private:
 	static decltype(auto) InvokeFunction(const Function<Sig>& func, Args&&... args)
 	{
 		using RT = f_traits::sig_rt_t<Sig>;
-		if constexpr (!std::is_const_v<RT> && !std::is_same_v<RT, void>)
+		if constexpr (!std::is_same_v<RT, void>)
 		{
 			decltype(auto) ret = func(std::forward<Args>(args)...);
 			if constexpr (!std::is_lvalue_reference_v<RT>)
