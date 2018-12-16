@@ -97,7 +97,7 @@ int main()
 	using L_FUNC_F   = tl<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef), SIG_F_T(functor)>;
 	using FUNC_ANY   = FunctionAny_Sig_Lists<L_FUNC_S, L_FUNC_F>;
 
-	// Declare FunctionAny taking any combination of the following RTs and Arg lists (warning this is slow to compile!)
+	// Declare FunctionAny taking any combination of the following RTs and Arg lists (warning this can be slow to compile with large type lists!)
 	using RT_LIST     = tl<void, std::string, int, float, A, A&>;
 	using ARG_LISTS   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
 	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;

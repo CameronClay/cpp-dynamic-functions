@@ -22,7 +22,7 @@ namespace t_list
 			template<typename T2>
 			struct is_not_a
 			{
-				static constexpr bool value = std::is_same_v<T1, T2>;
+				static constexpr bool value = !std::is_same_v<T1, T2>;
 			};
 		};
 		template<typename T1>
@@ -218,7 +218,7 @@ namespace t_list
 				(
 					TList2::template is_convertible_list<First>  () ||
 					TList2::template is_convertible_list<Second> ()
-					), true,
+				), true,
 				typename contains_convertible_list<TList1<Ts...>, TList2>::value>;
 		};
 		template <template<typename...> class TList1, typename TList2,
@@ -233,7 +233,7 @@ namespace t_list
 					TList2::template is_convertible_list<First>  () ||
 					TList2::template is_convertible_list<Second> () ||
 					TList2::template is_convertible_list<Third>  ()
-					), true,
+				), true,
 				contains_convertible_list<TList1<Ts...>, TList2>::value>;
 		};
 		template <template<typename...> class TList1, typename TList2,
@@ -249,7 +249,7 @@ namespace t_list
 					TList2::template is_convertible_list<Second> () ||
 					TList2::template is_convertible_list<Third>  () ||
 					TList2::template is_convertible_list<Fourth> ()
-					), true,
+				), true,
 				contains_convertible_list<TList1<Ts...>, TList2>::value>;
 		};
 		template <template<typename...> class TList1, typename TList2,
@@ -266,7 +266,7 @@ namespace t_list
 					TList2::template is_convertible_list<Third>  () ||
 					TList2::template is_convertible_list<Fourth> () ||
 					TList2::template is_convertible_list<Fifth>  ()
-					), true,
+				), true,
 				contains_convertible_list<TList1<Ts...>, TList2>::value>;
 		};
 		template <template<typename...> class TList1, typename TList2,
@@ -295,7 +295,7 @@ namespace t_list
 					TList2::template is_convertible_list<Eighth>  () ||
 					TList2::template is_convertible_list<Nineth>  () ||
 					TList2::template is_convertible_list<Tenth>   ()
-					), true,
+				), true,
 				contains_convertible_list<TList1<Ts...>, TList2>::value>;
 		};
 		template <typename TList1, typename TList2>
