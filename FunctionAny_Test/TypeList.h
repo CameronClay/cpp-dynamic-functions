@@ -13,6 +13,8 @@ namespace t_list
 	{
 		// Alias for type of current type_list
 		using type                                          = type_list;
+		// Remove all elements from list
+		using clear                                         = type_list<>;
 		// Applies Ts to std::tuple
 		using tuple                                         = std::tuple<Ts...>;
 		// Represents type that does not exist
@@ -53,8 +55,6 @@ namespace t_list
 		template <class TList, template<class...> class TTo_First, template<class...> class... TTo_Rest>
 		using apply_binary                              = detail::apply_binary_t <type, TList, TTo_First, TTo_Rest...>;
 
-		// Remove all elements from list
-		using clear                                     = type_list<>;
 		// Reverse all Ts in list
 		using reverse                                   = detail::reverse_t<type>;
 		// Remove duplicates from list

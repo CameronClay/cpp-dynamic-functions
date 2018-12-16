@@ -711,7 +711,7 @@ namespace t_list
 		template <typename T>
 		using                 is_storable   = std::negation<std::disjunction<std::is_void<T>, std::is_function<T>>>;
 		template <typename T>
-		constexpr bool        is_storable_v = is_storable<T>::value;
+		constexpr bool        is_storable_v = !(std::is_void_v<T> || std::is_function_v<T>);
 
 		// smallest_type - smallest type in Ts...
 		// largest_type  - largest  type in Ts...

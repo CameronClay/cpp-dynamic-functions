@@ -12,28 +12,23 @@ namespace t_list
 
 		// Helper predicates
 		template<typename T1>
-		struct is_a
+		struct binary_to_unary_predicate
 		{
 			template<typename T2>
-			struct helper
+			struct is_a
+			{
+				static constexpr bool value = std::is_same_v<T1, T2>;
+			};
+			template<typename T2>
+			struct is_not_a
 			{
 				static constexpr bool value = std::is_same_v<T1, T2>;
 			};
 		};
 		template<typename T1>
-		using is_a_predicate = typename is_a<T1>::helper;
-
+		using is_a_predicate     = typename binary_to_unary_predicate<T1>::is_a;
 		template<typename T1>
-		struct is_not_a
-		{
-			template<typename T2>
-			struct helper
-			{
-				static constexpr bool value = !std::is_same_v<T1, T2>;
-			};
-		};
-		template<typename T1>
-		using is_not_a_predicate = typename is_not_a<T1>::helper;
+		using is_not_a_predicate = typename binary_to_unary_predicate<T1>::is_not_a;
 
 		// conditional_val - v1 if Test returns true and v2 otherwise
 		template <bool Test, typename T, T v1, T v2>
