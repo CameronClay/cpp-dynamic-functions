@@ -87,9 +87,9 @@ int main()
 
 	A a{ 5, 2.34f };
 
-	//using TL_1 = tl<int, bool, char, float, const char, void(), void*, int, float, char, char*, int*, double, int, char, wchar_t>;
-	//using TL_2 = tl<int, char, float, int, double, int*, const char, void*, int, float, void(), char, char*, std::string>;
-	//using TL_3 = tl<std::vector<float>, char, float, double, void*, int, float, char, char*, int*, const char*, int()>;
+	//using TL_1 = tl<int, bool, char, float, const char, void(), void*, int, float, char, char*, int*, double, int, char, wchar_t, float*, double*, float**, double**, int(), int(int)>;
+	//using TL_2 = tl<int, char, float, int, double, int*, const char, void*, int, float, void(), char, char*, std::string, void**, A, Functor, A&, A**, A*>;
+	//using TL_3 = tl<std::vector<float>, char, float, double, void*, int, float, const char, const wchar_t*, int*, const char*, int()>;
 
 	// In most cases the list of the functions used will not be known.
 	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.

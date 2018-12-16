@@ -166,14 +166,14 @@ namespace t_list
 		template <template <typename> class Predicate>
 		static constexpr bool        all_match_predicate()
 		{
-			return std::conjunction_v<Predicate<Ts>...>;
+			return detail::all_true_v<Predicate<Ts>::value...>;
 		}
 		// True if Predicate<Ts, Args>::value... for all Ts and Args is true
 		template <template <typename, typename> class Predicate, typename... Args>
 		static constexpr bool	    all_match_predicate()
 		{
 			if constexpr (sizeof... (Args) == n_types)
-				return std::conjunction_v<Predicate<Ts, Args>...>;
+				return detail::all_true_v<Predicate<Ts, Args>::value...>;
 
 			return false;
 		}
@@ -189,7 +189,7 @@ namespace t_list
 		static constexpr bool       is_convertible()
 		{
 			if constexpr (sizeof... (Args) == n_types)
-				return std::conjunction_v<std::is_convertible<std::decay_t<Ts>, std::decay_t<Args>>...>;
+				return detail::all_true_v<std::is_convertible_v<std::decay_t<Ts>, std::decay_t<Args>>...>;
 
 			return false;
 		}
