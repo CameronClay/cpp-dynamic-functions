@@ -49,14 +49,15 @@ namespace t_list
 		template <bool Test, bool v1, bool v2>
 		constexpr bool conditional_bool_binary_v = conditional_val<Test, bool, v1, v2>::value;
 
-		// bool pack - used like std::conjunction except works on bools instead of predicates
 		template <bool...> struct bool_pack;
 		template <bool... v>
 		using          all_true   = std::is_same<bool_pack<true, v...>, bool_pack<v..., true>>;
+
+		// all_true_v - used like std::conjunction except works on bools instead of predicates
 		template <bool... v>
 		constexpr bool all_true_v = all_true<v...>::value;
 
-		// bool pack - used like std::conjunction except works on bools instead of predicates
+		// one_true_v - used like std::disjunction except works on bools instead of predicates
 		template <bool... v>
 		constexpr bool one_true_v = (v || ...);
 
