@@ -74,6 +74,13 @@ namespace t_list
 		template <template <typename, typename> class Predicate, typename TList>
 		using filter_binary                             = detail::filter_binary_t<Predicate, type, TList>;
 
+		// Removes all Ts in list of type T
+		template<typename T>
+		using remove_all_of                             = filter<detail::is_not_a_predicate<T>>;
+		// Replaces all Ts in list matching TChk with TTo
+		template<typename TChk, typename TTo>
+		using replace_all_of                            = detail::replace_all_of_t<TChk, TTo>;
+
 		// Append all TLists to current list of types
 		template <typename... TLists>
 		using append_lists                              = detail::type_list_cat_t <type, TLists...>;

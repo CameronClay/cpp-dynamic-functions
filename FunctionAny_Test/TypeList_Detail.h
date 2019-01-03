@@ -488,6 +488,149 @@ namespace t_list
 		template<typename TList, typename... Ts>
 		using append_unique_t = typename append_unique<TList, Ts...>::type;
 
+
+		// append_replace - Appends 0 or more types to type_list with Ts if not of type TChk otherwise TTo
+		template<typename TList, typename TChk, typename TTo, typename... Ts> struct append_replace;
+		template<template <typename...> class TList, typename TChk, typename TTo, typename... TLTs>
+		struct append_replace<TList<TLTs...>, TChk, TTo>
+		{
+			using type = TList<TLTs...>;
+		};
+		template<template <typename...> class TList, typename TChk, typename TTo, typename First, typename... Ts, typename... TLTs>
+		class append_replace<TList<TLTs...>, TChk, TTo, First, Ts...>
+		{
+			using type_helper = std::conditional_t<std::is_same_v<TChk, First>, TTo, First>;
+		public:
+			using type = typename append_unique<type_helper, Ts...>::type;
+		};
+		template<template <typename...> class TList, typename TChk, typename TTo, 
+			typename First, typename Second, 
+			typename... Ts, typename... TLTs>
+		class append_replace<TList<TLTs...>, TChk, TTo, 
+			First, Second, 
+			Ts...>
+		{
+			using TFirst  = std::conditional_t<std::is_same_v<TChk, First>,  TTo, First>;
+			using TSecond = std::conditional_t<std::is_same_v<TChk, Second>, TTo, Second>;
+
+			using type_helper = type_list
+				<
+				TLTs..., 
+				TFirst,
+				TSecond
+				>;
+		public:
+			using type = typename append_unique<type_helper, Ts...>::type;
+		};
+		template<template <typename...> class TList, typename TChk, typename TTo,
+			typename First, typename Second, typename Third,
+			typename... Ts, typename... TLTs>
+		class append_replace<TList<TLTs...>, TChk, TTo, 
+			First, Second, Third,
+			Ts...>
+		{
+			using TFirst  = std::conditional_t<std::is_same_v<TChk, First>,  TTo, First>;
+			using TSecond = std::conditional_t<std::is_same_v<TChk, Second>, TTo, Second>;
+			using TThird  = std::conditional_t<std::is_same_v<TChk, Third>,  TTo, Third>;
+
+			using type_helper = type_list
+				<
+				TLTs..., 
+				TFirst,
+				TSecond,
+				TThird
+				>;
+		public:
+			using type = typename append_unique<type_helper, Ts...>::type;
+		};
+		template<template <typename...> class TList, typename TChk, typename TTo,
+			typename First, typename Second, typename Third, typename Fourth,
+			typename... Ts, typename... TLTs>
+		class append_replace<TList<TLTs...>, TChk, TTo,
+			First, Second, Third, Fourth,
+			Ts...>
+		{
+			using TFirst  = std::conditional_t<std::is_same_v<TChk, First>,  TTo, First>;
+			using TSecond = std::conditional_t<std::is_same_v<TChk, Second>, TTo, Second>;
+			using TThird  = std::conditional_t<std::is_same_v<TChk, Third>,  TTo, Third>;
+			using TFourth = std::conditional_t<std::is_same_v<TChk, Fourth>, TTo, Third>;
+
+			using type_helper = type_list
+			<
+				TLTs...,
+				TFirst,
+				TSecond,
+				TThird,
+				TFourth
+			>;
+		public:
+			using type = typename append_unique<type_helper, Ts...>::type;
+		};
+		template<template <typename...> class TList, typename TChk, typename TTo,
+			typename First, typename Second, typename Third, typename Fourth, typename Fifth,
+			typename... Ts, typename... TLTs>
+		class append_replace<TList<TLTs...>, TChk, TTo,
+			First, Second, Third, Fourth, Fifth,
+			Ts...>
+		{
+			using TFirst  = std::conditional_t<std::is_same_v<TChk, First>,  TTo, First>;
+			using TSecond = std::conditional_t<std::is_same_v<TChk, Second>, TTo, Second>;
+			using TThird  = std::conditional_t<std::is_same_v<TChk, Third>,  TTo, Third>;
+			using TFourth = std::conditional_t<std::is_same_v<TChk, Fourth>, TTo, Fourth>;
+			using TFifth  = std::conditional_t<std::is_same_v<TChk, Fifth>,  TTo, Fifth>;
+
+			using type_helper = type_list
+				<
+				TLTs...,
+				TSecond,
+				TThird,
+				TFourth,
+				TFifth
+				>;
+		public:
+			using type = typename append_unique<type_helper, Ts...>::type;
+		};
+		template<template <typename...> class TList, typename TChk, typename TTo,
+			typename First, typename Second, typename Third, typename Fourth, typename Fifth,
+			typename Sixth, typename Seventh, typename Eighth, typename Nineth, typename Tenth,
+			typename... Ts, typename... TLTs>
+		class append_replace<TList<TLTs...>, TChk, TTo,
+			First, Second, Third, Fourth, Fifth,
+			Sixth, Seventh, Eighth, Nineth, Tenth,
+			Ts...>
+		{
+			using TFirst   = std::conditional_t<std::is_same_v<TChk, First>,   TTo, First>;
+			using TSecond  = std::conditional_t<std::is_same_v<TChk, Second>,  TTo, Second>;
+			using TThird   = std::conditional_t<std::is_same_v<TChk, Third>,   TTo, Third>;
+			using TFourth  = std::conditional_t<std::is_same_v<TChk, Fourth>,  TTo, Fourth>;
+			using TFifth   = std::conditional_t<std::is_same_v<TChk, Fifth>,   TTo, Fifth>;
+			using TSixth   = std::conditional_t<std::is_same_v<TChk, Sixth>,   TTo, Sixth>;
+			using TSeventh = std::conditional_t<std::is_same_v<TChk, Seventh>, TTo, Seventh>;
+			using TEighth  = std::conditional_t<std::is_same_v<TChk, Eighth>,  TTo, Eighth>;
+			using TNineth  = std::conditional_t<std::is_same_v<TChk, Nineth>,  TTo, Nineth>;
+			using TTenth   = std::conditional_t<std::is_same_v<TChk, Tenth>,   TTo, Tenth>;
+
+			using type_helper = type_list
+				<
+				TLTs...,
+				TSecond,
+				TThird,
+				TFourth,
+				TFifth,
+				TSixth,
+				TSeventh,
+				TEighth,
+				TNineth,
+				TTenth
+				>;
+		public:
+			using type = typename append_unique<type_helper, Ts...>::type;
+		};
+		template<typename TList, typename TChk, typename TTo, typename... Ts>
+		using append_replace_t = typename append_replace<TList, TChk, TTo, Ts...>::type;
+		template<typename TChk, typename TTo, typename... Ts>
+		using replace_all_of_t = append_replace<type_list<>, TChk, TTo, Ts...>;
+
 		// type_list_unique - Make unique type_list given TList
 		template <typename TList, typename = type_list<>> struct type_list_unique;
 		template <template <typename...> class TList, template <typename...> class TListAddTo, typename... TListAddToTs>
