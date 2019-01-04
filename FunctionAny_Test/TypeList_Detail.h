@@ -582,6 +582,7 @@ namespace t_list
 			using type_helper = type_list
 				<
 				TLTs...,
+				TFirst,
 				TSecond,
 				TThird,
 				TFourth,
@@ -613,6 +614,7 @@ namespace t_list
 			using type_helper = type_list
 				<
 				TLTs...,
+				TFirst,
 				TSecond,
 				TThird,
 				TFourth,
