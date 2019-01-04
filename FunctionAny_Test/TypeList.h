@@ -149,7 +149,7 @@ namespace t_list
 		// Computes symmetric difference between type_list<Ts...> and TList
 		template<typename TList>
 		using setop_symmetric_difference                = detail::symmetric_difference_t<type, TList>;
-		// Computes cartesian product between type_list<Ts...> and TList
+		// Computes cartesian product between type_list<Ts...> and TList, reulting type is type_list<detail::pair<T1, T2>...>
 		template <typename TList>
 		using setop_cartesian_product                   = detail::cartesian_product_t   <unique, typename TList::unique>;
 
