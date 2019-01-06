@@ -131,7 +131,7 @@ public:
 	template<typename Visitor, typename... Args>
 	decltype(auto) Invoke(Visitor&& visitor, Args&&... args) const
 	{
-		auto ret = operator()(std::forward<Args>(args)...);
+		decltype(auto) ret = operator()(std::forward<Args>(args)...);
 		return std::visit(std::forward<Visitor>(visitor), ret);
 	}
 
