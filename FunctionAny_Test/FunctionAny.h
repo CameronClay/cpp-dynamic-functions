@@ -4,7 +4,7 @@
 #include "FunctionTraits.h"
 
 // Dummy structs for special return types
-struct VOID {};
+struct VOID    {};
 struct NO_CALL {};
 
 // Store any function given a list of signatures, of the format RT(Args...)
