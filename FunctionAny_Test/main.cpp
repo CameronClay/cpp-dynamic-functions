@@ -104,7 +104,7 @@ int main()
 
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY>   funcList;
-	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "boo hoo");
+	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "whoo hoo");
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>,  &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(&A::Moo)>,  &A::Moo);
@@ -122,31 +122,31 @@ int main()
 		using RT_IS = IS_TYPE<RT>;
 		static_assert(FUNC_ANY_2::RTS_UNIQUE::contains<RT>, "Error: Invalid return type");
 
-		if constexpr      (RT_IS::value<NO_CALL>)
+		if constexpr      (RT_IS::template value<NO_CALL>)
 		{
 			//std::cout << "Func was not called" << std::endl;
 		}
-		else if constexpr (RT_IS::value<VOID>)
+		else if constexpr (RT_IS::template value<VOID>)
 		{
 			//std::cout << "Func returned with type: void" << std::endl;
 		}
-		else if constexpr (RT_IS::value<int>)
+		else if constexpr (RT_IS::template value<int>)
 		{
 			std::cout << "Func returned " << ret << " with type: int" << std::endl;
 		}
-		else if constexpr (RT_IS::value<float>)
+		else if constexpr (RT_IS::template value<float>)
 		{
 			std::cout << "Func returned " << ret << " with type: float" << std::endl;
 		}
-		else if constexpr (RT_IS::value<std::string>)
+		else if constexpr (RT_IS::template value<std::string>)
 		{
 			std::cout << "Func returned " << ret << " with type: string" << std::endl;
 		}
-		else if constexpr (RT_IS::value<A>)
+		else if constexpr (RT_IS::template value<A>)
 		{
 			std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << std::endl;
 		}
-		else if constexpr (RT_IS::value<A*>)         // Reference converted to pointer type
+		else if constexpr (RT_IS::template value<A*>)         // Reference converted to pointer type
 		{
 			std::cout << "Func returned " << ret << ", *A = {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
 		}

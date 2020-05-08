@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TYPE_LIST_DETAIL_H
+#define TYPE_LIST_DETAIL_H
+
 #include <algorithm>
 #include <type_traits>
 #include "TypeList_Helpers.h"
@@ -886,3 +888,5 @@ namespace t_list
 		using largest_type_t  = typename type_helper<Ts...>::largest_type;
 	}
 }
+
+#endif

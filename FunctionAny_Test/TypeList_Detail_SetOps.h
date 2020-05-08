@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TYPE_LIST_DETAIL_SO_H
+#define TYPE_LIST_DETAIL_SO_H
+
 #include "TypeList_Detail.h"
 
 namespace t_list
@@ -215,3 +217,5 @@ namespace t_list
 		using cartesian_product_t = typename cartesian_product<TList1, TList2>::type;
 	}
 }
+
+#endif

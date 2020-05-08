@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FUNCTION_ANY_H
+#define FUNCTION_ANY_H
+
 #include <variant>
 #include "Function.h"
 #include "FunctionTraits.h"
@@ -275,3 +277,5 @@ using FunctionAny_Sig_Lists = typename FAny_Utili::FunctionAny_Sig_Lists_Helper<
 // RTList is a type_list<RTs...>, ArgTLists is a type_list<type_list<Args...>....>
 template <class RTTList, class ArgTLists>
 using FunctionAny_RT_Args   = typename FAny_Utili::FunctionAny_RT_Args_Helper<RTTList, ArgTLists>::type;
+
+#endif

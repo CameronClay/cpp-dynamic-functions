@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TYPE_LIST_H
+#define TYPE_LIST_H
+
 #include "TypeList_Detail.h"
 #include "TypeList_Detail_SetOps.h"
 #include "TypeList_Detail_IndexOps.h"
@@ -243,3 +245,5 @@ namespace t_list
 		}
 	};
 }
+
+#endif

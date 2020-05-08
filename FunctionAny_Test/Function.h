@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FUNCTION_H
+#define FUNCTION_H
+
 #include <stdlib.h>
 #include <functional>
 #include "FunctionTraits.h"
@@ -111,3 +113,5 @@ public:
 
 	Action action;
 };
+
+#endif

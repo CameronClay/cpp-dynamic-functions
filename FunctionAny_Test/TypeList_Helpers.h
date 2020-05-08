@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TYPE_LIST_HELPERS_H
+#define TYPE_LIST_HELPERS_H
+
 #include <type_traits>
 
 namespace t_list
@@ -325,3 +327,5 @@ namespace t_list
 		constexpr bool is_equivalent_v = is_equivalent<TList1, TList2>::value;
 	}
 }
+
+#endif

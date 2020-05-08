@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FUNCTION_TRAITS_H
+#define FUNCTION_TRAITS_H
+
 #include <type_traits>
 #include "TypeList.h"
 
@@ -155,3 +157,5 @@ namespace f_traits
 	template<typename Sig, typename... Args> 
 	constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<Args...>;
 }
+
+#endif

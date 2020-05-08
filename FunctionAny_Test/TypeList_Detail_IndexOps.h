@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TYPE_LIST_DETAIL_IO_H
+#define TYPE_LIST_DETAIL_IO_H
+
 #include <utility>
 
 namespace t_list
@@ -79,3 +81,5 @@ namespace t_list
 		using type_list_erase_t = typename type_list_erase<idx, TypeList>::type;
 	}
 }
+
+#endif
