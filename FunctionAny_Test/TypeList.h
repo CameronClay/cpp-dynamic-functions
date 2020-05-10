@@ -69,6 +69,18 @@ namespace t_list
 		template <std::size_t I>
 		using erase                                     = detail::erase_t  <I, Ts...>;
 
+		// Slice types based on indices [Start, End] inclusive bounds
+		template <std::size_t Start, std::size_t End>
+		using slice										= detail::slice_t<Start, End, Ts...>;
+
+		// Create slice [0, n] (select first n types)
+		template <std::size_t n>
+		using first_of									= detail::slice_t<0u, n, Ts...>;
+
+		// Create slice [n_types - n, n_types-1] (select last n types)
+		template <std::size_t n>
+		using last_of									= detail::slice_t<n_types - n, n_types - 1, Ts...>;
+
 		// Remove all elements where Predicate<Ts>::value is false
 		template <template <typename> class Predicate>
 		using filter                                    = detail::filter_t       <Predicate, Ts...>;

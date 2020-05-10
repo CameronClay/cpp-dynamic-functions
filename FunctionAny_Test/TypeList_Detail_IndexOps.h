@@ -2,11 +2,11 @@
 #define TYPE_LIST_DETAIL_IO_H
 
 #include <utility>
+#include <type_traits>
+#include "TypeList.h"
 
 namespace t_list
 {
-	template <typename... Ts> struct type_list;
-
 	namespace detail
 	{
 		template <typename... Ts>
@@ -49,6 +49,7 @@ namespace t_list
 		class erase
 		{
 			static_assert(idx < sizeof...(Ts), "idx out of bounds");
+			static_assert(idx > sizeof...(Ts), "idx out of bounds");
 
 			template <std::size_t i, std::size_t n, typename... TTail>
 			struct erase_impl;
@@ -62,7 +63,7 @@ namespace t_list
 			template <std::size_t n, typename T, typename... TTail>
 			struct erase_impl<n, n, T, TTail...>
 			{
-				using type = type_list<TTail...>;
+				using type = t_list::type_list<TTail...>;
 			};
 
 		public:
@@ -70,6 +71,54 @@ namespace t_list
 		};
 		template <std::size_t idx, typename... Ts>
 		using erase_t = typename erase<idx, Ts...>::type;
+
+		//inclusive bounds [Start, End]
+		template <std::size_t Start, std::size_t End, typename... Ts>
+		class slice
+		{
+			static constexpr std::size_t n_types = sizeof...(Ts);
+			static_assert(Start < End                    , "Start must be less than end");
+			static_assert(Start >= 0u && Start < n_types, "Start out of bounds");
+			static_assert(End >= 0u && End < n_types    , "End out of bounds");
+
+			template <std::size_t i, std::size_t Start, std::size_t End, typename... TTail>
+			struct slice_impl;
+
+			template <std::size_t i, std::size_t Start, std::size_t End, typename T, typename... TTail>
+			class slice_impl<i, Start, End, T, TTail...>
+			{
+				using type_h = typename slice_impl<i + 1, Start, End, TTail...>::type;
+			public:
+				using type = std::conditional_t<i >= Start, typename type_h::template append_front<T>, type_h>;
+			};
+
+			//slice of size 0 case
+			template <std::size_t n, std::size_t Start, typename T, typename... TTail>
+			struct slice_impl<n, Start, Start, T, TTail...>
+			{
+				using type = t_list::type_list<>;
+			};
+
+			//end case
+			template <std::size_t n, std::size_t Start, typename T, typename... TTail>
+			struct slice_impl<n, Start, n, T, TTail...>
+			{
+				using type = t_list::type_list<T>;
+			};
+
+			////start case
+			//template <std::size_t n, std::size_t End, typename T, typename... TTail>
+			//struct slice_impl<n, n, End, T, TTail...>
+			//{
+			//	using type = type_list<>;
+			//};
+
+		public:
+			using type = typename slice_impl<0u, Start, End, Ts...>::type;
+		};
+		template <std::size_t Start, std::size_t End, typename... Ts>
+		using slice_t = typename slice<Start, End, Ts...>::type;
+
 
 		template <std::size_t idx, class TypeList> struct type_list_erase;
 		template <std::size_t idx, template <class...> class TypeList, typename... Ts>
