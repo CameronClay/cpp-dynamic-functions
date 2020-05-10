@@ -61,7 +61,7 @@ public:
 		return action();
 	}
 
-public:
+private:
 	using Action = std::function<RT()>;
 
 	template<typename Func, typename... Args>

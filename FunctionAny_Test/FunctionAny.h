@@ -121,7 +121,7 @@ public:
 
 	//returns true if holds any sig
 	template<typename... Sig>
-	constexpr bool HoldsSig()
+	constexpr bool HoldsSig() const
 	{
 		static_assert((f_traits::is_sig_v<Sig> && ...),    "Error: All Sigs are not type-erased function signatures");
 		return (std::holds_alternative<Function<Sig>>(func) || ...);
@@ -141,7 +141,7 @@ public:
 	auto operator()(Args&&... args) const -> RT_VARIANT
 	{
 		static_assert(ARGS_UNIQUE::template contains_convertible<Args...>(), "Error: No function is invokable with this set of arguments");
-		auto f = [...args = std::forward<Args>(args)]
+		auto call = [...args = std::forward<Args>(args)]
 			<class Sig>(const Function<Sig>& func) mutable -> decltype(auto)
 		{
 			if constexpr (f_traits::sig_convertible_args_v<Sig, Args...>)
@@ -151,7 +151,7 @@ public:
 
 		};
 
-		return std::visit(f, func);
+		return std::visit(call, func);
 	}
 
 	// Invokes func if it has EXACTLY zero args
