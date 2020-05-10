@@ -128,8 +128,8 @@ namespace f_traits
 	template<typename RT, typename... Args> 
 	struct sig_helper<RT(Args...)>
 	{
-		using return_t                         = RT;
-		using args                             = t_list::type_list<Args...>;
+		using return_t								   = RT;
+		using args									   = t_list::type_list<Args...>;
 
 		static constexpr std::size_t  n_args           = args::n_types;
 		static constexpr bool         no_args          = args::empty;
@@ -138,8 +138,8 @@ namespace f_traits
 		static constexpr bool         has_arg          = args::template contains<T>;
 		template<typename... Ts>
 		static constexpr bool         same_args        = args::template is_same<Ts...>;
-		template<typename... Ts>
-		static constexpr bool         convertable_args = args::template is_convertible<Ts...>();
+		template<typename... TsFrom>
+		static constexpr bool         convertable_args = t_list::type_list<TsFrom...>::template is_convertible<Args...>();
 	};
 
 	template<typename T>
@@ -154,8 +154,8 @@ namespace f_traits
 	constexpr bool sig_has_arg_v          = sig_helper<Sig>::template has_arg<Arg>;
 	template<typename Sig, typename... Args> 
 	constexpr bool sig_same_args_v        = sig_helper<Sig>::template same_args<Args...>;
-	template<typename Sig, typename... Args> 
-	constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<Args...>;
+	template<typename Sig, typename... TsFrom>
+	constexpr bool sig_convertible_args_v = sig_helper<Sig>::template convertable_args<TsFrom...>;
 }
 
 #endif

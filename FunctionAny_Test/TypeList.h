@@ -36,7 +36,7 @@ namespace t_list
 		static constexpr bool        is_same                = std::is_same_v<type, type_list<Args...>>;
 		// True if all Ts are templates of TemplateOf
 		template <template<class...> class TemplateOf>
-		static constexpr bool        all_template_of_type_v = detail::is_template_of_type_v<TemplateOf, Ts...>;
+		static constexpr bool        all_template_of_v      = detail::all_templates_of<TemplateOf, Ts...>;
 
 		// Number of types in list
 		static constexpr std::size_t n_types                = sizeof... (Ts);
@@ -166,14 +166,14 @@ namespace t_list
 		static constexpr bool is_equivalent_ordered_set = std::is_same_v<type, TList>;
 
 		// Returns true if all Ts are templates of type_list
-		static constexpr bool        all_types_type_list()
+		static constexpr bool       all_types_type_list()
 		{
-			return detail::is_template_of_type_type_v<type, Ts...>;
+			return detail::all_templates_of_type_v<type, Ts...>;
 		}
 
 		// True if Predicate<Ts>:value is true for all Ts in list
 		template <template <typename> class Predicate>
-		static constexpr bool        all_match_predicate()
+		static constexpr bool       all_match_predicate()
 		{
 			return detail::all_true_v<Predicate<Ts>::value...>;
 		}
@@ -194,11 +194,11 @@ namespace t_list
 		}
 
 		// Returns true if all Ts are convertible to Args
-		template <typename... Args>
+		template <typename... ArgsTo>
 		static constexpr bool       is_convertible()
 		{
-			if constexpr (sizeof... (Args) == n_types)
-				return detail::all_true_v<std::is_convertible_v<std::decay_t<Ts>, std::decay_t<Args>>...>;
+			if constexpr (sizeof... (ArgsTo) == n_types)
+				return detail::all_true_v<std::is_convertible_v<std::decay_t<Ts>, std::remove_cv_t<ArgsTo>>...>;
 
 			return false;
 		}
@@ -210,11 +210,11 @@ namespace t_list
 		}
 
 		// Returns true if all Ts in TList convertible to Ts
-		template <typename... Args>
+		template <typename... TsFrom>
 		static constexpr bool       contains_convertible()
 		{
 			static_assert(all_types_type_list(), "Error: contains_convertible requires all types to be of type type_list");
-			return detail::contains_convertible_list_v<type, type_list<Args...>>;
+			return detail::contains_convertible_list_v<type, type_list<TsFrom...>>;
 		}
 		// Returns true if all Ts in TList convertible to Ts
 		template <typename TList>

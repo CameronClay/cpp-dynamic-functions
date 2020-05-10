@@ -29,10 +29,10 @@ public:
 
 	operator bool() const
 	{
-		return action.operator bool();
+		return bool(action);
 	}
 
-	auto operator()(Args... args) const -> RT
+	decltype(auto) operator()(Args&&... args) const
 	{
 		return action(std::forward<Args>(args)...);
 	}
@@ -53,10 +53,10 @@ public:
 
 	operator bool() const
 	{
-		return action.operator bool();
+		return bool(action);
 	}
 
-	auto operator()() const -> RT
+	decltype(auto) operator()() const
 	{
 		return action();
 	}
@@ -67,33 +67,25 @@ public:
 	template<typename Func, typename... Args>
 	static std::enable_if_t<!f_traits::is_function_ptr_v<Func>, Action> MakeFunc(Func func, Args&&... args)
 	{
-		auto f = [func](auto&&... args) -> RT {return func(std::forward<decltype(args)>(args)...);};
-
-		return [f, tup = std::make_tuple(std::forward<Args>(args)...)]() mutable -> RT { return std::apply(f, tup); };
+		return [func, ...args = std::forward<Args>(args)]() mutable -> RT {return func(std::forward<decltype(args)>(args)...);};
 	}
 
 	template<typename Func, typename... Args>
 	static std::enable_if_t<f_traits::is_function_ptr_v<Func>, Action> MakeFunc(Func func, Args&&... args)
 	{
-		auto f = [func](auto&&... args) -> RT {return (*func)(std::forward<decltype(args)>(args)...);};
-
-		return [f, tup = std::make_tuple(std::forward<Args>(args)...)]() mutable -> RT { return std::apply(f, tup); };
+		return [func, ...args = std::forward<Args>(args)]() mutable -> RT {return (*func)(std::forward<decltype(args)>(args)...);};
 	}
 
 	template<typename Func, typename O, typename... Args>
 	static std::enable_if_t<std::is_member_function_pointer_v<Func>, Action> MakeFunc(Func func, O* o, Args&&... args)
 	{
-		auto f = [func, o](auto&&... args) -> RT {return (o->*func)(std::forward<decltype(args)>(args)...);};
-
-		return [f, tup = std::make_tuple(std::forward<Args>(args)...)]() mutable -> RT { return std::apply(f, tup); };
+		return [o, func, ...args = std::forward<Args>(args)]() mutable -> RT {return (o->*func)(std::forward<decltype(args)>(args)...);};
 	}
 
 	template<typename Func, typename O, typename... Args>
 	static std::enable_if_t<std::is_member_function_pointer_v<Func>, Action> MakeFunc(Func func, O& o, Args&&... args)
 	{
-		auto f = [func, &o](auto&&... args) -> RT {return (o.*func)(std::forward<decltype(args)>(args)...);};
-
-		return [f, tup = std::make_tuple(std::forward<Args>(args)...)]() mutable -> RT { return std::apply(f, tup); };
+	    return [&o, func, ...args = std::forward<Args>(args)]() mutable -> RT {return (o.*func)(std::forward<decltype(args)>(args)...);};
 	}
 
 	// Used for constructors
@@ -109,7 +101,6 @@ public:
 	{
 		return func;
 	}
-
 
 	Action action;
 };

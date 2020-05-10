@@ -25,7 +25,7 @@ namespace t_list
 		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, class... TList1Ts, class... TList2Ts>
 		struct filter_binary<Predicate, TList1<TList1Ts...>, TList2<TList2Ts...>>
 		{
-			static_assert(is_template_of_type_v<type_list, TList1<>, TList2<>>, "Error: filter_binary expected TList1 and TList2 to to be of type t_list::type_list<Ts...>");
+			static_assert(all_templates_of_v<type_list, TList1<>, TList2<>>, "Error: filter_binary expected TList1 and TList2 to to be of type t_list::type_list<Ts...>");
 			using type = type_list<>;
 		};
 		template <template <typename, typename> class Predicate, template <typename...> class TList1, template <typename...> class TList2, typename First, class... TList2Ts>

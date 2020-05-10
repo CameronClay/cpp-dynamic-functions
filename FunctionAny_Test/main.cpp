@@ -98,12 +98,12 @@ int main()
 	using FUNC_ANY   = FunctionAny_Sig_Lists<L_FUNC_S, L_FUNC_F>;
 
 	// Declare FunctionAny taking any combination of the following RTs and Arg lists (warning this can be slow to compile with large type lists!)
-	using RT_LIST     = tl<void, std::string, int, float, A, A&>;
-	using ARG_LISTS   = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
-	using FUNC_ANY_2  = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
+	using RT_LIST    = tl<void, std::string, int, float, A, A&>;
+	using ARG_LISTS  = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
+	using FUNC_ANY_2 = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
 
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
-	std::vector<FUNC_ANY>   funcList;
+	std::vector<FUNC_ANY> funcList;
 	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "whoo hoo");
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>,  &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
@@ -119,9 +119,9 @@ int main()
 	auto rt_visitor = [](const auto& ret)
 	{
 		using RT    = std::decay_t<decltype(ret)>;
-		using RT_IS = IS_TYPE<RT>;
 		static_assert(FUNC_ANY_2::RTS_UNIQUE::contains<RT>, "Error: Invalid return type");
 
+		using RT_IS = IS_TYPE<RT>;
 		if constexpr      (RT_IS::template value<NO_CALL>)
 		{
 			//std::cout << "Func was not called" << std::endl;
@@ -132,62 +132,79 @@ int main()
 		}
 		else if constexpr (RT_IS::template value<int>)
 		{
-			std::cout << "Func returned " << ret << " with type: int" << std::endl;
+			std::cout << "Func returned " << ret << " with type: int" << "\n";
 		}
 		else if constexpr (RT_IS::template value<float>)
 		{
-			std::cout << "Func returned " << ret << " with type: float" << std::endl;
+			std::cout << "Func returned " << ret << " with type: float" << "\n";
 		}
 		else if constexpr (RT_IS::template value<std::string>)
 		{
-			std::cout << "Func returned " << ret << " with type: string" << std::endl;
+			std::cout << "Func returned " << ret << " with type: string" << "\n";
 		}
 		else if constexpr (RT_IS::template value<A>)
 		{
-			std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << std::endl;
+			std::cout << "Func returned {" << ret.m_i << ", " << ret.m_f << "} with type: A" << "\n";
 		}
 		else if constexpr (RT_IS::template value<A*>)         // Reference converted to pointer type
 		{
-			std::cout << "Func returned " << ret << ", *A = {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << std::endl;
+			std::cout << "Func returned " << ret << ", *A = {" << ret->m_i << ", " << ret->m_f << "} with type: A*" << "\n";
 		}
 		else
 		{
-			std::cout << "Return Type not handled" << std::endl;
+			std::cout << "Return Type not handled" << "\n";
 		}
 	};
 
-	std::cout << "---Try_Invoke all functions in funcList---" << std::endl;
+	std::cout << "---Try_Invoke all functions in funcList---" << "\n";
 	// Try to invoke each function in funcList with a set of parameters
 	for (auto& it : funcList)
 	{
 		it.Invoke(rt_visitor);
 		it.Invoke(rt_visitor, 0);
-		it.Invoke(rt_visitor, a, 5.0, 6);
+		it.Invoke(rt_visitor, std::ref(a), 5, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
-		it.Invoke(rt_visitor, std::ref(a));
+		it.Invoke(rt_visitor, std::ref(a)); //calls both ref and non-ref versions
+		it.Invoke(rt_visitor, a); //only calls non-ref version
 		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // Error because this argument list is not convertable to any in FUNC_ANY
 	}
 
-	std::cout << std::endl << "---Moved all functions from funcList1 to funcList2---" << std::endl << std::endl;
+	std::cout << std::endl << "---Moved all functions from funcList1 to funcList2---" << "\n\n";
 	std::vector<FUNC_ANY_2> funcList2;
 	for (auto& it : funcList)
 	{
 		funcList2.push_back(std::move(it));
 	}
 	funcList.clear();
-
-	std::cout << "---Try_Invoke all functions in funcList2---" << std::endl;
+	
+	std::cout << "---Try_Invoke all functions in funcList2---" << "\n";
 	// Try to invoke each function in funcList with a set of parameters
 	for (auto& it : funcList2)
 	{
 		it.Invoke(rt_visitor);
 		it.Invoke(rt_visitor, 0);
-		it.Invoke(rt_visitor, a, 5.0, 6);
-		it.Invoke(rt_visitor, 1.f, 2, 3.5);
+		it.Invoke(rt_visitor, std::ref(a), 5.43, -6.9);
 		it.Invoke(rt_visitor, std::ref(a));
-		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // Error because this argument list is not convertable to any in FUNC_ANY_2
+		it.Invoke(rt_visitor, a);
 	}
-
+	
+	funcList.clear();
+	
+	std::cout << "\n" <<  "Changing value of a..." << "\n";
+	a.m_i = -2;
+	a.m_f = 98.321;
+	std::cout << "---Try_Invoke all functions in funcList2---" << "\n";
+	// Try to invoke each function in funcList with a set of parameters
+	for (auto& it : funcList2)
+	{
+		it.Invoke(rt_visitor);
+		it.Invoke(rt_visitor, 0);
+		it.Invoke(rt_visitor, std::ref(a), 0, -934);
+		it.Invoke(rt_visitor, std::ref(a));
+		it.Invoke(rt_visitor, a);
+	}
+	
+	
 	std::string s;
 	std::getline(std::cin, s);
 

@@ -4,6 +4,7 @@
 #include <variant>
 #include "Function.h"
 #include "FunctionTraits.h"
+#include <iostream>
 
 // Dummy structs for special return types
 struct VOID    {};
@@ -70,11 +71,9 @@ public:
 	template<typename... SigsT>
 	FunctionAny& operator=(const FunctionAny<SigsT...>& rhs)
 	{
-		auto f = [this](const auto& func)
+		auto f = [this]<class Sig>(const Function<Sig>& func)
 		{
-			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 			static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Signature list does not contain Signature of rhs");
-
 			this->func = func;
 		};
 
@@ -89,11 +88,9 @@ public:
 	template<typename... SigsT>
 	FunctionAny& operator=(FunctionAny<SigsT...>&& rhs)
 	{
-		auto f = [this](auto&& func)
+		auto f = [this]<class Sig>(Function<Sig>&& func)
 		{
-			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 			static_assert(SIGS_UNIQUE::template contains<Sig>, "Error: Signature list does not contain Signature of rhs");
-
 			this->func = std::move(func);
 		};
 
@@ -122,11 +119,12 @@ public:
 		return *this;
 	}
 
-	template<typename Sig>
+	//returns true if holds any sig
+	template<typename... Sig>
 	constexpr bool HoldsSig()
 	{
-		static_assert(f_traits::is_sig_v<Sig>,             "Error: Sig is not a type-erased function signature");
-		return std::holds_alternative<Function<Sig>>(func);
+		static_assert((f_traits::is_sig_v<Sig> && ...),    "Error: All Sigs are not type-erased function signatures");
+		return (std::holds_alternative<Function<Sig>>(func) || ...);
 	}
 
 	// Invokes func IF all Args are convertible to that of the function signature and calls std::visit on the visitor with the return value
@@ -142,36 +140,31 @@ public:
 	template<typename... Args>
 	auto operator()(Args&&... args) const -> RT_VARIANT
 	{
-		static_assert(ARGS_UNIQUE::template contains_convertible<Args...>(), "Error: Function is NEVER invokable with this set of arguments");
-		auto f = [](const auto& func, auto&&... args) -> decltype(auto)
+		static_assert(ARGS_UNIQUE::template contains_convertible<Args...>(), "Error: No function is invokable with this set of arguments");
+		auto f = [...args = std::forward<Args>(args)]
+			<class Sig>(const Function<Sig>& func) mutable -> decltype(auto)
 		{
-			return InvokeFunction(func, std::forward<decltype(args)>(args)...);
-		};
-
-		auto call = [f, tup = std::make_tuple(std::forward<Args>(args)...)](const auto& func) mutable -> decltype(auto) 
-		{ 
-			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 			if constexpr (f_traits::sig_convertible_args_v<Sig, Args...>)
-				return RT_VARIANT(apply_first(f, func, tup));
-			else
-				return RT_VARIANT(NO_CALL{});
+				return InvokeFunction(func, std::forward<decltype(args)>(args)...);
+
+			return RT_VARIANT(NO_CALL{});
+
 		};
 
-		return std::visit(call, func);
+		return std::visit(f, func);
 	}
 
 	// Invokes func if it has EXACTLY zero args
 	// Returns VOID for void, and NO_CALL if the function expected arguments
 	auto operator()() const -> RT_VARIANT
 	{
-		static_assert(ARGS_UNIQUE::template contains_convertible<>(), "Error: Function is NEVER invokable with no arguments");
-		auto call = [](const auto& func) -> decltype(auto)
+		static_assert(ARGS_UNIQUE::template contains_convertible<>(), "Error: No function is invokable with no arguments");
+		auto call = []<class Sig>(const Function<Sig>& func) -> decltype(auto)
 		{
-			using Sig = f_traits::Function_to_sig_t<std::decay_t<decltype(func)>>;
 			if constexpr (f_traits::sig_no_args_v<Sig>)
 				return InvokeFunction(func);
-			else
-				return RT_VARIANT(NO_CALL{});
+
+			return RT_VARIANT(NO_CALL{});
 		};
 
 		return std::visit(call, func);
@@ -180,9 +173,8 @@ public:
 	// Checks to see if a valid function is stored
 	operator bool() const
 	{
-		auto call = [](const auto& func) -> bool
-		{
-			return func.operator bool();
+		auto call = [](const auto& func) {
+			return bool(func);
 		};
 
 		return std::visit(call, func);
@@ -206,34 +198,19 @@ private:
 			decltype(auto) ret = func(std::forward<Args>(args)...);
 			if constexpr (!std::is_lvalue_reference_v<RT>)
 			{
-				using RT_NEW = RT;
-				return RT_VARIANT(std::in_place_type<RT_NEW>, ret);
+				return RT_VARIANT{ std::in_place_type<RT>, ret };
 			}
 			else
 			{
 				using RT_NEW = std::add_pointer_t<std::remove_reference_t<RT>>;
-				return RT_VARIANT(std::in_place_type<RT_NEW>, &ret);
+				return RT_VARIANT{ std::in_place_type<RT_NEW>, &ret };
 			}
 		}
 		else
 		{
 			func(std::forward<Args>(args)...);
+			return RT_VARIANT{ VOID{} };
 		}
-
-		return RT_VARIANT(VOID{});
-	}
-
-	template <class F, class T, class Tuple, std::size_t... I>
-	static constexpr decltype(auto) apply_first_impli(F&& f, T&& first, Tuple&& t, std::index_sequence<I...>)
-	{
-		return std::invoke(std::forward<F>(f), std::forward<T>(first), std::get<I>(std::forward<Tuple>(t))...);
-	}
-
-	template <class F, class T, class Tuple>
-	static constexpr decltype(auto) apply_first(F&& f, T&& first, Tuple&& t)
-	{
-		return apply_first_impli(std::forward<F>(f), std::forward<T>(first), std::forward<Tuple>(t),
-			std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
 	}
 };
 
@@ -252,7 +229,7 @@ namespace FAny_Utili
 	template <class... Sig_TLists>
 	struct FunctionAny_Sig_Lists_Helper
 	{
-		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, Sig_TLists...>,     
+		static_assert(t_list::detail::all_templates_of_v<t_list::type_list, Sig_TLists...>,     
 			"Error: Template arguments do not match <type_list<Sigs...>...>");
 
 		using type = typename t_list::detail::type_list_cat_t<Sig_TLists...>::template rebind<FunctionAny>;
@@ -261,7 +238,7 @@ namespace FAny_Utili
 	template <class RTTList, class ArgTLists>
 	struct FunctionAny_RT_Args_Helper
 	{
-		static_assert(t_list::detail::is_template_of_type_v<t_list::type_list, RTTList, ArgTLists>, 
+		static_assert(t_list::detail::all_templates_of_v<t_list::type_list, RTTList, ArgTLists>,
 			"Error: Template arguments do not match <type_list<RTs...>, type_list<Args...>>");
 
 		using type = typename RTTList::template setop_cartesian_product<ArgTLists>::template apply<FAny_Utili::pair_create_sig_t>::template rebind<FunctionAny>;

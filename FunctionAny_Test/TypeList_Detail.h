@@ -860,6 +860,23 @@ namespace t_list
 		template <typename T>
 		constexpr bool        is_storable_v = !(std::is_void_v<T> || std::is_function_v<T>);
 
+		//template <typename TTo, typename TFrom>
+		//class is_convertible_fn 
+		//{
+		//	using TFromDecay = std::decay_t<TFrom>;
+		//public:
+		//	using T1 = std::decay_t<TTo>;
+		//	using T2 = std::conditional_t<(!std::is_lvalue_reference_v<TFrom> && !std::is_lvalue_reference_v<TTo>) 
+		//	|| (std::is_lvalue_reference_v<TFrom> && !std::is_lvalue_reference_v<TTo>),
+		//		TFromDecay, std::add_lvalue_reference_t<TFromDecay>>;
+		//	//using T2 = std::conditional_t < std::is_lvalue_reference<TFrom>, std::conditional_t<!std::is_lvalue_reference_v<TTo>,
+		//	//	TFromDecay, std::add_lvalue_reference_t<TFromDecay>>;
+		//	static constexpr bool value = std::is_convertible_v<T1, T2>;
+		//};
+
+		//template <typename TTo, typename TFrom>
+		//constexpr bool is_convertible_fn_v = is_convertible_fn<TTo, TFrom>::value;
+
 		// smallest_type - smallest type in Ts...
 		// largest_type  - largest  type in Ts...
 		template <typename... Ts> struct type_helper;
