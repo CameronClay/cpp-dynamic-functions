@@ -87,9 +87,11 @@ namespace f_traits
 	template<typename RT>  struct is_funcs<RT()> : std::true_type  {};
 	template<typename Sig> constexpr bool is_funcs_v = is_funcs<Sig>::value;
 
+	//can be used in cases where some arguments are bound
 	template<typename RT, typename... Args>
 	using sig_create = RT(Args...);
 
+	//no arguments bound
 	template<typename FuncObj> struct sig_f { using type = typename sig_f<decltype(&FuncObj::operator())>::type; };
 	template<typename RT, typename... Args>
 	struct sig_f<RT(Args...)>			    { using type = sig_create<RT, Args...>; };
@@ -101,6 +103,7 @@ namespace f_traits
 	struct sig_f<RT(O::*)(Args...) const>   { using type = sig_create<RT, Args...>; };
 	template<typename FuncPT> using sig_f_t = typename sig_f<FuncPT>::type;
 
+	//all arguments bound
 	template<typename FuncObj> struct sig_s { using type = typename sig_s<decltype(&FuncObj::operator())>::type; };
 	template<typename RT, typename... Args>
 	struct sig_s<RT(Args...)>			    { using type = sig_create<RT>; };

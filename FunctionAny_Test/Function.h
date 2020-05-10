@@ -7,24 +7,14 @@
 
 template<typename Sig> class Function;
 
-//Store function call without arugments bound
-template<typename RT, typename... Args>
-class Function<RT(Args...)>
+//Store function call with some arguments bound
+template<typename RT, typename... UnboundArgs>
+class Function<RT(UnboundArgs...)>
 {
 public:
-	template<typename Func>
-	Function(Func func)
-		: action(func)
-	{}
-
-	template<typename Func, typename O>
-	Function(Func func, O* o, typename std::enable_if_t<std::is_member_function_pointer_v<Func>>* = nullptr)
-		: action([func, o](Args&&... args)->RT {return (o->*func)(std::forward<Args>(args)...); })
-	{}
-
-	template<typename Func, typename O>
-	Function(Func func, O& o, typename std::enable_if_t<std::is_member_function_pointer_v<Func>>* = nullptr)
-		: action([func, &o](Args&&... args)->RT {return (o.*func)(std::forward<Args>(args)...); })
+	template<typename... BoundArgs>
+	Function(BoundArgs&&... args)
+		: action(MakeFunc(std::forward<BoundArgs>(args)...))
 	{}
 
 	operator bool() const
@@ -32,60 +22,36 @@ public:
 		return bool(action);
 	}
 
-	decltype(auto) operator()(Args&&... args) const
+	decltype(auto) operator()(UnboundArgs&&... args) const
 	{
-		return action(std::forward<Args>(args)...);
+		return action(std::forward<UnboundArgs>(args)...);
 	}
 
 private:
-	std::function<RT(Args...)> action;
-};
+	using Action = std::function<RT(UnboundArgs...)>;
 
-//Store function call with all arguments bound
-template<typename RT>
-class Function<RT()>
-{
-public:
-	template<typename... Args>
-	Function(Args&&... boundArgs)
-		: action(MakeFunc(std::forward<Args>(boundArgs)...))
-	{}
-
-	operator bool() const
+	template<typename Func, typename... BoundArgs>
+	static Action MakeFunc(Func func, BoundArgs&&... args)
 	{
-		return bool(action);
+		return [func, ...args = std::forward<BoundArgs>(args)](UnboundArgs&&... rest) mutable -> decltype(auto) {
+			return func(std::forward<decltype(args)>(args)..., std::forward<UnboundArgs>(rest)...);
+		};
 	}
 
-	decltype(auto) operator()() const
+	template<typename Func, typename O, typename... BoundArgs>
+	static std::enable_if_t<std::is_member_function_pointer_v<Func>, Action> MakeFunc(Func func, O* o, BoundArgs&&... args)
 	{
-		return action();
+		return [o, func, ...args = std::forward<BoundArgs>(args)](UnboundArgs&&... rest) mutable -> decltype(auto) {
+			return (o->*func)(std::forward<decltype(args)>(args)..., std::forward<UnboundArgs>(rest)...);
+		};
 	}
 
-private:
-	using Action = std::function<RT()>;
-
-	template<typename Func, typename... Args>
-	static std::enable_if_t<!f_traits::is_function_ptr_v<Func>, Action> MakeFunc(Func func, Args&&... args)
+	template<typename Func, typename O, typename... BoundArgs>
+	static std::enable_if_t<std::is_member_function_pointer_v<Func>, Action> MakeFunc(Func func, O& o, BoundArgs&&... args)
 	{
-		return [func, ...args = std::forward<Args>(args)]() mutable -> RT {return func(std::forward<decltype(args)>(args)...);};
-	}
-
-	template<typename Func, typename... Args>
-	static std::enable_if_t<f_traits::is_function_ptr_v<Func>, Action> MakeFunc(Func func, Args&&... args)
-	{
-		return [func, ...args = std::forward<Args>(args)]() mutable -> RT {return (*func)(std::forward<decltype(args)>(args)...);};
-	}
-
-	template<typename Func, typename O, typename... Args>
-	static std::enable_if_t<std::is_member_function_pointer_v<Func>, Action> MakeFunc(Func func, O* o, Args&&... args)
-	{
-		return [o, func, ...args = std::forward<Args>(args)]() mutable -> RT {return (o->*func)(std::forward<decltype(args)>(args)...);};
-	}
-
-	template<typename Func, typename O, typename... Args>
-	static std::enable_if_t<std::is_member_function_pointer_v<Func>, Action> MakeFunc(Func func, O& o, Args&&... args)
-	{
-	    return [&o, func, ...args = std::forward<Args>(args)]() mutable -> RT {return (o.*func)(std::forward<decltype(args)>(args)...);};
+	    return [&o, func, ...args = std::forward<BoundArgs>(args)](UnboundArgs&&... rest) mutable -> decltype(auto) {
+			return (o.*func)(std::forward<decltype(args)>(args)..., std::forward<UnboundArgs>(rest)...);
+		};
 	}
 
 	// Used for constructors

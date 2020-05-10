@@ -131,8 +131,7 @@ public:
 	template<typename Visitor, typename... Args>
 	decltype(auto) Invoke(Visitor&& visitor, Args&&... args) const
 	{
-		decltype(auto) ret = operator()(std::forward<Args>(args)...);
-		return std::visit(std::forward<Visitor>(visitor), ret);
+		return std::visit(std::forward<Visitor>(visitor), operator()(std::forward<Args>(args)...));
 	}
 
 	// Invokes function with supplied parameters if Args are convertible to that of the function signature

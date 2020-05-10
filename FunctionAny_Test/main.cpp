@@ -18,6 +18,13 @@ struct A
 		std::cout << v1 << ' ' << v2 << std::endl;
 	}
 
+
+	int Partial(int v1, float v2, double j, double k)
+	{
+		std::cout << v1 << ' ' << v2 << ' ' << j << ' ' << k << std::endl;
+		return v1 + v2;
+	}
+
 	void Out2(int v1) const
 	{
 		std::cout << v1 << std::endl;
@@ -93,13 +100,18 @@ int main()
 
 	// In most cases the list of the functions used will not be known.
 	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.
+	using PARTIAL_SIG = f_traits::sig_create<void, double, double>;
+	//using RUNTIME_OBJ = f_traits::sig_create<void, const A&, int, float>;
+
 	using L_FUNC_S   = tl<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2)>;
 	using L_FUNC_F   = tl<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef), SIG_F_T(functor)>;
-	using FUNC_ANY   = FunctionAny_Sig_Lists<L_FUNC_S, L_FUNC_F>;
+	using L_FUNC_P   = tl<PARTIAL_SIG>;
+	//using L_FUNC_R   = tl<RUNTIME_OBJ>;
+	using FUNC_ANY   = FunctionAny_Sig_Lists<L_FUNC_S, L_FUNC_F, L_FUNC_P/*, L_FUNC_R*/>;
 
 	// Declare FunctionAny taking any combination of the following RTs and Arg lists (warning this can be slow to compile with large type lists!)
 	using RT_LIST    = tl<void, std::string, int, float, A, A&>;
-	using ARG_LISTS  = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>>;
+	using ARG_LISTS  = tl<tl<>, tl<int>, tl<int, float>, tl<float, float, float>, tl<A&, int, int>, tl<const A&>, tl<A&>, tl<const char*>, tl<double, double>/*, tl<const A&, int, float>*/>;
 	using FUNC_ANY_2 = FunctionAny_RT_Args<RT_LIST, ARG_LISTS>;
 
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
@@ -108,7 +120,9 @@ int main()
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>,  &A::Out, a, 5, 7.5);
 	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(&A::Moo)>,  &A::Moo);
+	//funcList.emplace_back(std::in_place_type<RUNTIME_OBJ>, &A::Out);
 
+	funcList.emplace_back(std::in_place_type<PARTIAL_SIG>, &A::Partial, a, 5, 6.0); //partial 
 	funcList.emplace_back(std::in_place_type<SIG_F_T(Add)>,  Add);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(Add2)>, Add2);
 	funcList.emplace_back(std::in_place_type<SIG_F_T(MakeCopy)>, MakeCopy);
@@ -164,6 +178,7 @@ int main()
 		it.Invoke(rt_visitor, 0);
 		it.Invoke(rt_visitor, std::ref(a), 5, 6);
 		it.Invoke(rt_visitor, 1.f, 2, 3.5);
+		it.Invoke(rt_visitor, -3432.12, 2.643);
 		it.Invoke(rt_visitor, std::ref(a)); //calls both ref and non-ref versions
 		it.Invoke(rt_visitor, a); //only calls non-ref version
 		//it.Invoke(rt_visitor, false, true, 2, 3, 4, 5); // Error because this argument list is not convertable to any in FUNC_ANY
