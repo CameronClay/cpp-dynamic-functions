@@ -153,22 +153,6 @@ public:
 		return std::visit(call, func);
 	}
 
-	// Invokes func if it has EXACTLY zero args
-	// Returns VOID for void, and NO_CALL if the function expected arguments
-	auto operator()() const -> RT_VARIANT
-	{
-		static_assert(ARGS_UNIQUE::template contains_convertible<>(), "Error: No function is invokable with no arguments");
-		auto call = []<class Sig>(const Function<Sig>& func) -> decltype(auto)
-		{
-			if constexpr (f_traits::sig_no_args_v<Sig>)
-				return InvokeFunction(func);
-
-			return RT_VARIANT(NO_CALL{});
-		};
-
-		return std::visit(call, func);
-	}
-
 	// Checks to see if a valid function is stored
 	operator bool() const
 	{
