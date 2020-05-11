@@ -1,6 +1,7 @@
 #ifndef FUNCTION_TRAITS_H
 #define FUNCTION_TRAITS_H
 
+#include <cstddef>
 #include <type_traits>
 #include "TypeList.h"
 
@@ -101,25 +102,7 @@ namespace f_traits
 	struct sig_f<RT(O::*)(Args...)>		    { using type = sig_create<RT, Args...>; };
 	template<typename RT, typename O, typename... Args>
 	struct sig_f<RT(O::*)(Args...) const>   { using type = sig_create<RT, Args...>; };
-	template<typename FuncPT> using sig_f_t = typename sig_f<FuncPT>::type;
-
-	//all arguments bound
-	template<typename FuncObj> struct sig_s { using type = typename sig_s<decltype(&FuncObj::operator())>::type; };
-	template<typename RT, typename... Args>
-	struct sig_s<RT(Args...)>			    { using type = sig_create<RT>; };
-	template<typename RT, typename... Args>
-	struct sig_s<RT(*)(Args...)>		    { using type = sig_create<RT>; };
-	template<typename RT, typename O, typename... Args>
-	struct sig_s<RT(O::*)(Args...)>		    { using type = sig_create<RT>; };
-	template<typename RT, typename O, typename... Args>
-	struct sig_s<RT(O::*)(Args...) const>   { using type = sig_create<RT>; };
-	template<typename FuncPT> using sig_s_t = typename sig_s<FuncPT>::type;
-
-#define SIG_F_T(Func) \
-	sig_f_t<decltype(Func)>
-
-#define SIG_S_T(Func) \
-	sig_s_t<decltype(Func)>
+	template<typename FuncPT> using sig_f_helper = typename sig_f<FuncPT>::type;
 
 	template<typename Sig> struct is_sig : std::false_type {};
 	template<typename RT, typename... Args>
@@ -143,7 +126,32 @@ namespace f_traits
 		static constexpr bool         same_args        = args::template is_same<Ts...>;
 		template<typename... TsFrom>
 		static constexpr bool         convertable_args = t_list::type_list<TsFrom...>::template is_convertible<Args...>();
+
+		template<std::size_t NBound>
+		using sig_bound = typename std::conditional_t<n_args == NBound, t_list::type_list<>, typename args::template last_of<n_args - NBound>>::
+			template append_front<return_t>::template rebind<sig_create>;
+
+		template<std::size_t NUnbound>
+		using sig_unbound = typename args::template last_of<NUnbound>::template append_front<return_t>::template rebind<sig_create>;
 	};
+
+	template<typename Sig, std::size_t NBound = 0u>
+	using sig_f_t = typename sig_helper<sig_f_helper<Sig>>::template sig_bound<NBound>;
+
+	template<typename Sig, std::size_t NUnbound = 0u>
+	using sig_s_t = typename sig_helper<sig_f_helper<Sig>>::template sig_unbound<NUnbound>;
+
+#define SIG_F(Func) \
+	sig_f_t<decltype(Func)>
+
+#define SIG_PB(Func, NBound) \
+	sig_f_t<decltype(Func), NBound>
+
+#define SIG_PU(Func, NUnbound) \
+	sig_s_t<decltype(Func), NUnbound>
+
+#define SIG_S(Func) \
+	sig_s_t<decltype(Func)>
 
 	template<typename T>
 	struct is_not_function : std::integral_constant<bool, !std::is_function_v<T>> {};

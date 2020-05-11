@@ -21,7 +21,7 @@ struct A
 
 	int Partial(int v1, float v2, double j, double k)
 	{
-		std::cout << v1 << ' ' << v2 << ' ' << j << ' ' << k << std::endl;
+		std::cout << "Partial " << v1 << ' ' << v2 << ' ' << j << ' ' << k << std::endl;
 		return v1 + v2;
 	}
 
@@ -100,13 +100,13 @@ int main()
 
 	// In most cases the list of the functions used will not be known.
 	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.
-	using PARTIAL_SIG = f_traits::sig_create<void, double, double>;
+	//using PARTIAL_SIG = f_traits::sig_create<void, double, double>;
+	//using PARTIAL_SIG = f_traits::sig_create_n<2u, void, int, float, double, double>;
 	//using RUNTIME_OBJ = f_traits::sig_create<void, const A&, int, float>;
 
-	using L_FUNC_S   = tl<SIG_S_T(hello_world), SIG_S_T(&A::Out), SIG_S_T(&A::Out2)>;
-	using L_FUNC_F   = tl<SIG_F_T(&A::Moo), SIG_F_T(Add), SIG_F_T(Add2), SIG_F_T(MakeCopy), SIG_F_T(ReturnRef), SIG_F_T(functor)>;
-	using L_FUNC_P   = tl<PARTIAL_SIG>;
-	//using L_FUNC_R   = tl<RUNTIME_OBJ>;
+	using L_FUNC_S   = tl<SIG_S(hello_world), SIG_S(&A::Out), SIG_S(&A::Out2)>;
+	using L_FUNC_F   = tl<SIG_F(&A::Moo), SIG_F(Add), SIG_F(Add2), SIG_F(MakeCopy), SIG_F(ReturnRef), SIG_F(functor)>;
+	using L_FUNC_P   = tl<SIG_PB(&A::Partial, 2u)>;
 	using FUNC_ANY   = FunctionAny_Sig_Lists<L_FUNC_S, L_FUNC_F, L_FUNC_P/*, L_FUNC_R*/>;
 
 	// Declare FunctionAny taking any combination of the following RTs and Arg lists (warning this can be slow to compile with large type lists!)
@@ -116,18 +116,18 @@ int main()
 
 	// Create a vector of functions that match any of the above signatures in L_FUNC_S or L_FUNC_F
 	std::vector<FUNC_ANY> funcList;
-	funcList.emplace_back(std::in_place_type<SIG_S_T(hello_world)>, hello_world, "whoo hoo");
-	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out)>,  &A::Out, a, 5, 7.5);
-	funcList.emplace_back(std::in_place_type<SIG_S_T(&A::Out2)>, &A::Out2, &a, 92);
-	funcList.emplace_back(std::in_place_type<SIG_F_T(&A::Moo)>,  &A::Moo);
+	funcList.emplace_back(std::in_place_type<SIG_S(hello_world)>, hello_world, "whoo hoo");
+	funcList.emplace_back(std::in_place_type<SIG_S(&A::Out)>,  &A::Out, a, 5, 7.5);
+	funcList.emplace_back(std::in_place_type<SIG_S(&A::Out2)>, &A::Out2, &a, 92);
+	funcList.emplace_back(std::in_place_type<SIG_F(&A::Moo)>,  &A::Moo);
 	//funcList.emplace_back(std::in_place_type<RUNTIME_OBJ>, &A::Out);
 
-	funcList.emplace_back(std::in_place_type<PARTIAL_SIG>, &A::Partial, a, 5, 6.0); //partial 
-	funcList.emplace_back(std::in_place_type<SIG_F_T(Add)>,  Add);
-	funcList.emplace_back(std::in_place_type<SIG_F_T(Add2)>, Add2);
-	funcList.emplace_back(std::in_place_type<SIG_F_T(MakeCopy)>, MakeCopy);
-	funcList.emplace_back(std::in_place_type<SIG_F_T(ReturnRef)>, ReturnRef);
-	funcList.emplace_back(std::in_place_type<SIG_F_T(functor)>, functor);
+	funcList.emplace_back(std::in_place_type<SIG_PB(&A::Partial, 2u)>, &A::Partial, a, 5, 6.0); //partial 
+	funcList.emplace_back(std::in_place_type<SIG_F(Add)>,  Add);
+	funcList.emplace_back(std::in_place_type<SIG_F(Add2)>, Add2);
+	funcList.emplace_back(std::in_place_type<SIG_F(MakeCopy)>, MakeCopy);
+	funcList.emplace_back(std::in_place_type<SIG_F(ReturnRef)>, ReturnRef);
+	funcList.emplace_back(std::in_place_type<SIG_F(functor)>, functor);
 
 	// Catch and process the return value
 	auto rt_visitor = [](const auto& ret)

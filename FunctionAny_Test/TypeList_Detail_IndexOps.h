@@ -77,7 +77,7 @@ namespace t_list
 		class slice
 		{
 			static constexpr std::size_t n_types = sizeof...(Ts);
-			static_assert(Start < End                    , "Start must be less than end");
+			static_assert(Start <= End                   , "Start must be less than end");
 			static_assert(Start >= 0u && Start < n_types, "Start out of bounds");
 			static_assert(End >= 0u && End < n_types    , "End out of bounds");
 
@@ -90,6 +90,13 @@ namespace t_list
 				using type_h = typename slice_impl<i + 1, Start, End, TTail...>::type;
 			public:
 				using type = std::conditional_t<i >= Start, typename type_h::template append_front<T>, type_h>;
+			};
+
+			//slice of size 0 case
+			template <std::size_t n, typename T, typename... TTail>
+			struct slice_impl<n, n, n, T, TTail...>
+			{
+				using type = t_list::type_list<T>;
 			};
 
 			//slice of size 0 case
@@ -106,18 +113,31 @@ namespace t_list
 				using type = t_list::type_list<T>;
 			};
 
-			////start case
-			//template <std::size_t n, std::size_t End, typename T, typename... TTail>
-			//struct slice_impl<n, n, End, T, TTail...>
-			//{
-			//	using type = type_list<>;
-			//};
-
 		public:
-			using type = typename slice_impl<0u, Start, End, Ts...>::type;
+			using type = std::conditional_t<Start == 0u && End == n_types - 1, t_list::type_list<Ts...>, typename slice_impl<0u, Start, End, Ts...>::type>;
 		};
 		template <std::size_t Start, std::size_t End, typename... Ts>
 		using slice_t = typename slice<Start, End, Ts...>::type;
+
+		// Create slice [0, n] (select first n types)
+		template <std::size_t n, typename... Ts>
+		using first_of_t = detail::slice_t<0u, n, Ts...>;
+
+		template <std::size_t n, typename... Ts>
+		class last_of {
+			static constexpr std::size_t n_types = sizeof...(Ts);
+		public:
+			using type = detail::slice_t<n_types - n, n_types - 1, Ts...>;
+		};
+
+		template <typename... Ts>
+		struct last_of<0u, Ts...> {
+			using type = t_list::type_list<>;
+		};
+
+		// Create slice [n_types - n, n_types-1] (select last n types)
+		template <std::size_t n, typename... Ts>
+		using last_of_t = typename last_of<n, Ts...>::type;
 
 
 		template <std::size_t idx, class TypeList> struct type_list_erase;
