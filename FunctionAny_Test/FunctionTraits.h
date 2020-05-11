@@ -80,14 +80,6 @@ namespace f_traits
 	{};
 	template <typename Func> constexpr bool is_function_ptr_v = is_function_ptr<Func>::value;
 
-	template<typename Func> struct Function_to_sig				  { using type = Func; };
-	template<typename Sig>  struct Function_to_sig<Function<Sig>> { using type = Sig; };
-	template<typename Func> using Function_to_sig_t = typename Function_to_sig<Func>::type;
-
-	template<typename Sig> struct is_funcs       : std::false_type {};
-	template<typename RT>  struct is_funcs<RT()> : std::true_type  {};
-	template<typename Sig> constexpr bool is_funcs_v = is_funcs<Sig>::value;
-
 	//can be used in cases where some arguments are bound
 	template<typename RT, typename... Args>
 	using sig_create = RT(Args...);

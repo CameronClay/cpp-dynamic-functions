@@ -100,7 +100,7 @@ namespace t_list
 		template <template <typename> class Predicate, class... TLists>
 		using append_lists_conditional                  = typename append_lists<TLists...>::template filter<Predicate>;
 
-		// Acess first type in list (non_existant if empty)
+		// Access first type in list (non_existant if empty)
 		using front                                     = detail::front_t    <type>;
 		// Remove first element in list
 		using pop_front                                 = detail::pop_front_t<type>;
@@ -124,7 +124,7 @@ namespace t_list
 		template <template <typename, typename> class Predicate, typename TList, typename... Args>
 		using append_conditional_front_binary           = detail::type_list_cat_t<typename type_list<Args...>::template filter<Predicate, TList>, type>;
 
-		// Access last type in list  (non_existant if empty)
+		// Access last type in list (non_existant if empty)
 		using back                                      = detail::back_t    <type>;
 		// Remove last element in list
 		using pop_back                                  = detail::pop_back_t<type>;

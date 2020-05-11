@@ -5,10 +5,10 @@
 #include <functional>
 #include "FunctionTraits.h"
 
-template<typename Sig> class Function;
-
 template <class Func>
 concept MemFn = std::is_member_function_pointer_v<Func>;
+
+template<typename Sig> class Function;
 
 //Store function call with some arguments bound
 template<typename RT, typename... UnboundArgs>

@@ -3,7 +3,6 @@
 
 #include <utility>
 #include <type_traits>
-#include "TypeList.h"
 
 namespace t_list
 {
@@ -49,7 +48,6 @@ namespace t_list
 		class erase
 		{
 			static_assert(idx < sizeof...(Ts), "idx out of bounds");
-			static_assert(idx > sizeof...(Ts), "idx out of bounds");
 
 			template <std::size_t i, std::size_t n, typename... TTail>
 			struct erase_impl;
@@ -63,7 +61,7 @@ namespace t_list
 			template <std::size_t n, typename T, typename... TTail>
 			struct erase_impl<n, n, T, TTail...>
 			{
-				using type = t_list::type_list<TTail...>;
+				using type = type_list<TTail...>;
 			};
 
 		public:
@@ -77,7 +75,7 @@ namespace t_list
 		class slice
 		{
 			static constexpr std::size_t n_types = sizeof...(Ts);
-			static_assert(Start <= End                   , "Start must be less than end");
+			static_assert(Start <= End                  , "Start must be less than end");
 			static_assert(Start >= 0u && Start < n_types, "Start out of bounds");
 			static_assert(End >= 0u && End < n_types    , "End out of bounds");
 
@@ -96,21 +94,21 @@ namespace t_list
 			template <std::size_t n, typename T, typename... TTail>
 			struct slice_impl<n, n, n, T, TTail...>
 			{
-				using type = t_list::type_list<T>;
+				using type = type_list<T>;
 			};
 
 			//slice of size 0 case
 			template <std::size_t n, std::size_t Start, typename T, typename... TTail>
 			struct slice_impl<n, Start, Start, T, TTail...>
 			{
-				using type = t_list::type_list<>;
+				using type = type_list<>;
 			};
 
 			//end case
 			template <std::size_t n, std::size_t Start, typename T, typename... TTail>
 			struct slice_impl<n, Start, n, T, TTail...>
 			{
-				using type = t_list::type_list<T>;
+				using type = type_list<T>;
 			};
 
 		public:
@@ -132,7 +130,7 @@ namespace t_list
 
 		template <typename... Ts>
 		struct last_of<0u, Ts...> {
-			using type = t_list::type_list<>;
+			using type = type_list<>;
 		};
 
 		// Create slice [n_types - n, n_types-1] (select last n types)
