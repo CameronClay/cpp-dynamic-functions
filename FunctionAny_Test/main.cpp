@@ -98,12 +98,6 @@ int main()
 	//using TL_2 = tl<int, char, float, int, double, int*, const char, void*, int, float, void(), char, char*, std::string, void**, A, Functor, A&, A**, A*>;
 	//using TL_3 = tl<std::vector<float>, char, float, double, void*, int, float, const char, const wchar_t*, int*, const char*, int()>;
 
-	// In most cases the list of the functions used will not be known.
-	// It is simply done this way to make the code cleaner rather than manually specifiying a list of signatures.
-	//using PARTIAL_SIG = f_traits::sig_create<void, double, double>;
-	//using PARTIAL_SIG = f_traits::sig_create_n<2u, void, int, float, double, double>;
-	//using RUNTIME_OBJ = f_traits::sig_create<void, const A&, int, float>;
-
 	using L_FUNC_S   = tl<SIG_S(hello_world), SIG_S(&A::Out), SIG_S(&A::Out2)>;
 	using L_FUNC_F   = tl<SIG_F(&A::Moo), SIG_F(Add), SIG_F(Add2), SIG_F(MakeCopy), SIG_F(ReturnRef), SIG_F(functor)>;
 	using L_FUNC_P   = tl<SIG_PB(&A::Partial, 2u)>;
@@ -218,7 +212,6 @@ int main()
 		it.Invoke(rt_visitor, std::ref(a));
 		it.Invoke(rt_visitor, a);
 	}
-	
 	
 	std::string s;
 	std::getline(std::cin, s);

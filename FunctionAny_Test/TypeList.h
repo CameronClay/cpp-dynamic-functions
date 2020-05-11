@@ -72,15 +72,12 @@ namespace t_list
 		// Slice types based on indices [Start, End] inclusive bounds
 		template <std::size_t Start, std::size_t End>
 		using slice										= detail::slice_t<Start, End, Ts...>;
-
 		// Create slice [0, n] (select first n types)
 		template <std::size_t n>
 		using first_of									= std::conditional_t<n == n_types, type, detail::first_of_t<n, Ts...>>;
-
 		// Create slice [n_types - n, n_types-1] (select last n types)
 		template <std::size_t n>
 		using last_of									= std::conditional_t<n == n_types, type, detail::last_of_t<n, Ts...>>;
-
 
 		// Remove all elements where Predicate<Ts>::value is false
 		template <template <typename> class Predicate>

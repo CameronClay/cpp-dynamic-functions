@@ -7,6 +7,9 @@
 
 template<typename Sig> class Function;
 
+template <class Func>
+concept MemFn = std::is_member_function_pointer_v<Func>;
+
 //Store function call with some arguments bound
 template<typename RT, typename... UnboundArgs>
 class Function<RT(UnboundArgs...)>
@@ -39,7 +42,7 @@ private:
 	}
 
 	template<typename Func, typename O, typename... BoundArgs>
-	static std::enable_if_t<std::is_member_function_pointer_v<Func>, Action> MakeFunc(Func func, O* o, BoundArgs&&... args)
+	static Action MakeFunc(Func func, O* o, BoundArgs&&... args) requires MemFn<Func>
 	{
 		return [o, func, ...args = std::forward<BoundArgs>(args)](UnboundArgs&&... rest) mutable -> decltype(auto) {
 			return (o->*func)(std::forward<decltype(args)>(args)..., std::forward<UnboundArgs>(rest)...);
@@ -47,7 +50,7 @@ private:
 	}
 
 	template<typename Func, typename O, typename... BoundArgs>
-	static std::enable_if_t<std::is_member_function_pointer_v<Func>, Action> MakeFunc(Func func, O& o, BoundArgs&&... args)
+	static Action MakeFunc(Func func, O& o, BoundArgs&&... args) requires MemFn<Func>
 	{
 	    return [&o, func, ...args = std::forward<BoundArgs>(args)](UnboundArgs&&... rest) mutable -> decltype(auto) {
 			return (o.*func)(std::forward<decltype(args)>(args)..., std::forward<UnboundArgs>(rest)...);
